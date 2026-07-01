@@ -7,6 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>CVMatch Pro</title>
+<link rel="icon" type="image/svg+xml" href="logo.svg">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
@@ -470,7 +471,9 @@ body::before{content:'';position:fixed;inset:0;
   <div class="auth-left">
     <div class="auth-left-orb"></div>
     <div class="auth-brand">
-      <div class="auth-logo-box">🎯</div>
+      <div class="auth-logo-box" style="background:none;box-shadow:none;animation:none;padding:0;width:110px;height:110px">
+        <img src="logo.svg" width="110" height="110" alt="CVMatch Pro" style="display:block;border-radius:22px;box-shadow:0 0 40px rgba(99,102,241,.5)">
+      </div>
       <h1>CV<span>Match</span> Pro</h1>
       <p data-i="auth_tagline" style="font-size:1rem;max-width:360px;line-height:1.7;color:#8aafc5">Analisa o teu CV com IA, encontra as vagas perfeitas nas 190+ fontes globais.</p>
     </div>
@@ -623,7 +626,7 @@ body::before{content:'';position:fixed;inset:0;
 <div id="app-shell" class="flex flex-col">
 
   <header class="app-header">
-    <a href="#" class="app-logo"><div class="app-logo-icon">🎯</div><div class="app-logo-name">CV<span>Match</span></div></a>
+    <a href="#" class="app-logo"><div class="app-logo-icon" style="background:none;box-shadow:none;padding:0"><img src="logo.svg" width="30" height="30" alt="" style="display:block;border-radius:7px"></div><div class="app-logo-name">CV<span>Match</span></div></a>
     <nav class="app-nav">
       <button class="nav-btn on" onclick="nav('dashboard')" data-nav="dashboard"><span class="nav-icon">📊</span><span data-i="dashboard">Dashboard</span></button>
       <button class="nav-btn" onclick="nav('cvs')" data-nav="cvs"><span class="nav-icon">📄</span><span data-i="my_cvs">Meus CVs</span></button>

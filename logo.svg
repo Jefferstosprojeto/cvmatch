@@ -1,0 +1,124 @@
+<svg width="500" height="500" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f0c29"/>
+      <stop offset="50%" stop-color="#302b63"/>
+      <stop offset="100%" stop-color="#24243e"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#6366f1"/>
+    </linearGradient>
+    <linearGradient id="cvGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e0e7ff"/>
+    </linearGradient>
+    <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#6366f1" stop-opacity="0"/>
+      <stop offset="30%" stop-color="#6366f1"/>
+      <stop offset="70%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="boltGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="roundedClip">
+      <rect width="500" height="500" rx="90"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="500" height="500" rx="90" fill="url(#bgGrad)"/>
+
+  <!-- Decorative orbs -->
+  <circle cx="420" cy="80" r="180" fill="#4338ca" opacity="0.12"/>
+  <circle cx="80" cy="430" r="140" fill="#7c3aed" opacity="0.10"/>
+  <circle cx="250" cy="250" r="200" fill="#312e81" opacity="0.08"/>
+
+  <!-- Grid lines (subtle) -->
+  <g opacity="0.04" stroke="white" stroke-width="1">
+    <line x1="0" y1="125" x2="500" y2="125"/>
+    <line x1="0" y1="250" x2="500" y2="250"/>
+    <line x1="0" y1="375" x2="500" y2="375"/>
+    <line x1="125" y1="0" x2="125" y2="500"/>
+    <line x1="250" y1="0" x2="250" y2="500"/>
+    <line x1="375" y1="0" x2="375" y2="500"/>
+  </g>
+
+  <!-- Document silhouette (background) -->
+  <rect x="148" y="78" width="190" height="240" rx="14" fill="white" opacity="0.04"/>
+  <rect x="164" y="100" width="110" height="7" rx="3.5" fill="white" opacity="0.15"/>
+  <rect x="164" y="118" width="150" height="5" rx="2.5" fill="white" opacity="0.08"/>
+  <rect x="164" y="133" width="135" height="5" rx="2.5" fill="white" opacity="0.08"/>
+  <rect x="164" y="148" width="142" height="5" rx="2.5" fill="white" opacity="0.08"/>
+
+  <!-- Lightning bolt accent (top-left) -->
+  <g filter="url(#glow)" opacity="0.9">
+    <polygon points="62,82 78,52 74,78 90,78 68,112 72,82" fill="url(#boltGrad)"/>
+  </g>
+
+  <!-- Dot accent (top-right) -->
+  <circle cx="418" cy="74" r="8" fill="#6366f1" opacity="0.7"/>
+  <circle cx="440" cy="90" r="5" fill="#8b5cf6" opacity="0.5"/>
+  <circle cx="430" cy="112" r="3" fill="#a78bfa" opacity="0.4"/>
+
+  <!-- Main "CV" text -->
+  <text
+    x="250" y="252"
+    font-family="'Arial Black', 'Helvetica Neue', Arial, sans-serif"
+    font-size="196"
+    font-weight="900"
+    fill="url(#cvGrad)"
+    text-anchor="middle"
+    dominant-baseline="central"
+    filter="url(#softShadow)"
+    letter-spacing="-6"
+  >CV</text>
+
+  <!-- Horizontal accent line -->
+  <rect x="75" y="315" width="350" height="2.5" rx="1.25" fill="url(#lineGrad)"/>
+
+  <!-- "MATCH" text -->
+  <text
+    x="250" y="370"
+    font-family="'Arial', 'Helvetica Neue', Arial, sans-serif"
+    font-size="46"
+    font-weight="700"
+    fill="url(#accentGrad)"
+    text-anchor="middle"
+    dominant-baseline="central"
+    letter-spacing="16"
+  >MATCH</text>
+
+  <!-- PRO pill -->
+  <rect x="352" y="402" width="72" height="26" rx="13" fill="#6366f1" opacity="0.9"/>
+  <text
+    x="388" y="415"
+    font-family="Arial, sans-serif"
+    font-size="13"
+    font-weight="800"
+    fill="white"
+    text-anchor="middle"
+    dominant-baseline="central"
+    letter-spacing="2"
+  >PRO</text>
+
+  <!-- Bottom dots row -->
+  <circle cx="148" cy="415" r="4" fill="#6366f1" opacity="0.5"/>
+  <circle cx="164" cy="415" r="4" fill="#7c3aed" opacity="0.4"/>
+  <circle cx="180" cy="415" r="4" fill="#8b5cf6" opacity="0.3"/>
+
+  <!-- Corner accent lines -->
+  <path d="M 30 90 L 30 30 L 90 30" fill="none" stroke="#6366f1" stroke-width="4" stroke-linecap="round" opacity="0.4"/>
+  <path d="M 470 90 L 470 30 L 410 30" fill="none" stroke="#6366f1" stroke-width="4" stroke-linecap="round" opacity="0.4"/>
+  <path d="M 30 410 L 30 470 L 90 470" fill="none" stroke="#6366f1" stroke-width="4" stroke-linecap="round" opacity="0.3"/>
+  <path d="M 470 410 L 470 470 L 410 470" fill="none" stroke="#6366f1" stroke-width="4" stroke-linecap="round" opacity="0.3"/>
+</svg>
