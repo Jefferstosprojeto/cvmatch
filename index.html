@@ -639,17 +639,7 @@ body::before{content:'';position:fixed;inset:0;
         <option value="fr">🇫🇷 FR</option>
         <option value="de">🇩🇪 DE</option>
       </select>
-      <div class="user-menu">
-        <div class="avatar" id="app-avatar" onclick="toggleDropdown()" style="overflow:hidden">JS</div>
-        <div class="user-dropdown hidden" id="user-dropdown">
-          <div style="padding:12px 14px;border-bottom:1px solid var(--b)">
-            <div style="font-size:.82rem;font-weight:700" id="dd-name">—</div>
-            <div style="font-size:.72rem;color:var(--m)" id="dd-email">—</div>
-          </div>
-          <button class="user-dropdown-item" onclick="nav('settings')">⚙️ <span data-i="settings">Configurações</span></button>
-          <button class="user-dropdown-item" onclick="doLogout()" style="color:var(--r)">🚪 <span data-i="logout">Sair</span></button>
-        </div>
-      </div>
+      <div id="dd-name" style="font-size:.78rem;font-weight:600;color:var(--m2);white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis"></div>
       <button onclick="doLogout()" title="Sair" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);color:#fca5a5;border-radius:7px;padding:5px 10px;font-size:.75rem;cursor:pointer;white-space:nowrap">🚪 <span data-i="logout">Sair</span></button>
     </div>
   </header>
@@ -1625,7 +1615,7 @@ async function loadUserProfile() {
     const initials = (data.full_name || S.user.email || '?').slice(0,2).toUpperCase()
     updateAvatarDisplay(data.avatar_url, initials)
     document.getElementById('dd-name').textContent = data.full_name || S.user.email
-    document.getElementById('dd-email').textContent = S.user.email
+    const ddEmail = document.getElementById('dd-email'); if (ddEmail) ddEmail.textContent = S.user.email
     if (data.ui_language) setLang(data.ui_language)
     populateSettings(data)
     const adminNav = document.getElementById('nav-admin')
@@ -1635,7 +1625,7 @@ async function loadUserProfile() {
 
 function updateAvatarDisplay(url, initials) {
   const _initials = initials || (S.profile?.full_name || S.user?.email || '?').slice(0,2).toUpperCase()
-  const ids = ['app-avatar', 's-avatar-preview', 'dash-avatar']
+  const ids = ['s-avatar-preview', 'dash-avatar']
   ids.forEach(id => {
     const el = document.getElementById(id)
     if (!el) return
@@ -2282,9 +2272,12 @@ function localExtract(text) {
 // SEARCH NEW JOBS
 // ══════════════════════════════════════════════════
 async function searchNewJobs() {
+  if (!S.currentCV?.analysis) { toast('Abre um CV primeiro para pesquisar vagas.', 'info'); return }
   const btn = document.getElementById('btn-search-jobs')
   const status = document.getElementById('search-status')
   btn.disabled = true; status.style.display = 'block'; status.textContent = t('searching')
+
+  let usedEdge = false
   try {
     const skills = S.currentCV?.skills_primary || S.currentCV?.analysis?.skills_primary || []
     const regions = S.profile?.preferred_regions || ['worldwide']
@@ -2292,24 +2285,38 @@ async function searchNewJobs() {
     const res = await fetch(`${CFG.edge}/search-jobs`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
-      body: JSON.stringify({ skills, regions, user_id: S.user.id })
+      body: JSON.stringify({ skills, regions, user_id: S.user.id }),
+      signal: AbortSignal.timeout(8000)
     })
     const result = await res.json()
     if (result.success) {
+      usedEdge = true
       status.textContent = `✅ ${result.jobs_found} vagas encontradas, ${result.new_in_db} novas`
       toast(`${result.jobs_found} vagas encontradas!`, 'ok')
-      // Reload jobs
-      const { data: jobs } = await db.from('jobs').select('*').eq('is_active', true)
-      if (jobs?.length && S.currentCV?.analysis) {
-        S.jobs = jobs
-        S.allMatches = jobs.map(j => ({ ...j, match: calcMatch(S.currentCV.analysis, j) })).sort((a,b) => b.match.score - a.match.score)
-        renderJobs()
-      }
-    } else {
-      status.textContent = `⚠️ ${t('search_unavailable')}`
     }
-  } catch(e) {
-    status.textContent = `⚠️ ${t('edge_not_deployed')}`
+  } catch { /* fallback below */ }
+
+  // Always reload jobs and recalculate matches (works with or without edge function)
+  status.textContent = t('calculating')
+  const { data: jobs } = await db.from('jobs').select('*').eq('is_active', true).order('posted_at', {ascending:false})
+  if (jobs?.length && S.currentCV?.analysis) {
+    S.jobs = jobs
+    S.allMatches = jobs.map(j => ({ ...j, match: calcMatch(S.currentCV.analysis, j) })).sort((a,b) => b.match.score - a.match.score)
+    // Save updated matches to DB
+    const toInsert = S.allMatches.slice(0,20).map(m => ({
+      user_id: S.user.id, cv_id: S.currentCV.id, job_id: m.id,
+      match_score: m.match.score, lang_score: m.match.langScore,
+      tech_score: m.match.techScore, exp_score: m.match.expScore,
+      regime_score: m.match.regimeScore, hit_skills: m.match.hitNames, miss_skills: m.match.missNames
+    }))
+    await db.from('matches').upsert(toInsert, { onConflict: 'cv_id,job_id', ignoreDuplicates: false })
+    renderJobs()
+    if (!usedEdge) {
+      status.textContent = `✅ ${S.allMatches.length} vagas calculadas localmente`
+      toast(`${S.allMatches.length} vagas actualizadas!`, 'ok')
+    }
+  } else {
+    status.textContent = '⚠️ Sem vagas na base de dados'
   }
   btn.disabled = false
 }
