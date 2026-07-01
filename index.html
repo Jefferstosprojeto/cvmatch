@@ -639,7 +639,7 @@ body::before{content:'';position:fixed;inset:0;
         <option value="de">🇩🇪 DE</option>
       </select>
       <div class="user-menu">
-        <div class="avatar" id="app-avatar" onclick="toggleDropdown()">JS</div>
+        <div class="avatar" id="app-avatar" onclick="toggleDropdown()" style="overflow:hidden">JS</div>
         <div class="user-dropdown hidden" id="user-dropdown">
           <div style="padding:12px 14px;border-bottom:1px solid var(--b)">
             <div style="font-size:.82rem;font-weight:700" id="dd-name">—</div>
@@ -771,6 +771,10 @@ body::before{content:'';position:fixed;inset:0;
       <div class="analysis-layout">
         <!-- SIDEBAR: Profile -->
         <div class="analysis-side">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <button class="btn btn-ghost btn-sm" onclick="nav('cvs')" style="padding:4px 8px;font-size:.72rem">← <span data-i="back">Voltar</span></button>
+            <div id="ap-cv-label" style="font-size:.72rem;color:var(--m2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+          </div>
           <div class="profile-card">
             <div id="ap-name" style="font-weight:700;font-size:.9rem">—</div>
             <div id="ap-title" style="font-size:.72rem;color:var(--m2);margin-top:2px">—</div>
@@ -854,6 +858,15 @@ body::before{content:'';position:fixed;inset:0;
         <div class="settings-wrap">
           <div class="settings-section">
             <div class="settings-section-title">👤 <span data-i="profile">Perfil</span></div>
+            <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
+              <div id="s-avatar-preview" onclick="document.getElementById('avatar-input').click()" style="width:72px;height:72px;border-radius:50%;background:var(--a);display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;color:#fff;overflow:hidden;cursor:pointer;flex-shrink:0;border:2px solid var(--b)">JS</div>
+              <div>
+                <div style="font-size:.82rem;font-weight:600;margin-bottom:3px">📸 Foto de perfil</div>
+                <div style="font-size:.72rem;color:var(--m2);margin-bottom:8px">JPG, PNG ou WebP · máx 2MB</div>
+                <button class="btn btn-ghost btn-sm" onclick="document.getElementById('avatar-input').click()" type="button">📤 Escolher foto</button>
+                <input type="file" id="avatar-input" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="uploadAvatar(this.files[0])">
+              </div>
+            </div>
             <div class="field"><label class="label" data-i="full_name">Nome</label><input class="input" id="s-name" placeholder="João Silva"></div>
             <div class="field"><label class="label" data-i="location">Localização</label><input class="input" id="s-location" placeholder="Lisboa, Portugal"></div>
             <div class="field"><label class="label">LinkedIn</label><input class="input" id="s-linkedin" placeholder="linkedin.com/in/..."></div>
@@ -1548,12 +1561,44 @@ async function loadUserProfile() {
   if (data) {
     S.profile = data
     const initials = (data.full_name || S.user.email || '?').slice(0,2).toUpperCase()
-    document.getElementById('app-avatar').textContent = initials
+    updateAvatarDisplay(data.avatar_url, initials)
     document.getElementById('dd-name').textContent = data.full_name || S.user.email
     document.getElementById('dd-email').textContent = S.user.email
     if (data.ui_language) setLang(data.ui_language)
     populateSettings(data)
   }
+}
+
+function updateAvatarDisplay(url, initials) {
+  const avatarEl = document.getElementById('app-avatar')
+  const previewEl = document.getElementById('s-avatar-preview')
+  const _initials = initials || (S.profile?.full_name || S.user?.email || '?').slice(0,2).toUpperCase()
+  if (url) {
+    const imgHtml = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+    if (avatarEl) avatarEl.innerHTML = imgHtml
+    if (previewEl) previewEl.innerHTML = imgHtml
+  } else {
+    if (avatarEl) { avatarEl.innerHTML = ''; avatarEl.textContent = _initials }
+    if (previewEl) { previewEl.innerHTML = ''; previewEl.textContent = _initials }
+  }
+}
+
+async function uploadAvatar(file) {
+  if (!file || !S.user) return
+  if (file.size > 2 * 1024 * 1024) { toast('Ficheiro demasiado grande (máx 2MB)', 'err'); return }
+  const validTypes = ['image/jpeg','image/png','image/webp']
+  if (!validTypes.includes(file.type)) { toast('Formato inválido. Use JPG, PNG ou WebP.', 'err'); return }
+  toast('A carregar foto...', 'info', 8000)
+  const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg'
+  const path = `${S.user.id}/avatar.${ext}`
+  const { error: upErr } = await db.storage.from('avatars').upload(path, file, { upsert: true, contentType: file.type })
+  if (upErr) { toast('Erro ao carregar foto: ' + upErr.message, 'err'); return }
+  const { data: { publicUrl } } = db.storage.from('avatars').getPublicUrl(path)
+  const { error: updateErr } = await db.from('user_profiles').update({ avatar_url: publicUrl }).eq('id', S.user.id)
+  if (updateErr) { toast('Erro ao guardar foto', 'err'); return }
+  if (S.profile) S.profile.avatar_url = publicUrl
+  updateAvatarDisplay(publicUrl)
+  toast('Foto actualizada ✓', 'ok')
 }
 
 // ══════════════════════════════════════════════════
@@ -1598,20 +1643,39 @@ async function renderCVs() {
   const grid = document.getElementById('cv-grid')
   grid.innerHTML = `<div class="cv-add-card" onclick="nav('cv-editor')"><div style="font-size:2rem">➕</div><div style="font-size:.84rem;font-weight:600">${t('add_cv')}</div></div>`
   if (!S.cvs.length) return
+
+  // Load match counts per CV
+  const cvIds = S.cvs.filter(c => c.status === 'done').map(c => c.id)
+  let matchCounts = {}
+  if (cvIds.length) {
+    const { data: mRows } = await db.from('matches').select('cv_id, match_score').eq('user_id', S.user.id).in('cv_id', cvIds)
+    if (mRows) mRows.forEach(m => {
+      if (!matchCounts[m.cv_id]) matchCounts[m.cv_id] = { total: 0, high: 0 }
+      matchCounts[m.cv_id].total++
+      if (m.match_score >= 70) matchCounts[m.cv_id].high++
+    })
+  }
+
   S.cvs.forEach(cv => {
     const skills = (cv.skills_primary || []).slice(0,4)
     const statusCol = {done:'badge-green',pending:'badge-gray',analysing:'badge-yellow',error:'badge-red'}[cv.status]||'badge-gray'
+    const mc = matchCounts[cv.id]
+    const matchBadge = mc ? `<span class="badge badge-purple" style="font-size:.62rem" title="${mc.high} matches ≥70%">⚡ ${mc.total} matches</span>` : ''
     const div = document.createElement('div')
     div.className = 'cv-card'
     div.innerHTML = `
       <div class="cv-card-top">
         <div class="cv-icon">📄</div>
-        <span class="badge ${statusCol}" style="font-size:.62rem">${cv.status}</span>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">
+          <span class="badge ${statusCol}" style="font-size:.62rem">${cv.status}</span>
+          ${matchBadge}
+        </div>
       </div>
       <div class="cv-card-name">${cv.name}</div>
       <div class="cv-card-date">${fmtDate(cv.created_at)}</div>
       <div class="cv-card-skills">${skills.map(s=>`<span class="skill-pill">${s}</span>`).join('')}</div>
       ${cv.experience_years ? `<div style="font-size:.7rem;color:var(--m2)">${cv.experience_years}+ ${t('years_exp')}</div>` : ''}
+      ${mc?.high ? `<div style="font-size:.7rem;color:var(--g);margin-top:4px">🎯 ${mc.high} vagas com match ≥70%</div>` : ''}
       <div class="cv-card-actions">
         ${cv.status==='done'?`<button class="btn btn-ghost btn-sm" onclick="loadAnalysis('${cv.id}');event.stopPropagation()">📊 ${t('see_matches')}</button>`:''}
         <button class="btn btn-ghost btn-sm" onclick="reanalyse('${cv.id}');event.stopPropagation()">${cv.status==='done'?'🔄':'🤖'} ${t('analyse')}</button>
@@ -1803,12 +1867,28 @@ async function loadAnalysis(cvId) {
   const { data: jobs } = await db.from('jobs').select('*').eq('is_active', true)
   S.jobs = jobs || []
   S.allMatches = S.jobs.map(j => ({ ...j, match: calcMatch(cv.analysis, j) })).sort((a,b) => b.match.score - a.match.score)
+
+  // Save/refresh top matches to DB for this CV
+  const toInsert = S.allMatches.slice(0,20).map(m => ({
+    user_id: S.user.id, cv_id: cv.id, job_id: m.id,
+    match_score: m.match.score, lang_score: m.match.langScore,
+    tech_score: m.match.techScore, exp_score: m.match.expScore,
+    regime_score: m.match.regimeScore,
+    hit_skills: m.match.hitNames, miss_skills: m.match.missNames
+  }))
+  if (toInsert.length) {
+    await db.from('matches').upsert(toInsert, { onConflict: 'cv_id,job_id', ignoreDuplicates: false })
+  }
+
   nav('analysis')
 }
 
 function renderAnalysis() {
   if (!S.currentCV?.analysis) return
   const a = S.currentCV.analysis
+  // CV label
+  const cvLabel = document.getElementById('ap-cv-label')
+  if (cvLabel) cvLabel.textContent = `📄 ${S.currentCV.name}`
   // Profile card
   document.getElementById('ap-name').textContent = a.name || t('profile')
   document.getElementById('ap-title').textContent = a.title || ''
@@ -2203,6 +2283,8 @@ function populateSettings(profile) {
   if (document.getElementById('s-regime')) document.getElementById('s-regime').value = profile.preferred_regime || 'remote'
   const regions = profile.preferred_regions || []
   document.querySelectorAll('#region-checks input').forEach(cb => { cb.checked = regions.includes(cb.value) })
+  const initials = (profile.full_name || S.user?.email || '?').slice(0,2).toUpperCase()
+  updateAvatarDisplay(profile.avatar_url, initials)
 }
 function renderSettings() {
   const firstName = getFirstName()
