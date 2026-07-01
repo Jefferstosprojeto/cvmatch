@@ -629,6 +629,7 @@ body::before{content:'';position:fixed;inset:0;
       <button class="nav-btn" onclick="nav('cvs')" data-nav="cvs"><span class="nav-icon">📄</span><span data-i="my_cvs">Meus CVs</span></button>
       <button class="nav-btn" onclick="nav('saved')" data-nav="saved"><span class="nav-icon">🔖</span><span data-i="saved_jobs">Vagas Guardadas</span></button>
       <button class="nav-btn" onclick="nav('settings')" data-nav="settings"><span class="nav-icon">⚙️</span><span data-i="settings">Configurações</span></button>
+      <button class="nav-btn" onclick="nav('admin')" data-nav="admin" id="nav-admin" style="display:none"><span class="nav-icon">🔐</span><span>Admin</span></button>
     </nav>
     <div class="app-header-right">
       <select class="lang-select" onchange="setLang(this.value)" id="app-lang-sel">
@@ -907,6 +908,57 @@ body::before{content:'';position:fixed;inset:0;
             <div id="api-status" style="font-size:.78rem;margin-top:4px"></div>
           </div>
           <button class="btn btn-primary" onclick="saveSettings()" style="width:fit-content">💾 <span data-i="save_settings">Guardar configurações</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN PANEL -->
+    <div class="app-view" id="view-admin">
+      <div class="view-header">
+        <div class="view-title">🔐 Admin Panel</div>
+        <div class="view-sub">Gestão de utilizadores e crescimento da plataforma</div>
+      </div>
+      <div class="view-body">
+        <div class="stats-grid" style="margin-bottom:24px">
+          <div class="stat-card stat-cv"><div class="stat-num" id="adm-total">—</div><div class="stat-lbl">👥 Total utilizadores</div></div>
+          <div class="stat-card stat-match"><div class="stat-num" id="adm-free">—</div><div class="stat-lbl">🆓 Plano gratuito</div></div>
+          <div class="stat-card stat-saved"><div class="stat-num" id="adm-pro">—</div><div class="stat-lbl">💎 Pro / Team</div></div>
+          <div class="stat-card stat-applied"><div class="stat-num" id="adm-blocked">—</div><div class="stat-lbl">🚫 Bloqueados</div></div>
+        </div>
+        <div style="display:flex;gap:4px;margin-bottom:16px">
+          <button class="btn btn-primary btn-sm" id="adm-tab-btn-users" onclick="adminTab('users')">👥 Utilizadores</button>
+          <button class="btn btn-ghost btn-sm" id="adm-tab-btn-growth" onclick="adminTab('growth')">📈 Crescimento</button>
+        </div>
+        <!-- Users Tab -->
+        <div id="adm-panel-users">
+          <div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse;font-size:.78rem">
+              <thead>
+                <tr style="border-bottom:2px solid var(--b);text-align:left">
+                  <th style="padding:8px 6px;color:var(--m);font-weight:600">Nome</th>
+                  <th style="padding:8px 6px;color:var(--m);font-weight:600">Email</th>
+                  <th style="padding:8px 6px;color:var(--m);font-weight:600">Plano</th>
+                  <th style="padding:8px 6px;color:var(--m);font-weight:600;text-align:center">CVs</th>
+                  <th style="padding:8px 6px;color:var(--m);font-weight:600;text-align:center">Limite CV</th>
+                  <th style="padding:8px 6px;color:var(--m);font-weight:600">Registo</th>
+                  <th style="padding:8px 6px;color:var(--m);font-weight:600;text-align:center">Estado</th>
+                  <th style="padding:8px 6px;color:var(--m);font-weight:600">Acções</th>
+                </tr>
+              </thead>
+              <tbody id="admin-users-body">
+                <tr><td colspan="8" style="padding:20px;text-align:center;color:var(--m)">A carregar...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!-- Growth Tab -->
+        <div id="adm-panel-growth" style="display:none">
+          <div class="section-title" style="margin-bottom:12px">📅 Novos utilizadores por semana (últimas 12 semanas)</div>
+          <div style="display:flex;align-items:flex-end;gap:6px;height:100px;padding:8px 0;border-bottom:1px solid var(--b)" id="adm-growth-chart"></div>
+          <div style="margin-top:20px">
+            <div class="section-title" style="margin-bottom:12px">📊 Métricas gerais</div>
+            <div id="adm-growth-totals" style="display:flex;gap:12px;flex-wrap:wrap"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -1353,7 +1405,7 @@ function setLang(l) {
   if (S.user) {
     const renders = {
       dashboard: renderDashboard, cvs: renderCVs, analysis: renderAnalysis,
-      saved: renderSaved, settings: renderSettings
+      saved: renderSaved, settings: renderSettings, admin: renderAdmin
     }
     if (S.view === 'cv-editor') renderCVEditor()
     else renders[S.view]?.()
@@ -1560,12 +1612,19 @@ async function loadUserProfile() {
   const { data } = await db.from('user_profiles').select('*').eq('id', S.user.id).single()
   if (data) {
     S.profile = data
+    if (data.is_blocked) {
+      doLogout()
+      setTimeout(() => toast('Conta suspensa. Contacte o administrador.', 'err', 6000), 500)
+      return
+    }
     const initials = (data.full_name || S.user.email || '?').slice(0,2).toUpperCase()
     updateAvatarDisplay(data.avatar_url, initials)
     document.getElementById('dd-name').textContent = data.full_name || S.user.email
     document.getElementById('dd-email').textContent = S.user.email
     if (data.ui_language) setLang(data.ui_language)
     populateSettings(data)
+    const adminNav = document.getElementById('nav-admin')
+    if (adminNav) adminNav.style.display = data.is_admin ? '' : 'none'
   }
 }
 
@@ -1756,6 +1815,19 @@ async function saveAndAnalyse() {
   const language = document.getElementById('cv-lang').value
   const isDefault = document.getElementById('cv-default').checked
   if (content.length < 100) { toast('CV muito curto (mínimo 100 caracteres)', 'err'); return }
+
+  // CV limit check (free plan = 2 CVs, unless admin override)
+  if (!S._editingCvId) {
+    const isPro = ['pro','team'].includes(S.profile?.plan)
+    if (!isPro) {
+      const { count } = await db.from('cvs').select('*', { count: 'exact', head: true }).eq('user_id', S.user.id)
+      const limit = S.profile?.cv_limit ?? 2
+      if (count >= limit) {
+        toast(`Limite de ${limit} CV${limit===1?'':'s'} no plano gratuito. Actualize para Pro ou contacte o administrador.`, 'err', 6000)
+        return
+      }
+    }
+  }
 
   const btn = document.getElementById('btn-save-cv')
   btn.disabled = true
@@ -2394,6 +2466,147 @@ async function doSetNewPassword() {
 // ══════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
+// ADMIN PANEL
+// ══════════════════════════════════════════════════
+async function renderAdmin() {
+  if (!S.profile?.is_admin) { nav('dashboard'); return }
+  adminTab('users')
+  await adminLoadStats()
+  await adminLoadUsers()
+}
+
+async function adminLoadStats() {
+  const { data: users } = await db.from('user_profiles').select('plan, is_blocked')
+  if (!users) return
+  document.getElementById('adm-total').textContent = users.length
+  document.getElementById('adm-free').textContent = users.filter(u => u.plan === 'free').length
+  document.getElementById('adm-pro').textContent = users.filter(u => ['pro','team'].includes(u.plan)).length
+  document.getElementById('adm-blocked').textContent = users.filter(u => u.is_blocked).length
+}
+
+async function adminLoadUsers() {
+  const tbody = document.getElementById('admin-users-body')
+  tbody.innerHTML = '<tr><td colspan="8" style="padding:20px;text-align:center;color:var(--m)">A carregar...</td></tr>'
+  const { data: users, error } = await db.from('user_profiles').select('id, full_name, plan, is_blocked, is_admin, cv_limit, created_at').order('created_at', { ascending: false })
+  if (error || !users) { tbody.innerHTML = '<tr><td colspan="8" style="padding:20px;text-align:center;color:var(--r)">Erro ao carregar utilizadores</td></tr>'; return }
+
+  // Get CV counts
+  const { data: cvRows } = await db.from('cvs').select('user_id')
+  const cvCounts = {}
+  if (cvRows) cvRows.forEach(r => { cvCounts[r.user_id] = (cvCounts[r.user_id] || 0) + 1 })
+
+  tbody.innerHTML = ''
+  users.forEach(u => {
+    const cvCount = cvCounts[u.id] || 0
+    const planBadge = u.plan === 'free' ? '<span class="badge badge-gray">🆓 Free</span>' : u.plan === 'pro' ? '<span class="badge badge-purple">💎 Pro</span>' : '<span class="badge badge-blue">👥 Team</span>'
+    const statusBadge = u.is_blocked ? '<span class="badge badge-red">🚫 Bloqueado</span>' : u.is_admin ? '<span class="badge badge-blue">🔐 Admin</span>' : '<span class="badge badge-green">✅ Activo</span>'
+    const limit = u.cv_limit ?? 2
+    const isMe = u.id === S.user.id
+    const tr = document.createElement('tr')
+    tr.style.cssText = 'border-bottom:1px solid var(--b);transition:background .15s'
+    tr.onmouseenter = () => tr.style.background = 'var(--b)'
+    tr.onmouseleave = () => tr.style.background = ''
+    tr.innerHTML = `
+      <td style="padding:9px 6px;font-weight:${isMe?700:400}">${u.full_name || '—'}${isMe?' 👑':''}</td>
+      <td style="padding:9px 6px;color:var(--m2);font-size:.72rem">${u.id.slice(0,8)}…</td>
+      <td style="padding:9px 6px">${planBadge}</td>
+      <td style="padding:9px 6px;text-align:center">
+        <span style="font-weight:700;color:${cvCount>=limit&&u.plan==='free'?'var(--r)':'inherit'}">${cvCount}</span>
+        <span style="color:var(--m2)">/${limit}</span>
+      </td>
+      <td style="padding:9px 6px;text-align:center">
+        <div style="display:flex;align-items:center;gap:4px;justify-content:center">
+          <input type="number" min="1" max="99" value="${limit}" style="width:44px;padding:2px 4px;background:var(--b);border:1px solid var(--b2,#333);border-radius:4px;color:inherit;font-size:.75rem;text-align:center" onchange="adminSetCVLimit('${u.id}',this.value)" ${isMe?'disabled':''}>
+          <span style="font-size:.68rem;color:var(--m2)">CVs</span>
+        </div>
+      </td>
+      <td style="padding:9px 6px;color:var(--m2);font-size:.72rem">${fmtDate(u.created_at)}</td>
+      <td style="padding:9px 6px">${statusBadge}</td>
+      <td style="padding:9px 6px">
+        ${isMe ? '<span style="font-size:.72rem;color:var(--m2)">—</span>' : `
+        <div style="display:flex;gap:4px;flex-wrap:wrap">
+          <select style="font-size:.7rem;padding:2px 4px;background:var(--b);border:1px solid var(--b2,#333);border-radius:4px;color:inherit;cursor:pointer" onchange="adminChangePlan('${u.id}',this.value)">
+            <option value="free" ${u.plan==='free'?'selected':''}>🆓 Free</option>
+            <option value="pro" ${u.plan==='pro'?'selected':''}>💎 Pro</option>
+            <option value="team" ${u.plan==='team'?'selected':''}>👥 Team</option>
+          </select>
+          <button class="btn btn-sm ${u.is_blocked?'btn-primary':'btn-ghost'}" style="font-size:.7rem;padding:3px 7px" onclick="adminToggleBlock('${u.id}',${u.is_blocked})">
+            ${u.is_blocked ? '✅ Desbloquear' : '🚫 Bloquear'}
+          </button>
+        </div>`}
+      </td>`
+    tbody.appendChild(tr)
+  })
+}
+
+function adminTab(tab) {
+  document.getElementById('adm-panel-users').style.display = tab === 'users' ? '' : 'none'
+  document.getElementById('adm-panel-growth').style.display = tab === 'growth' ? '' : 'none'
+  document.getElementById('adm-tab-btn-users').className = `btn btn-sm ${tab==='users'?'btn-primary':'btn-ghost'}`
+  document.getElementById('adm-tab-btn-growth').className = `btn btn-sm ${tab==='growth'?'btn-primary':'btn-ghost'}`
+  if (tab === 'growth') adminLoadGrowth()
+}
+
+async function adminLoadGrowth() {
+  const { data: users } = await db.from('user_profiles').select('created_at, plan').order('created_at')
+  if (!users?.length) return
+
+  // Weekly buckets
+  const weeks = {}
+  users.forEach(u => {
+    const d = new Date(u.created_at)
+    const monday = new Date(d - (d.getDay()||7 - 1) * 86400000)
+    const key = monday.toISOString().slice(0,10)
+    weeks[key] = (weeks[key] || 0) + 1
+  })
+  const weekEntries = Object.entries(weeks).sort((a,b) => a[0].localeCompare(b[0])).slice(-12)
+  const maxVal = Math.max(...weekEntries.map(e => e[1]), 1)
+  const chart = document.getElementById('adm-growth-chart')
+  chart.innerHTML = weekEntries.map(([week, cnt]) => {
+    const pct = Math.round((cnt/maxVal)*100)
+    const lbl = new Date(week).toLocaleDateString('pt-PT', {day:'2-digit',month:'short'})
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;min-width:0">
+      <span style="font-size:.6rem;font-weight:700;color:var(--a)">${cnt}</span>
+      <div style="width:100%;height:${pct}px;max-height:80px;background:var(--a);border-radius:3px 3px 0 0;min-height:3px;opacity:.85"></div>
+      <span style="font-size:.55rem;color:var(--m2);white-space:nowrap;overflow:hidden;max-width:100%;text-overflow:ellipsis">${lbl}</span>
+    </div>`
+  }).join('')
+
+  const totals = document.getElementById('adm-growth-totals')
+  const totalCVs = (await db.from('cvs').select('*', {count:'exact',head:true})).count || 0
+  const totalMatches = (await db.from('matches').select('*', {count:'exact',head:true})).count || 0
+  totals.innerHTML = [
+    {icon:'👥', label:'Utilizadores', val: users.length},
+    {icon:'📄', label:'CVs criados', val: totalCVs},
+    {icon:'⚡', label:'Matches gerados', val: totalMatches},
+    {icon:'💎', label:'Contas Pro', val: users.filter(u=>u.plan!=='free').length}
+  ].map(m => `<div class="stat-card" style="flex:1;min-width:140px;padding:12px 16px"><div class="stat-num" style="font-size:1.4rem">${m.val}</div><div class="stat-lbl">${m.icon} ${m.label}</div></div>`).join('')
+}
+
+async function adminToggleBlock(userId, isBlocked) {
+  const { error } = await db.from('user_profiles').update({ is_blocked: !isBlocked }).eq('id', userId)
+  if (error) { toast('Erro: ' + error.message, 'err'); return }
+  toast(isBlocked ? '✅ Utilizador desbloqueado' : '🚫 Utilizador bloqueado', 'ok')
+  await adminLoadUsers()
+  await adminLoadStats()
+}
+
+async function adminChangePlan(userId, plan) {
+  const { error } = await db.from('user_profiles').update({ plan }).eq('id', userId)
+  if (error) { toast('Erro: ' + error.message, 'err'); return }
+  toast(`Plano actualizado para ${plan}`, 'ok')
+  await adminLoadStats()
+}
+
+async function adminSetCVLimit(userId, limit) {
+  const val = parseInt(limit)
+  if (isNaN(val) || val < 1) return
+  const { error } = await db.from('user_profiles').update({ cv_limit: val }).eq('id', userId)
+  if (error) { toast('Erro: ' + error.message, 'err'); return }
+  toast(`Limite de CVs definido para ${val}`, 'ok')
+}
+
 window.onerror = (msg, src, line) => console.error(`[CVMatch Error] ${msg} (${src}:${line})`)
 window.onunhandledrejection = e => console.error('[CVMatch Unhandled]', e.reason)
 
@@ -2415,7 +2628,7 @@ db.auth.onAuthStateChange(async (event, session) => {
     showScreen('app')
     await loadUserProfile()
     const savedView = localStorage.getItem('cvmatch_view')
-    const validViews = ['dashboard','cvs','saved','settings']
+    const validViews = ['dashboard','cvs','saved','settings','admin']
     nav(validViews.includes(savedView) ? savedView : 'dashboard')
   } else {
     S.user = null; S.profile = null
