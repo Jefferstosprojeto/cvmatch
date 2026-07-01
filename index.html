@@ -658,7 +658,12 @@ body::before{content:'';position:fixed;inset:0;
 
     <!-- DASHBOARD -->
     <div class="app-view on" id="view-dashboard">
-      <div class="view-header"><div class="view-title" id="dash-greeting">Olá 👋</div><div class="view-sub" id="dash-sub">Bem-vindo ao CVMatch Pro</div></div>
+      <div class="view-header">
+        <div style="display:flex;align-items:center;gap:16px">
+          <div id="dash-avatar" style="width:58px;height:58px;border-radius:50%;background:var(--a);display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0;border:2px solid var(--b)">JS</div>
+          <div><div class="view-title" id="dash-greeting">Olá 👋</div><div class="view-sub" id="dash-sub">Bem-vindo ao CVMatch Pro</div></div>
+        </div>
+      </div>
       <div class="view-body">
         <div class="stats-grid" id="stats-grid">
           <div class="stat-card stat-cv">
@@ -1629,17 +1634,18 @@ async function loadUserProfile() {
 }
 
 function updateAvatarDisplay(url, initials) {
-  const avatarEl = document.getElementById('app-avatar')
-  const previewEl = document.getElementById('s-avatar-preview')
   const _initials = initials || (S.profile?.full_name || S.user?.email || '?').slice(0,2).toUpperCase()
-  if (url) {
-    const imgHtml = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
-    if (avatarEl) avatarEl.innerHTML = imgHtml
-    if (previewEl) previewEl.innerHTML = imgHtml
-  } else {
-    if (avatarEl) { avatarEl.innerHTML = ''; avatarEl.textContent = _initials }
-    if (previewEl) { previewEl.innerHTML = ''; previewEl.textContent = _initials }
-  }
+  const ids = ['app-avatar', 's-avatar-preview', 'dash-avatar']
+  ids.forEach(id => {
+    const el = document.getElementById(id)
+    if (!el) return
+    if (url) {
+      el.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+    } else {
+      el.innerHTML = ''
+      el.textContent = _initials
+    }
+  })
 }
 
 async function uploadAvatar(file) {
@@ -1683,14 +1689,27 @@ async function renderDashboard() {
   }
   // Recent matches
   const { data: recent } = await db.from('matches').select('*,job:jobs(title,company,region,flag,regime,salary)')
-    .eq('user_id', S.user.id).order('match_score', {ascending:false}).limit(5)
+    .eq('user_id', S.user.id).order('match_score', {ascending:false}).limit(8)
   const el = document.getElementById('dash-recent-matches')
   if (!recent?.length) { el.innerHTML = `<div style="color:var(--m);font-size:.82rem">${t('no_jobs')}</div>`; return }
-  el.innerHTML = recent.map(m => `
-    <div class="card card-h flex items-center gap-12" style="margin-bottom:8px;cursor:pointer;padding:12px 16px" onclick="openJobDetail('${m.job_id}')">
-      <div style="flex:1;min-width:0"><div class="truncate" style="font-weight:600;font-size:.85rem">${m.job?.title||'—'}</div><div style="font-size:.72rem;color:var(--m)">${m.job?.company||'—'} · ${(m.job?.flag||'')}</div></div>
-      <span class="badge ${m.match_score>=75?'badge-green':m.match_score>=40?'badge-yellow':'badge-red'}">${m.match_score}%</span>
-    </div>`).join('')
+  el.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px'
+  el.innerHTML = recent.map(m => {
+    const sc = m.match_score
+    const scCls = sc>=75?'badge-green':sc>=40?'badge-yellow':'badge-red'
+    const regColor = {remote:'var(--g)',hybrid:'var(--y,#f59e0b)',onsite:'var(--r)'}[m.job?.regime]||'var(--m)'
+    return `<div class="card" style="cursor:pointer;padding:14px;display:flex;flex-direction:column;gap:8px;transition:transform .15s" onclick="openJobDetail('${m.job_id}')" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform=''">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px">
+        <span style="font-size:1.2rem">${m.job?.flag||'🌐'}</span>
+        <span class="badge ${scCls}" style="font-size:.7rem;font-weight:700">⚡ ${sc}%</span>
+      </div>
+      <div style="font-size:.78rem;font-weight:700;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${m.job?.title||'—'}</div>
+      <div style="font-size:.68rem;color:var(--m2)">${m.job?.company||'—'}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto">
+        <span style="font-size:.65rem;color:${regColor};font-weight:600">${{remote:'🌍 Remote',hybrid:'🏢 Hybrid',onsite:'🏢 On-site'}[m.job?.regime]||''}</span>
+        ${m.job?.salary&&m.job.salary!=='—'?`<span style="font-size:.65rem;color:var(--m2)">${m.job.salary}</span>`:''}
+      </div>
+    </div>`
+  }).join('')
 }
 
 // ══════════════════════════════════════════════════
