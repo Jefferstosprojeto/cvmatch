@@ -561,7 +561,7 @@ body::before{content:'';position:fixed;inset:0;
         </div>
         <!-- REGISTER -->
         <div class="auth-tab-panel" id="panel-register">
-          <div class="field"><label class="label" data-i="full_name">Nome completo</label><input class="input" type="text" id="reg-name" placeholder="João Silva"></div>
+          <div class="field"><label class="label" data-i="full_name">Nome completo</label><input class="input" type="text" id="reg-name" placeholder="Ex: Maria Costa"></div>
           <div class="field"><label class="label" data-i="email">Email</label><input class="input" type="email" id="reg-email" placeholder="you@email.com"></div>
           <div class="field">
             <label class="label" data-i="password">Password</label>
@@ -666,7 +666,7 @@ body::before{content:'';position:fixed;inset:0;
     <div class="app-view on" id="view-dashboard">
       <div class="view-header">
         <div style="display:flex;align-items:center;gap:16px">
-          <div id="dash-avatar" style="width:58px;height:58px;border-radius:50%;background:var(--a);display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0;border:2px solid var(--b)">JS</div>
+          <div id="dash-avatar" style="width:58px;height:58px;border-radius:50%;background:var(--a);display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0;border:2px solid var(--b)"></div>
           <div><div class="view-title" id="dash-greeting">Olá 👋</div><div class="view-sub" id="dash-sub">Bem-vindo ao CVMatch Pro</div></div>
         </div>
       </div>
@@ -835,8 +835,9 @@ body::before{content:'';position:fixed;inset:0;
           </div>
           <div id="jobs-container"></div>
           <div id="jobs-empty" class="hidden" style="text-align:center;padding:60px 20px;color:var(--m)">
-            <div style="font-size:2.5rem;margin-bottom:10px">🔍</div>
-            <div data-i="no_jobs">Sem vagas para este filtro.</div>
+            <div style="font-size:2.5rem;margin-bottom:12px">🔍</div>
+            <div style="font-weight:700;color:var(--t);margin-bottom:8px" data-i="no_jobs_title">Sem vagas relevantes para o teu perfil</div>
+            <div style="font-size:.85rem;max-width:340px;margin:0 auto;line-height:1.6" data-i="no_jobs_sub">As vagas disponíveis não correspondem às skills do teu CV. Carrega um CV actualizado ou clica em "Nova Pesquisa" para tentar novamente.</div>
           </div>
         </div>
       </div>
@@ -879,7 +880,7 @@ body::before{content:'';position:fixed;inset:0;
                 <input type="file" id="avatar-input" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="uploadAvatar(this.files[0])">
               </div>
             </div>
-            <div class="field"><label class="label" data-i="full_name">Nome</label><input class="input" id="s-name" placeholder="João Silva"></div>
+            <div class="field"><label class="label" data-i="full_name">Nome</label><input class="input" id="s-name" placeholder="Ex: Maria Costa"></div>
             <div class="field"><label class="label" data-i="location">Localização</label><input class="input" id="s-location" placeholder="Lisboa, Portugal"></div>
             <div class="field"><label class="label">LinkedIn</label><input class="input" id="s-linkedin" placeholder="linkedin.com/in/..."></div>
           </div>
@@ -1089,7 +1090,9 @@ const I18N = {
     req_num:'Um número (0-9)',
     pwd_match:'Passwords iguais ✓',
     pwd_no_match:'Passwords não coincidem',
-    or_continue_with:'ou continua com',continue_with_linkedin:'Continuar com LinkedIn'
+    or_continue_with:'ou continua com',continue_with_linkedin:'Continuar com LinkedIn',
+    onboard_title:'Bem-vindo ao CVMatch Pro!',onboard_sub:'Antes de começar, diz-nos como te chamas.',onboard_save:'Guardar e continuar',
+    no_jobs_title:'Sem vagas relevantes para o teu perfil',no_jobs_sub:'As vagas disponíveis não correspondem às skills do teu CV. Carrega um CV actualizado ou clica em "Nova Pesquisa" para tentar novamente.'
   },
   en:{
     dashboard:'Dashboard',my_cvs:'My CVs',saved_jobs:'Saved Jobs',settings:'Settings',
@@ -1160,7 +1163,9 @@ const I18N = {
     req_num:'One number (0-9)',
     pwd_match:'Passwords match ✓',
     pwd_no_match:'Passwords do not match',
-    or_continue_with:'or continue with',continue_with_linkedin:'Continue with LinkedIn'
+    or_continue_with:'or continue with',continue_with_linkedin:'Continue with LinkedIn',
+    onboard_title:'Welcome to CVMatch Pro!',onboard_sub:'Before we start, tell us your name.',onboard_save:'Save and continue',
+    no_jobs_title:'No relevant jobs for your profile',no_jobs_sub:'The available jobs do not match your CV skills. Upload an updated CV or click "New Search" to try again.'
   },
   es:{
     dashboard:'Inicio',my_cvs:'Mis CVs',saved_jobs:'Empleos Guardados',settings:'Configuración',
@@ -1231,7 +1236,9 @@ const I18N = {
     req_num:'Un número (0-9)',
     pwd_match:'Contraseñas iguales ✓',
     pwd_no_match:'Las contraseñas no coinciden',
-    or_continue_with:'o continúa con',continue_with_linkedin:'Continuar con LinkedIn'
+    or_continue_with:'o continúa con',continue_with_linkedin:'Continuar con LinkedIn',
+    onboard_title:'¡Bienvenido a CVMatch Pro!',onboard_sub:'Antes de empezar, dinos tu nombre.',onboard_save:'Guardar y continuar',
+    no_jobs_title:'Sin empleos relevantes para tu perfil',no_jobs_sub:'Los empleos disponibles no coinciden con las skills de tu CV. Sube un CV actualizado o haz clic en "Nueva búsqueda" para intentarlo de nuevo.'
   },
   fr:{
     dashboard:'Tableau de bord',my_cvs:'Mes CVs',saved_jobs:'Offres sauvegardées',settings:'Paramètres',
@@ -1299,7 +1306,9 @@ const I18N = {
     confirm_password:'Confirmer le mot de passe',
     req_len:'Minimum 8 caractères',req_upper:'Une lettre majuscule (A-Z)',req_num:'Un chiffre (0-9)',
     pwd_match:'Mots de passe identiques ✓',pwd_no_match:'Les mots de passe ne correspondent pas',
-    or_continue_with:'ou continuer avec',continue_with_linkedin:'Continuer avec LinkedIn'
+    or_continue_with:'ou continuer avec',continue_with_linkedin:'Continuer avec LinkedIn',
+    onboard_title:'Bienvenue sur CVMatch Pro !',onboard_sub:'Avant de commencer, dites-nous votre nom.',onboard_save:'Enregistrer et continuer',
+    no_jobs_title:'Aucune offre pertinente pour votre profil',no_jobs_sub:"Les offres disponibles ne correspondent pas aux compétences de votre CV. Téléchargez un CV mis à jour ou cliquez sur \"Nouvelle recherche\" pour réessayer."
   },
   de:{
     dashboard:'Dashboard',my_cvs:'Meine Lebensläufe',saved_jobs:'Gespeicherte Stellen',settings:'Einstellungen',
@@ -1367,7 +1376,9 @@ const I18N = {
     confirm_password:'Passwort bestätigen',
     req_len:'Mindestens 8 Zeichen',req_upper:'Ein Großbuchstabe (A-Z)',req_num:'Eine Zahl (0-9)',
     pwd_match:'Passwörter stimmen überein ✓',pwd_no_match:'Passwörter stimmen nicht überein',
-    or_continue_with:'oder weiter mit',continue_with_linkedin:'Mit LinkedIn fortfahren'
+    or_continue_with:'oder weiter mit',continue_with_linkedin:'Mit LinkedIn fortfahren',
+    onboard_title:'Willkommen bei CVMatch Pro!',onboard_sub:'Bevor wir beginnen, sagen Sie uns Ihren Namen.',onboard_save:'Speichern und fortfahren',
+    no_jobs_title:'Keine relevanten Stellen für Ihr Profil',no_jobs_sub:'Die verfügbaren Stellen entsprechen nicht den Fähigkeiten in Ihrem Lebenslauf. Laden Sie einen aktuellen Lebenslauf hoch oder klicken Sie auf "Neue Suche".'
   }
 }
 
@@ -1652,7 +1663,48 @@ async function loadUserProfile() {
     populateSettings(data)
     const adminNav = document.getElementById('nav-admin')
     if (adminNav) adminNav.style.display = data.is_admin ? '' : 'none'
+    if (!data.full_name) showOnboarding()
+  } else {
+    if (S.user) showOnboarding()
   }
+}
+
+function showOnboarding() {
+  const m = document.getElementById('onboarding-modal')
+  if (!m) return
+  const nameFromOAuth = S.user?.user_metadata?.full_name || S.user?.user_metadata?.name || ''
+  const input = document.getElementById('onboard-name')
+  if (input && nameFromOAuth) {
+    input.value = nameFromOAuth
+    document.getElementById('onboard-save').disabled = false
+  }
+  m.style.display = 'flex'
+}
+
+async function saveOnboarding() {
+  const name = document.getElementById('onboard-name').value.trim()
+  if (!name) return
+  const btn = document.getElementById('onboard-save')
+  btn.disabled = true
+  const { error } = await db.from('user_profiles').upsert({
+    id: S.user.id,
+    full_name: name,
+    onboarded: true
+  })
+  if (error) {
+    document.getElementById('onboard-error').textContent = 'Erro ao guardar. Tenta de novo.'
+    btn.disabled = false
+    return
+  }
+  if (!S.profile) S.profile = {}
+  S.profile.full_name = name
+  S.profile.onboarded = true
+  const initials = name.slice(0,2).toUpperCase()
+  updateAvatarDisplay(S.profile.avatar_url, initials)
+  document.getElementById('dd-name').textContent = name
+  document.getElementById('onboarding-modal').style.display = 'none'
+  await renderDashboard()
+  toast('Bem-vindo, ' + name.split(' ')[0] + '!', 'ok')
 }
 
 function updateAvatarDisplay(url, initials) {
@@ -2083,10 +2135,11 @@ function renderJobs() {
 }
 
 function filterJobs(jobs) {
-  if (S.filter === 'all') return jobs
-  if (S.filter === 'high') return jobs.filter(j => j.match.score >= 75)
-  if (S.filter === 'remote') return jobs.filter(j => j.regime === 'remote')
-  return jobs.filter(j => j.region === S.filter)
+  const base = jobs.filter(j => j.match.score >= 10)
+  if (S.filter === 'all') return base
+  if (S.filter === 'high') return base.filter(j => j.match.score >= 75)
+  if (S.filter === 'remote') return base.filter(j => j.regime === 'remote')
+  return base.filter(j => j.region === S.filter)
 }
 
 function setFilter(f, btn) {
@@ -2699,5 +2752,22 @@ db.auth.getSession().then(({ data: { session } }) => {
   if (!session) showScreen('auth')
 })
 </script>
+
+<!-- ONBOARDING MODAL -->
+<div id="onboarding-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:none;align-items:center;justify-content:center">
+  <div style="background:var(--card);border:1px solid var(--b);border-radius:18px;padding:36px;width:100%;max-width:420px;margin:20px">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:2.5rem;margin-bottom:12px">👋</div>
+      <h2 style="font-size:1.3rem;font-weight:800;color:var(--t);margin-bottom:6px" data-i="onboard_title">Bem-vindo ao CVMatch Pro!</h2>
+      <p style="font-size:.85rem;color:var(--m2)" data-i="onboard_sub">Antes de começar, diz-nos como te chamas.</p>
+    </div>
+    <div class="field">
+      <label class="label" data-i="full_name">Nome completo</label>
+      <input class="input" id="onboard-name" placeholder="Ex: Maria Costa" style="font-size:1rem;padding:14px" oninput="document.getElementById('onboard-save').disabled=!this.value.trim()">
+    </div>
+    <div id="onboard-error" class="form-error"></div>
+    <button class="btn btn-primary w-full btn-lg" id="onboard-save" onclick="saveOnboarding()" disabled style="margin-top:8px" data-i="onboard_save">Guardar e continuar</button>
+  </div>
+</div>
 </body>
 </html>
