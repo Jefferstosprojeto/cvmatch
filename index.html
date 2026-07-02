@@ -1526,9 +1526,12 @@ function authPanel(p) {
 async function signInWithLinkedIn() {
   const { error } = await db.auth.signInWithOAuth({
     provider: 'linkedin_oidc',
-    options: { redirectTo: window.location.origin + window.location.pathname }
+    options: {
+      redirectTo: window.location.origin + window.location.pathname,
+      scopes: 'openid profile email'
+    }
   })
-  if (error) toast('Erro ao iniciar sessão com LinkedIn: ' + error.message, 'err')
+  if (error) toast('LinkedIn: ' + error.message, 'err')
 }
 
 async function doLogin() {
@@ -2669,6 +2672,7 @@ applyI18n()
 
 let _appInitDone = false
 db.auth.onAuthStateChange(async (event, session) => {
+  console.log('[Auth]', event, session?.user?.email, session?.user?.app_metadata?.provider)
   if (event === 'PASSWORD_RECOVERY') {
     // User clicked reset link — show set-new-password form, don't log in
     S.user = session.user
