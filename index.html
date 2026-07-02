@@ -1641,6 +1641,10 @@ document.addEventListener('click', e => {
 // ══════════════════════════════════════════════════
 async function loadUserProfile() {
   if (!S.user) return
+  const oauthName = S.user?.user_metadata?.full_name || S.user?.user_metadata?.name || ''
+  const oauthAvatar = S.user?.user_metadata?.avatar_url || S.user?.user_metadata?.picture || ''
+  const provider = S.user?.app_metadata?.provider || ''
+
   const { data } = await db.from('user_profiles').select('*').eq('id', S.user.id).single()
   if (data) {
     S.profile = data
@@ -1649,56 +1653,48 @@ async function loadUserProfile() {
       setTimeout(() => toast('Conta suspensa. Contacte o administrador.', 'err', 6000), 500)
       return
     }
-    const initials = (data.full_name || S.user.email || '?').slice(0,2).toUpperCase()
-    updateAvatarDisplay(data.avatar_url, initials)
-    document.getElementById('dd-name').textContent = data.full_name || S.user.email
+    // Auto-save LinkedIn name/avatar silently if profile is incomplete
+    const updates = {}
+    if (!data.full_name && oauthName) updates.full_name = oauthName
+    if (!data.avatar_url && oauthAvatar) updates.avatar_url = oauthAvatar
+    if (!data.onboarded) updates.onboarded = true
+    if (Object.keys(updates).length) {
+      await db.from('user_profiles').update(updates).eq('id', S.user.id)
+      Object.assign(S.profile, updates)
+    }
+    const displayName = S.profile.full_name || S.user.email
+    const initials = displayName.slice(0,2).toUpperCase()
+    updateAvatarDisplay(S.profile.avatar_url, initials)
+    document.getElementById('dd-name').textContent = displayName
     const ddEmail = document.getElementById('dd-email'); if (ddEmail) ddEmail.textContent = S.user.email
     if (data.ui_language) setLang(data.ui_language)
-    populateSettings(data)
+    populateSettings(S.profile)
     const adminNav = document.getElementById('nav-admin')
-    if (adminNav) adminNav.style.display = data.is_admin ? '' : 'none'
-    if (!data.full_name) showOnboarding()
-  } else {
-    if (S.user) showOnboarding()
+    if (adminNav) adminNav.style.display = S.profile.is_admin ? '' : 'none'
+    // Offer LinkedIn CV import on first login
+    if (provider === 'linkedin_oidc' && !data.onboarded) {
+      setTimeout(() => showLinkedInBanner(), 1200)
+    }
   }
 }
 
-function showOnboarding() {
-  const m = document.getElementById('onboarding-modal')
-  if (!m) return
-  const nameFromOAuth = S.user?.user_metadata?.full_name || S.user?.user_metadata?.name || ''
-  const input = document.getElementById('onboard-name')
-  if (input && nameFromOAuth) {
-    input.value = nameFromOAuth
-    document.getElementById('onboard-save').disabled = false
-  }
-  m.style.display = 'flex'
-}
-
-async function saveOnboarding() {
-  const name = document.getElementById('onboard-name').value.trim()
-  if (!name) return
-  const btn = document.getElementById('onboard-save')
-  btn.disabled = true
-  const { error } = await db.from('user_profiles').upsert({
-    id: S.user.id,
-    full_name: name,
-    onboarded: true
-  })
-  if (error) {
-    document.getElementById('onboard-error').textContent = 'Erro ao guardar. Tenta de novo.'
-    btn.disabled = false
-    return
-  }
-  if (!S.profile) S.profile = {}
-  S.profile.full_name = name
-  S.profile.onboarded = true
-  const initials = name.slice(0,2).toUpperCase()
-  updateAvatarDisplay(S.profile.avatar_url, initials)
-  document.getElementById('dd-name').textContent = name
-  document.getElementById('onboarding-modal').style.display = 'none'
-  await renderDashboard()
-  toast('Bem-vindo, ' + name.split(' ')[0] + '!', 'ok')
+function showLinkedInBanner() {
+  if (document.getElementById('li-banner')) return
+  const name = S.profile?.full_name?.split(' ')[0] || ''
+  const banner = document.createElement('div')
+  banner.id = 'li-banner'
+  banner.style.cssText = 'background:linear-gradient(135deg,#0077B5,#005f93);color:#fff;border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:14px'
+  banner.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="white" style="flex-shrink:0"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+    <div style="flex:1">
+      <div style="font-weight:700;margin-bottom:2px">${name ? 'Olá, ' + name + '!' : 'Perfil LinkedIn detectado!'}</div>
+      <div style="font-size:.83rem;opacity:.9">Queres carregar o teu CV e encontrar vagas compatíveis com o teu perfil?</div>
+    </div>
+    <button onclick="nav('cvs');document.getElementById('li-banner')?.remove()" style="background:#fff;color:#0077B5;border:none;padding:8px 16px;border-radius:8px;font-weight:700;cursor:pointer;white-space:nowrap;font-size:.83rem">Carregar CV</button>
+    <button onclick="document.getElementById('li-banner').remove()" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4);padding:8px 12px;border-radius:8px;cursor:pointer;font-size:.83rem">Agora não</button>
+  `
+  const dashBody = document.querySelector('#view-dashboard .view-body')
+  if (dashBody) dashBody.prepend(banner)
 }
 
 function updateAvatarDisplay(url, initials) {
@@ -2747,21 +2743,5 @@ db.auth.getSession().then(({ data: { session } }) => {
 })
 </script>
 
-<!-- ONBOARDING MODAL -->
-<div id="onboarding-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:none;align-items:center;justify-content:center">
-  <div style="background:var(--card);border:1px solid var(--b);border-radius:18px;padding:36px;width:100%;max-width:420px;margin:20px">
-    <div style="text-align:center;margin-bottom:24px">
-      <div style="font-size:2.5rem;margin-bottom:12px">👋</div>
-      <h2 style="font-size:1.3rem;font-weight:800;color:var(--t);margin-bottom:6px" data-i="onboard_title">Bem-vindo ao CVMatch Pro!</h2>
-      <p style="font-size:.85rem;color:var(--m2)" data-i="onboard_sub">Antes de começar, diz-nos como te chamas.</p>
-    </div>
-    <div class="field">
-      <label class="label" data-i="full_name">Nome completo</label>
-      <input class="input" id="onboard-name" placeholder="Ex: Maria Costa" style="font-size:1rem;padding:14px" oninput="document.getElementById('onboard-save').disabled=!this.value.trim()">
-    </div>
-    <div id="onboard-error" class="form-error"></div>
-    <button class="btn btn-primary w-full btn-lg" id="onboard-save" onclick="saveOnboarding()" disabled style="margin-top:8px" data-i="onboard_save">Guardar e continuar</button>
-  </div>
-</div>
 </body>
 </html>
