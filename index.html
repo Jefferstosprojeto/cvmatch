@@ -872,7 +872,7 @@ body::before{content:'';position:fixed;inset:0;
           <div class="settings-section">
             <div class="settings-section-title">👤 <span data-i="profile">Perfil</span></div>
             <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
-              <div id="s-avatar-preview" onclick="document.getElementById('avatar-input').click()" style="width:72px;height:72px;border-radius:50%;background:var(--a);display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;color:#fff;overflow:hidden;cursor:pointer;flex-shrink:0;border:2px solid var(--b)">JS</div>
+              <div id="s-avatar-preview" onclick="document.getElementById('avatar-input').click()" style="width:72px;height:72px;border-radius:50%;background:var(--a);display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;color:#fff;overflow:hidden;cursor:pointer;flex-shrink:0;border:2px solid var(--b)"></div>
               <div>
                 <div style="font-size:.82rem;font-weight:600;margin-bottom:3px">📸 Foto de perfil</div>
                 <div style="font-size:.72rem;color:var(--m2);margin-bottom:8px">JPG, PNG ou WebP · máx 2MB</div>
@@ -1641,9 +1641,16 @@ document.addEventListener('click', e => {
 // ══════════════════════════════════════════════════
 async function loadUserProfile() {
   if (!S.user) return
-  const oauthName = S.user?.user_metadata?.full_name || S.user?.user_metadata?.name || ''
-  const oauthAvatar = S.user?.user_metadata?.avatar_url || S.user?.user_metadata?.picture || ''
+  const meta = S.user?.user_metadata || {}
+  const identity = S.user?.identities?.[0]?.identity_data || {}
+  const oauthName = meta.full_name || meta.name
+    || (meta.given_name && meta.family_name ? `${meta.given_name} ${meta.family_name}` : '')
+    || identity.full_name || identity.name
+    || (identity.given_name && identity.family_name ? `${identity.given_name} ${identity.family_name}` : '')
+    || ''
+  const oauthAvatar = meta.avatar_url || meta.picture || identity.avatar_url || identity.picture || ''
   const provider = S.user?.app_metadata?.provider || ''
+  const isOAuth = provider !== 'email' && provider !== ''
 
   const { data } = await db.from('user_profiles').select('*').eq('id', S.user.id).single()
   if (data) {
@@ -1653,17 +1660,20 @@ async function loadUserProfile() {
       setTimeout(() => toast('Conta suspensa. Contacte o administrador.', 'err', 6000), 500)
       return
     }
-    // Auto-save LinkedIn name/avatar silently if profile is incomplete
     const updates = {}
-    if (!data.full_name && oauthName) updates.full_name = oauthName
-    if (!data.avatar_url && oauthAvatar) updates.avatar_url = oauthAvatar
+    const emailPrefix = S.user.email?.split('@')[0] || ''
+    // Replace name if missing or if it's just the email prefix (trigger fallback)
+    if (isOAuth && oauthName && (!data.full_name || data.full_name === emailPrefix)) {
+      updates.full_name = oauthName
+    }
+    if (isOAuth && oauthAvatar && !data.avatar_url) updates.avatar_url = oauthAvatar
     if (!data.onboarded) updates.onboarded = true
     if (Object.keys(updates).length) {
       await db.from('user_profiles').update(updates).eq('id', S.user.id)
       Object.assign(S.profile, updates)
     }
     const displayName = S.profile.full_name || S.user.email
-    const initials = displayName.slice(0,2).toUpperCase()
+    const initials = displayName.slice(0, 2).toUpperCase()
     updateAvatarDisplay(S.profile.avatar_url, initials)
     document.getElementById('dd-name').textContent = displayName
     const ddEmail = document.getElementById('dd-email'); if (ddEmail) ddEmail.textContent = S.user.email
@@ -1671,7 +1681,6 @@ async function loadUserProfile() {
     populateSettings(S.profile)
     const adminNav = document.getElementById('nav-admin')
     if (adminNav) adminNav.style.display = S.profile.is_admin ? '' : 'none'
-    // Offer LinkedIn CV import on first login
     if (provider === 'linkedin_oidc' && !data.onboarded) {
       setTimeout(() => showLinkedInBanner(), 1200)
     }
@@ -2712,6 +2721,11 @@ window.onerror = (msg, src, line) => console.error(`[CVMatch Error] ${msg} (${sr
 window.onunhandledrejection = e => console.error('[CVMatch Unhandled]', e.reason)
 
 applyI18n()
+
+// Clean OAuth redirect params from URL so browser refresh works cleanly
+if (window.location.search.includes('error=') || window.location.search.includes('code=') || window.location.hash.includes('access_token')) {
+  window.history.replaceState({}, document.title, window.location.pathname)
+}
 
 let _appInitDone = false
 db.auth.onAuthStateChange(async (event, session) => {
