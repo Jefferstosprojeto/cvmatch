@@ -8,6 +8,9 @@
 <meta http-equiv="Expires" content="0">
 <title>CVMatch Pro</title>
 <link rel="icon" type="image/svg+xml" href="logo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
@@ -23,7 +26,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:-apple-system,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--t);font-size:14px;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{font-family:'Inter',-apple-system,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--t);font-size:14px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;overflow-x:hidden}
 a{color:var(--a);text-decoration:none}
 button{cursor:pointer;font-family:inherit}
 input,textarea,select{font-family:inherit}
@@ -60,7 +63,7 @@ input,textarea,select{font-family:inherit}
 .input::placeholder,.textarea::placeholder{color:var(--m)}
 .select option{background:var(--s2)}
 .textarea{resize:vertical;min-height:200px;line-height:1.7}
-.form-error{display:none;padding:10px 14px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-left:3px solid var(--r);border-radius:8px;color:#fca5a5;font-size:.82rem;line-height:1.5;margin-top:6px}
+.form-error{display:none;padding:10px 14px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.35);border-radius:8px;color:#fca5a5;font-size:.82rem;line-height:1.5;margin-top:6px}
 .form-error.show{display:flex;align-items:flex-start;gap:8px}
 .form-error::before{content:'⚠';flex-shrink:0;font-size:.9rem}
 
@@ -92,10 +95,10 @@ input,textarea,select{font-family:inherit}
 
 /* ── TOASTS ── */
 #toast-wrap{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
-.toast{background:var(--s);border:1px solid var(--b2);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:.82rem;min-width:260px;max-width:360px;box-shadow:var(--sh);pointer-events:auto;animation:slideIn .25s ease}
-.toast-ok{border-left:3px solid var(--a)}
-.toast-err{border-left:3px solid var(--r)}
-.toast-info{border-left:3px solid var(--bl)}
+.toast{background:var(--s);border:1px solid var(--b2);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:.82rem;min-width:260px;max-width:360px;box-shadow:var(--sh);pointer-events:auto;animation:slideIn .3s cubic-bezier(0.22,1,0.36,1)}
+.toast-ok{border-color:rgba(16,185,129,.4);background:rgba(16,185,129,.06)}
+.toast-err{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.06)}
+.toast-info{border-color:rgba(59,130,246,.4);background:rgba(59,130,246,.06)}
 @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:none;opacity:1}}
 
 /* ── MODAL ── */
@@ -246,12 +249,8 @@ input,textarea,select{font-family:inherit}
 /* ════════════════════════════════
    JOB CARD
 ════════════════════════════════ */
-.job-card{background:var(--card);border:1px solid var(--b);border-radius:12px;padding:16px;margin-bottom:10px;transition:all .18s;position:relative;display:none;overflow:hidden}
+.job-card{background:var(--card);border:1px solid var(--b);border-radius:12px;padding:16px;margin-bottom:10px;transition:transform .2s cubic-bezier(0.22,1,0.36,1),box-shadow .2s cubic-bezier(0.22,1,0.36,1),border-color .15s,background .15s;position:relative;display:none;overflow:hidden}
 .job-card.show{display:block}
-.job-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:12px 0 0 12px}
-.job-card.jh::before{background:linear-gradient(#4ade80,var(--a))}
-.job-card.jm::before{background:linear-gradient(#fbbf24,var(--y))}
-.job-card.jl::before{background:linear-gradient(var(--r),#9333ea)}
 .job-card:hover{background:var(--card-h);border-color:var(--b2);transform:translateY(-1px);box-shadow:var(--sh)}
 .jcard-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}
 .jcard-co{font-size:.67rem;text-transform:uppercase;letter-spacing:.05em;color:var(--m);margin-bottom:3px}
@@ -352,29 +351,25 @@ body::before{content:'';position:fixed;inset:0;
   background:radial-gradient(circle,rgba(139,92,246,.12),transparent 70%);
   bottom:20%;left:60%;pointer-events:none}
 
-/* Stat cards — color-coded with top accent border */
-.stat-card{transition:transform .2s,box-shadow .2s}
+/* Stat cards — color-coded via border and shadow, no top-stripe */
+.stat-card{transition:transform .2s cubic-bezier(0.22,1,0.36,1),box-shadow .2s cubic-bezier(0.22,1,0.36,1)}
 .stat-cv{
   background:linear-gradient(160deg,#0c1f16 0%,#071410 100%)!important;
-  border-color:rgba(16,185,129,.4)!important;
-  border-top:3px solid var(--a)!important;
-  box-shadow:0 4px 24px rgba(16,185,129,.12)!important}
+  border-color:rgba(16,185,129,.35)!important;
+  box-shadow:0 4px 24px rgba(16,185,129,.1),inset 0 1px 0 rgba(16,185,129,.15)!important}
 .stat-match{
   background:linear-gradient(160deg,#1a1206 0%,#100d03 100%)!important;
-  border-color:rgba(245,158,11,.4)!important;
-  border-top:3px solid var(--y)!important;
-  box-shadow:0 4px 24px rgba(245,158,11,.1)!important}
+  border-color:rgba(245,158,11,.35)!important;
+  box-shadow:0 4px 24px rgba(245,158,11,.08),inset 0 1px 0 rgba(245,158,11,.12)!important}
 .stat-saved{
   background:linear-gradient(160deg,#091428 0%,#050e1e 100%)!important;
-  border-color:rgba(59,130,246,.4)!important;
-  border-top:3px solid var(--bl)!important;
-  box-shadow:0 4px 24px rgba(59,130,246,.1)!important}
+  border-color:rgba(59,130,246,.35)!important;
+  box-shadow:0 4px 24px rgba(59,130,246,.08),inset 0 1px 0 rgba(59,130,246,.12)!important}
 .stat-applied{
   background:linear-gradient(160deg,#120b28 0%,#0c0820 100%)!important;
-  border-color:rgba(139,92,246,.4)!important;
-  border-top:3px solid var(--pu)!important;
-  box-shadow:0 4px 24px rgba(139,92,246,.1)!important}
-.stat-card:hover{transform:translateY(-3px);filter:brightness(1.08)}
+  border-color:rgba(139,92,246,.35)!important;
+  box-shadow:0 4px 24px rgba(139,92,246,.08),inset 0 1px 0 rgba(139,92,246,.12)!important}
+.stat-card:hover{transform:translateY(-3px);filter:brightness(1.1)}
 
 /* Stat numbers — larger, bolder */
 .stat-num{font-size:2.2rem!important;text-shadow:0 0 20px currentColor}
@@ -460,6 +455,67 @@ body::before{content:'';position:fixed;inset:0;
 .pwd-req.ok .req-icon::before{content:'✓'}
 .pwd-req:not(.ok) .req-icon::before{content:'○'}
 .req-icon{width:14px;font-size:.75rem;flex-shrink:0}
+
+/* ══════════════════════════════════
+   TYPOGRAPHY & MOTION REFINEMENTS
+══════════════════════════════════ */
+
+/* Inter font features */
+body{font-feature-settings:"kern" 1,"liga" 1,"calt" 1,"cv05" 1}
+
+/* Heading and numeric font weight */
+.stat-num,.profile-ring-num,.mb-pct{font-variant-numeric:tabular-nums}
+.auth-brand h1{letter-spacing:-.04em;font-weight:900}
+
+/* Reduce eyebrow aggressiveness — keep function, reduce visual noise */
+.label{font-size:.71rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--m)}
+.section-title{font-weight:700;letter-spacing:.04em}
+.jcard-co{letter-spacing:.03em;font-size:.68rem}
+.settings-section-title{letter-spacing:.05em}
+
+/* Button easing */
+.btn{transition:transform .2s cubic-bezier(0.22,1,0.36,1),box-shadow .2s cubic-bezier(0.22,1,0.36,1),opacity .15s,background .15s,border-color .15s}
+
+/* Card hover easing */
+.card-h{transition:transform .2s cubic-bezier(0.22,1,0.36,1),box-shadow .2s cubic-bezier(0.22,1,0.36,1),background .15s,border-color .15s}
+.cv-card{transition:transform .2s cubic-bezier(0.22,1,0.36,1),box-shadow .2s cubic-bezier(0.22,1,0.36,1),border-color .15s}
+
+/* Modal animation — spring feel */
+@keyframes fadeUp{from{transform:translateY(16px) scale(.985);opacity:0}to{transform:none;opacity:1}}
+.modal{animation:fadeUp .28s cubic-bezier(0.22,1,0.36,1)}
+
+/* Toast slide — spring feel */
+@keyframes slideIn{from{transform:translateX(calc(100% + 8px));opacity:0}to{transform:none;opacity:1}}
+
+/* Dot-grid less aggressive */
+body::before{opacity:.65}
+
+/* Stat number: remove heavy glow, use subtle shadow */
+.stat-num{text-shadow:0 0 12px currentColor!important;opacity:.97}
+
+/* Job card padding increase with new top bar */
+.job-card{padding-top:20px}
+
+/* Smooth progress fills */
+.progress-fill{transition:width .5s cubic-bezier(0.22,1,0.36,1)}
+
+/* Input focus ring */
+.input:focus,.select:focus,.textarea:focus{
+  box-shadow:0 0 0 3px rgba(16,185,129,.12);
+  border-color:var(--a)}
+
+/* Text wrapping on headings */
+h1,h2,h3{text-wrap:balance}
+
+/* ── REDUCED MOTION ── */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+    scroll-behavior:auto!important}
+  .auth-logo-box{animation:none!important}
+  body::before{transition:none}}
 </style>
 </head>
 <body>
