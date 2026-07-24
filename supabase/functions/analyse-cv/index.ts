@@ -5,13 +5,33 @@ const cors = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// Ordered most-specific-first: detectSkills() preserves this order, and the
+// frontend sends only the top 2-3 to search-jobs, so niche/defining terms
+// (SAP modules, specific stacks) must rank above generic ones (SQL, Excel).
 const SKILLS = [
+  // SAP modules — highly specific, strongest signal of a candidate's actual specialty
   'SAP BW/4HANA', 'SAP BW', 'SAP Datasphere', 'SAP Analytics Cloud', 'SAP SAC', 'SAP BDC',
-  'SAP HANA', 'SAP S/4HANA', 'ABAP', 'CDS Views', 'Databricks', 'Data Lake', 'ETL',
-  'Power BI', 'Tableau', 'Qlik', 'SQL', 'PostgreSQL', 'MySQL', 'MongoDB', 'Python', 'R',
-  'Java', 'JavaScript', 'TypeScript', 'Spark', 'Hadoop', 'AWS', 'Azure', 'GCP',
-  'Docker', 'Kubernetes', 'CI/CD', 'Git', 'Scrum', 'Agile', 'PMP', 'Excel',
-  'Salesforce', 'Oracle', 'Snowflake', 'Looker', 'dbt', 'Airflow'
+  'SAP HANA', 'SAP S/4HANA', 'SAP FI/CO', 'SAP FI', 'SAP CO', 'SAP BI', 'SAP MM', 'SAP SD',
+  'SAP PP', 'SAP PM', 'SAP QM', 'SAP WM', 'SAP EWM', 'SAP CRM', 'SAP SuccessFactors',
+  'SAP Ariba', 'SAP Fiori', 'SAP UI5', 'SAP GRC', 'SAP PI/PO', 'SAP Basis', 'SAP APO', 'SAP TM',
+  'ABAP', 'CDS Views',
+  // Data / cloud platforms
+  'Databricks', 'Data Lake', 'ETL', 'Power BI', 'Tableau', 'Qlik', 'Snowflake', 'Looker',
+  'dbt', 'Airflow', 'Spark', 'Hadoop',
+  // Databases
+  'SQL', 'PostgreSQL', 'MySQL', 'MongoDB', 'Oracle',
+  // Languages
+  'Python', 'R', 'Java', 'JavaScript', 'TypeScript', 'C#', 'C++', 'PHP', 'Ruby', 'Go', 'Swift', 'Kotlin',
+  // Frameworks
+  'React', 'Angular', 'Vue', 'Node.js', '.NET', 'Spring Boot',
+  // Cloud / DevOps
+  'AWS', 'Azure', 'GCP', 'Docker', 'Kubernetes', 'CI/CD', 'Git',
+  // Methodology / tools
+  'Scrum', 'Agile', 'PMP', 'Excel', 'Salesforce',
+  // Broad IT roles — least specific, but still useful for matching generic job-board titles
+  'Frontend Developer', 'Backend Developer', 'Full Stack Developer', 'DevOps Engineer',
+  'Data Engineer', 'Data Scientist', 'QA Engineer', 'Mobile Developer', 'UX/UI Designer',
+  'Product Manager', 'Cybersecurity', 'Network Engineer', 'System Administrator', 'Machine Learning Engineer'
 ]
 
 const INDUSTRIES = [

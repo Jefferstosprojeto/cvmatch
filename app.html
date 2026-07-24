@@ -2459,7 +2459,10 @@ async function searchNewJobs() {
 
   let usedEdge = false
   try {
-    const skills = S.currentCV?.skills_primary || S.currentCV?.analysis?.skills_primary || []
+    // Only the 2-3 most defining skills — a wide net (all 10) dilutes results with
+    // generic matches (SQL, Excel) instead of the terms that actually define the profile
+    // (SAP BW/4HANA, Datasphere). skills_primary is already ordered most-specific-first.
+    const skills = (S.currentCV?.skills_primary || S.currentCV?.analysis?.skills_primary || []).slice(0, 3)
     const regions = S.profile?.preferred_regions || ['worldwide']
     const { data: { session } } = await db.auth.getSession()
     const res = await fetch(`${CFG.edge}/search-jobs`, {

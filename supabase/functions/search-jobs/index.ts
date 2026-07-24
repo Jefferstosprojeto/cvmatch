@@ -186,6 +186,11 @@ serve(async (req) => {
       }
     }
 
+    // Housekeeping: deactivate postings older than 45 days on every search, so the
+    // shared pool stays fresh instead of accumulating stale/irrelevant listings over time.
+    const staleCutoff = new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    await supabase.from('jobs').update({ is_active: false }).lt('posted_at', staleCutoff).eq('is_active', true)
+
     const sourceFns: [string, (skills: string[]) => Promise<any[]>][] = [
       ['Remotive', fromRemotive],
       ['Arbeitnow', fromArbeitnow],
