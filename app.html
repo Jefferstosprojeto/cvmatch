@@ -1021,13 +1021,14 @@ h1,h2,h3{text-wrap:balance}
                   <th style="padding:8px 6px;color:var(--m);font-weight:600">Plano</th>
                   <th style="padding:8px 6px;color:var(--m);font-weight:600;text-align:center">CVs</th>
                   <th style="padding:8px 6px;color:var(--m);font-weight:600;text-align:center">Limite CV</th>
+                  <th style="padding:8px 6px;color:var(--m);font-weight:600;text-align:center">Pesquisas hoje</th>
                   <th style="padding:8px 6px;color:var(--m);font-weight:600">Registo</th>
                   <th style="padding:8px 6px;color:var(--m);font-weight:600;text-align:center">Estado</th>
                   <th style="padding:8px 6px;color:var(--m);font-weight:600">Acções</th>
                 </tr>
               </thead>
               <tbody id="admin-users-body">
-                <tr><td colspan="8" style="padding:20px;text-align:center;color:var(--m)">A carregar...</td></tr>
+                <tr><td colspan="9" style="padding:20px;text-align:center;color:var(--m)">A carregar...</td></tr>
               </tbody>
             </table>
           </div>
@@ -2700,14 +2701,20 @@ async function adminLoadStats() {
 
 async function adminLoadUsers() {
   const tbody = document.getElementById('admin-users-body')
-  tbody.innerHTML = '<tr><td colspan="8" style="padding:20px;text-align:center;color:var(--m)">A carregar...</td></tr>'
+  tbody.innerHTML = '<tr><td colspan="9" style="padding:20px;text-align:center;color:var(--m)">A carregar...</td></tr>'
   const { data: users, error } = await db.from('user_profiles').select('id, full_name, plan, is_blocked, is_admin, cv_limit, created_at').order('created_at', { ascending: false })
-  if (error || !users) { tbody.innerHTML = '<tr><td colspan="8" style="padding:20px;text-align:center;color:var(--r)">Erro ao carregar utilizadores</td></tr>'; return }
+  if (error || !users) { tbody.innerHTML = '<tr><td colspan="9" style="padding:20px;text-align:center;color:var(--r)">Erro ao carregar utilizadores</td></tr>'; return }
 
   // Get CV counts
   const { data: cvRows } = await db.from('cvs').select('user_id')
   const cvCounts = {}
   if (cvRows) cvRows.forEach(r => { cvCounts[r.user_id] = (cvCounts[r.user_id] || 0) + 1 })
+
+  // Get today's search counts
+  const startOfDay = new Date(); startOfDay.setUTCHours(0, 0, 0, 0)
+  const { data: searchRows } = await db.from('search_history').select('user_id').gte('searched_at', startOfDay.toISOString())
+  const searchCounts = {}
+  if (searchRows) searchRows.forEach(r => { searchCounts[r.user_id] = (searchCounts[r.user_id] || 0) + 1 })
 
   tbody.innerHTML = ''
   users.forEach(u => {
@@ -2715,6 +2722,7 @@ async function adminLoadUsers() {
     const planBadge = u.plan === 'free' ? '<span class="badge badge-gray">🆓 Free</span>' : u.plan === 'pro' ? '<span class="badge badge-purple">💎 Pro</span>' : '<span class="badge badge-blue">👥 Team</span>'
     const statusBadge = u.is_blocked ? '<span class="badge badge-red">🚫 Bloqueado</span>' : u.is_admin ? '<span class="badge badge-blue">🔐 Admin</span>' : '<span class="badge badge-green">✅ Activo</span>'
     const limit = u.cv_limit ?? 2
+    const searchesUsed = searchCounts[u.id] || 0
     const isMe = u.id === S.user.id
     const tr = document.createElement('tr')
     tr.style.cssText = 'border-bottom:1px solid var(--b);transition:background .15s'
@@ -2732,6 +2740,13 @@ async function adminLoadUsers() {
         <div style="display:flex;align-items:center;gap:4px;justify-content:center">
           <input type="number" min="1" max="99" value="${limit}" style="width:44px;padding:2px 4px;background:var(--b);border:1px solid var(--b2,#333);border-radius:4px;color:inherit;font-size:.75rem;text-align:center" onchange="adminSetCVLimit('${u.id}',this.value)" ${isMe?'disabled':''}>
           <span style="font-size:.68rem;color:var(--m2)">CVs</span>
+        </div>
+      </td>
+      <td style="padding:9px 6px;text-align:center">
+        <div style="display:flex;align-items:center;gap:4px;justify-content:center">
+          <span style="font-weight:700;color:${searchesUsed>=5?'var(--r)':'inherit'}">${searchesUsed}</span>
+          <span style="color:var(--m2)">/5</span>
+          <button class="btn btn-ghost btn-sm" style="font-size:.68rem;padding:2px 6px" title="Zerar pesquisas de hoje" onclick="adminResetSearches('${u.id}')" ${searchesUsed===0?'disabled':''}>🔄</button>
         </div>
       </td>
       <td style="padding:9px 6px;color:var(--m2);font-size:.72rem">${fmtDate(u.created_at)}</td>
@@ -2818,6 +2833,15 @@ async function adminSetCVLimit(userId, limit) {
   const { error } = await db.from('user_profiles').update({ cv_limit: val }).eq('id', userId)
   if (error) { toast('Erro: ' + error.message, 'err'); return }
   toast(`Limite de CVs definido para ${val}`, 'ok')
+}
+
+async function adminResetSearches(userId) {
+  const startOfDay = new Date(); startOfDay.setUTCHours(0, 0, 0, 0)
+  const { error } = await db.from('search_history').delete().eq('user_id', userId).gte('searched_at', startOfDay.toISOString())
+  if (error) { toast('Erro: ' + error.message, 'err'); return }
+  toast('🔄 Pesquisas de hoje zeradas', 'ok')
+  await adminLoadUsers()
+  if (userId === S.user.id) updateSearchQuota()
 }
 
 window.onerror = (msg, src, line) => console.error(`[CVMatch Error] ${msg} (${src}:${line})`)
