@@ -16,10 +16,15 @@ async function fetchWithTimeout(url: string, opts: RequestInit = {}, ms = 6000):
   }
 }
 
-function matchesSkills(text: string, skills: string[]): boolean {
+// Relevance gate: only title/tags count (high-precision fields). Full descriptions are
+// intentionally excluded — a long description almost always contains some skill by chance,
+// which let generic, unrelated roles slip in as "matches".
+function matchesSkills(title: string, tags: string, skills: string[]): boolean {
   if (!skills.length) return true
-  const lower = text.toLowerCase()
-  return skills.some(s => lower.includes(s.toLowerCase()))
+  const t = title.toLowerCase()
+  if (skills.some(s => t.includes(s.toLowerCase()))) return true
+  const tg = tags.toLowerCase()
+  return skills.some(s => tg.includes(s.toLowerCase()))
 }
 
 function detectRegion(location: string): string {
@@ -69,7 +74,7 @@ async function fromArbeitnow(skills: string[]): Promise<any[]> {
   if (!r.ok) return []
   const { data } = await r.json()
   return (data || [])
-    .filter((j: any) => matchesSkills(`${j.title} ${(j.tags || []).join(' ')} ${j.description || ''}`, skills))
+    .filter((j: any) => matchesSkills(j.title || '', (j.tags || []).join(' '), skills))
     .slice(0, 15)
     .map((j: any) => {
       const location = j.remote ? `Remote (${j.location || 'EU'})` : (j.location || 'Europe')
@@ -94,7 +99,7 @@ async function fromRemoteOK(skills: string[]): Promise<any[]> {
   const list = await r.json()
   return (list || [])
     .filter((j: any) => j.id && j.position)
-    .filter((j: any) => matchesSkills(`${j.position} ${(j.tags || []).join(' ')} ${j.description || ''}`, skills))
+    .filter((j: any) => matchesSkills(j.position || '', (j.tags || []).join(' '), skills))
     .slice(0, 15)
     .map((j: any) => {
       const location = j.location || 'Worldwide'
@@ -116,7 +121,7 @@ async function fromJobicy(skills: string[]): Promise<any[]> {
   if (!r.ok) return []
   const { jobs } = await r.json()
   return (jobs || [])
-    .filter((j: any) => matchesSkills(`${j.jobTitle} ${j.jobExcerpt || ''}`, skills))
+    .filter((j: any) => matchesSkills(j.jobTitle || '', j.jobExcerpt || '', skills))
     .slice(0, 15)
     .map((j: any) => {
       const region = detectRegion(j.jobGeo || '')
@@ -137,7 +142,7 @@ async function fromTheMuse(skills: string[]): Promise<any[]> {
   if (!r.ok) return []
   const { results } = await r.json()
   return (results || [])
-    .filter((j: any) => matchesSkills(`${j.name} ${(j.tags || []).map((t: any) => t.name).join(' ')}`, skills))
+    .filter((j: any) => matchesSkills(j.name || '', (j.tags || []).map((t: any) => t.name).join(' '), skills))
     .slice(0, 15)
     .map((j: any) => {
       const locNames = (j.locations || []).map((l: any) => l.name).join(', ') || 'USA'

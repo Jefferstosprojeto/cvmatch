@@ -869,6 +869,11 @@ h1,h2,h3{text-wrap:balance}
             <div id="ap-exp" style="font-size:.73rem;color:var(--m2)">—</div>
           </div>
           <div>
+            <button class="btn btn-primary w-full btn-lg" id="btn-search-jobs" onclick="searchNewJobs()">🔍 <span data-i="search_190">Pesquisar vagas agora</span></button>
+            <div id="search-quota" style="font-size:.68rem;color:var(--m);margin-top:6px;text-align:center"></div>
+            <div id="search-status" style="font-size:.7rem;color:var(--m);margin-top:6px;text-align:center;display:none"></div>
+          </div>
+          <div>
             <div class="section-title" data-i="skills">Competências</div>
             <div id="ap-skills" style="display:flex;flex-direction:column;gap:5px"></div>
           </div>
@@ -892,12 +897,6 @@ h1,h2,h3{text-wrap:balance}
               <button class="filter-chip" onclick="setFilter('dach',this)">🇩🇪 DACH</button>
               <button class="filter-chip" onclick="setFilter('worldwide',this)">🌐 Worldwide</button>
             </div>
-          </div>
-          <div>
-            <div class="section-title" data-i="search_jobs_btn">Buscar novas vagas</div>
-            <button class="btn btn-ghost w-full" id="btn-search-jobs" onclick="searchNewJobs()">🔍 <span data-i="search_190">Pesquisar vagas agora</span></button>
-            <div id="search-quota" style="font-size:.68rem;color:var(--m);margin-top:6px;text-align:center"></div>
-            <div id="search-status" style="font-size:.7rem;color:var(--m);margin-top:6px;text-align:center;display:none"></div>
           </div>
           <button class="btn btn-ghost w-full" onclick="nav('cv-editor',{edit:true})">✏️ <span data-i="edit_cv">Editar CV</span></button>
         </div>
@@ -2230,7 +2229,7 @@ function renderJobs() {
 }
 
 function filterJobs(jobs) {
-  const base = jobs.filter(j => j.match.score >= 10)
+  const base = jobs.filter(j => j.match.score >= 35)
   if (S.filter === 'all') return base
   if (S.filter === 'high') return base.filter(j => j.match.score >= 75)
   if (S.filter === 'remote') return base.filter(j => j.regime === 'remote')
