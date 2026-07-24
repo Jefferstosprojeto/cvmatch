@@ -164,6 +164,23 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     )
 
+    // Free plan: 5 searches per user per UTC day. Enforced here — the only authoritative check.
+    const DAILY_LIMIT = 5
+    if (user_id) {
+      const startOfDay = new Date()
+      startOfDay.setUTCHours(0, 0, 0, 0)
+      const { count } = await supabase
+        .from('search_history')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user_id)
+        .gte('searched_at', startOfDay.toISOString())
+      if ((count || 0) >= DAILY_LIMIT) {
+        return new Response(JSON.stringify({
+          success: false, error: 'quota_exceeded', searches_used: count, searches_limit: DAILY_LIMIT
+        }), { status: 429, headers: { ...cors, 'Content-Type': 'application/json' } })
+      }
+    }
+
     const sourceFns: [string, (skills: string[]) => Promise<any[]>][] = [
       ['Remotive', fromRemotive],
       ['Arbeitnow', fromArbeitnow],

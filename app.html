@@ -877,6 +877,7 @@ h1,h2,h3{text-wrap:balance}
           <div>
             <div class="section-title" data-i="search_jobs_btn">Buscar novas vagas</div>
             <button class="btn btn-ghost w-full" id="btn-search-jobs" onclick="searchNewJobs()">🔍 <span data-i="search_190">Pesquisar vagas agora</span></button>
+            <div id="search-quota" style="font-size:.68rem;color:var(--m);margin-top:6px;text-align:center"></div>
             <div id="search-status" style="font-size:.7rem;color:var(--m);margin-top:6px;text-align:center;display:none"></div>
           </div>
           <button class="btn btn-ghost w-full" onclick="nav('cv-editor',{edit:true})">✏️ <span data-i="edit_cv">Editar CV</span></button>
@@ -1108,6 +1109,7 @@ const I18N = {
     required_skills:'Skills Obrigatórias',nice_skills:'Skills Desejáveis',
     min_exp:'Experiência mínima',source:'Fonte',apply_job:'Ver vaga ↗',
     searching:'A pesquisar...',calling_ai:'A processar CV...',
+    searches_today:'pesquisas hoje',quota_exceeded:'Atingiste o limite de 5 pesquisas gratuitas hoje. Volta amanhã ou passa para o Pro.',
     processing:'A processar resultados...',calculating:'A calcular matches...',
     completed:'Concluído!',characters:'caracteres',
     regime_remote:'🌍 Remote',regime_hybrid:'🏢 Híbrido',regime_onsite:'🏢 Presencial',
@@ -1179,6 +1181,7 @@ const I18N = {
     required_skills:'Required Skills',nice_skills:'Nice-to-have Skills',
     min_exp:'Minimum experience',source:'Source',apply_job:'View job ↗',
     searching:'Searching...',calling_ai:'Processing CV...',
+    searches_today:'searches today',quota_exceeded:'You’ve reached the 5 free searches for today. Come back tomorrow or upgrade to Pro.',
     processing:'Processing results...',calculating:'Calculating matches...',
     completed:'Done!',characters:'characters',
     regime_remote:'🌍 Remote',regime_hybrid:'🏢 Hybrid',regime_onsite:'🏢 On-site',
@@ -1250,6 +1253,7 @@ const I18N = {
     required_skills:'Habilidades Requeridas',nice_skills:'Habilidades Deseables',
     min_exp:'Experiencia mínima',source:'Fuente',apply_job:'Ver empleo ↗',
     searching:'Buscando...',calling_ai:'Procesando CV...',
+    searches_today:'búsquedas hoy',quota_exceeded:'Alcanzaste el límite de 5 búsquedas gratuitas hoy. Vuelve mañana o pásate a Pro.',
     processing:'Procesando resultados...',calculating:'Calculando coincidencias...',
     completed:'¡Completado!',characters:'caracteres',
     regime_remote:'🌍 Remoto',regime_hybrid:'🏢 Híbrido',regime_onsite:'🏢 Presencial',
@@ -1321,6 +1325,7 @@ const I18N = {
     required_skills:'Compétences requises',nice_skills:'Compétences souhaitées',
     min_exp:'Expérience minimale',source:'Source',apply_job:"Voir l'offre ↗",
     searching:'Recherche en cours...',calling_ai:'Traitement du CV...',
+    searches_today:'recherches aujourd’hui',quota_exceeded:'Tu as atteint la limite de 5 recherches gratuites aujourd’hui. Reviens demain ou passe au Pro.',
     processing:'Traitement des résultats...',calculating:'Calcul des correspondances...',
     completed:'Terminé !',characters:'caractères',
     regime_remote:'🌍 Télétravail',regime_hybrid:'🏢 Hybride',regime_onsite:'🏢 Présentiel',
@@ -1389,6 +1394,7 @@ const I18N = {
     required_skills:'Erforderliche Fähigkeiten',nice_skills:'Wünschenswerte Fähigkeiten',
     min_exp:'Mindesterfahrung',source:'Quelle',apply_job:'Stelle ansehen ↗',
     searching:'Suche läuft...',calling_ai:'Lebenslauf wird verarbeitet...',
+    searches_today:'Suchen heute',quota_exceeded:'Du hast das Limit von 5 kostenlosen Suchen für heute erreicht. Komm morgen wieder oder wechsle zu Pro.',
     processing:'Ergebnisse werden verarbeitet...',calculating:'Übereinstimmungen werden berechnet...',
     completed:'Abgeschlossen!',characters:'Zeichen',
     regime_remote:'🌍 Remote',regime_hybrid:'🏢 Hybrid',regime_onsite:'🏢 Vor Ort',
@@ -2121,6 +2127,22 @@ function renderAnalysis() {
     la.innerHTML += `<div class="lang-row ${lvlCls}"><span>${l.name||l.key}</span><span style="font-size:.68rem;opacity:.8">${l.level||''}</span><span style="font-size:.7rem;font-weight:700">${l.score||0}%</span></div>`
   })
   renderJobs()
+  updateSearchQuota()
+}
+
+const SEARCH_DAILY_LIMIT = 5
+async function updateSearchQuota() {
+  const badge = document.getElementById('search-quota')
+  const btn = document.getElementById('btn-search-jobs')
+  if (!badge || !S.user) return
+  const startOfDay = new Date(); startOfDay.setUTCHours(0, 0, 0, 0)
+  const { count } = await db.from('search_history').select('id', { count: 'exact', head: true })
+    .eq('user_id', S.user.id).gte('searched_at', startOfDay.toISOString())
+  const used = count || 0
+  badge.textContent = `${used}/${SEARCH_DAILY_LIMIT} ${t('searches_today')}`
+  const atLimit = used >= SEARCH_DAILY_LIMIT
+  badge.style.color = atLimit ? 'var(--y2)' : 'var(--m)'
+  if (btn) btn.disabled = atLimit
 }
 
 function renderJobs() {
@@ -2423,6 +2445,13 @@ async function searchNewJobs() {
       usedEdge = true
       status.textContent = `✅ ${result.jobs_found} vagas encontradas, ${result.new_in_db} novas`
       toast(`${result.jobs_found} vagas encontradas!`, 'ok')
+    } else if (result.error === 'quota_exceeded') {
+      status.style.display = 'block'
+      status.textContent = `🚫 ${t('quota_exceeded')}`
+      toast(t('quota_exceeded'), 'info')
+      btn.disabled = false
+      updateSearchQuota()
+      return
     }
   } catch { /* fallback below */ }
 
@@ -2449,6 +2478,7 @@ async function searchNewJobs() {
     status.textContent = '⚠️ Sem vagas na base de dados'
   }
   btn.disabled = false
+  updateSearchQuota()
 }
 
 // ══════════════════════════════════════════════════
