@@ -534,7 +534,7 @@ h1,h2,h3{text-wrap:balance}
         <img src="logo.svg" width="110" height="110" alt="CVMatch Pro" style="display:block;border-radius:22px;box-shadow:0 0 40px rgba(99,102,241,.5)">
       </div>
       <h1>CV<span>Match</span> Pro</h1>
-      <p data-i="auth_tagline" style="font-size:1rem;max-width:360px;line-height:1.7;color:#8aafc5">Analisa o teu CV com IA, encontra as vagas perfeitas nas 190+ fontes globais.</p>
+      <p data-i="auth_tagline" style="font-size:1rem;max-width:360px;line-height:1.7;color:#8aafc5">Analisa o teu CV, encontra as vagas perfeitas nas 190+ fontes globais.</p>
     </div>
     <!-- Tech network SVG illustration -->
     <div class="auth-svg-wrap">
@@ -571,7 +571,7 @@ h1,h2,h3{text-wrap:balance}
         <circle cx="48" cy="115" r="18" fill="rgba(249,115,22,.12)" stroke="rgba(249,115,22,.6)" stroke-width="2"/>
         <text x="48" y="119" text-anchor="middle" font-size="8.5" fill="#fdba74" font-weight="700">ARCH</text>
         <circle cx="252" cy="115" r="18" fill="rgba(139,92,246,.15)" stroke="rgba(139,92,246,.7)" stroke-width="2"/>
-        <text x="252" y="119" text-anchor="middle" font-size="8.5" fill="#c4b5fd" font-weight="700">AI</text>
+        <text x="252" y="119" text-anchor="middle" font-size="8.5" fill="#c4b5fd" font-weight="700">MATCH</text>
         <circle cx="20" cy="30" r="5" fill="rgba(16,185,129,.3)" stroke="rgba(16,185,129,.6)" stroke-width="1"/>
         <circle cx="20" cy="130" r="5" fill="rgba(245,158,11,.3)" stroke="rgba(245,158,11,.6)" stroke-width="1"/>
         <circle cx="280" cy="30" r="5" fill="rgba(59,130,246,.3)" stroke="rgba(59,130,246,.6)" stroke-width="1"/>
@@ -585,11 +585,11 @@ h1,h2,h3{text-wrap:balance}
     <!-- Stats pills -->
     <div class="auth-stat-pills">
       <span class="auth-stat-pill green">✅ 190+ <span data-i="sources">fontes</span></span>
-      <span class="auth-stat-pill blue">🤖 Claude AI</span>
+      <span class="auth-stat-pill blue">⚡ 100% Grátis</span>
       <span class="auth-stat-pill purple">🌍 PT · EN · ES</span>
     </div>
     <div class="auth-features" style="margin-top:28px">
-      <div class="auth-feat"><div class="auth-feat-icon">🤖</div><span data-i="af1">Análise de CV com Claude AI</span></div>
+      <div class="auth-feat"><div class="auth-feat-icon">📄</div><span data-i="af1">Análise automática de CV</span></div>
       <div class="auth-feat"><div class="auth-feat-icon">🌍</div><span data-i="af2">190+ fontes: EU, Brasil, USA, DACH</span></div>
       <div class="auth-feat"><div class="auth-feat-icon">📊</div><span data-i="af3">Match score em tempo real</span></div>
       <div class="auth-feat"><div class="auth-feat-icon">🔒</div><span data-i="af4">Dados protegidos e privados</span></div>
@@ -820,11 +820,11 @@ h1,h2,h3{text-wrap:balance}
             </div>
           </div>
           <div class="card">
-            <div class="section-title" data-i="analysis">Análise com IA</div>
-            <p style="font-size:.78rem;color:var(--m2);line-height:1.6;margin-bottom:12px" data-i="ai_note">O Claude AI vai extrair as tuas competências, línguas, experiência e sugerir as melhores vagas.</p>
+            <div class="section-title" data-i="analysis">Análise do CV</div>
+            <p style="font-size:.78rem;color:var(--m2);line-height:1.6;margin-bottom:12px" data-i="ai_note">O sistema vai extrair automaticamente as tuas competências, línguas e experiência para sugerir as melhores vagas.</p>
             <div class="progress-bar hidden" id="analysis-progress"><div class="progress-fill" id="analysis-progress-fill" style="width:0%"></div></div>
             <div style="font-size:.73rem;color:var(--a);margin:6px 0;display:none" id="analysis-status-txt"></div>
-            <button class="btn btn-primary w-full" id="btn-save-cv" onclick="saveAndAnalyse()">🤖 <span data-i="save_analyse">Guardar e Analisar</span></button>
+            <button class="btn btn-primary w-full" id="btn-save-cv" onclick="saveAndAnalyse()">📄 <span data-i="save_analyse">Guardar e Analisar</span></button>
           </div>
           <div class="card" id="tips-card">
             <div class="section-title" data-i="tips">Dicas</div>
@@ -858,7 +858,7 @@ h1,h2,h3{text-wrap:balance}
             <div id="ap-langs" style="display:flex;flex-direction:column;gap:5px"></div>
           </div>
           <div>
-            <div class="section-title" data-i="summary">Resumo IA</div>
+            <div class="section-title" data-i="summary">Resumo do Perfil</div>
             <p id="ap-summary" style="font-size:.74rem;color:var(--m2);line-height:1.65">—</p>
           </div>
           <div>
@@ -1084,37 +1084,35 @@ const I18N = {
     cv_name:'Nome do CV',upload_file:'Clica para fazer upload',or_drag:'ou arrasta aqui',
     or_paste:'ou cola o texto',cv_text:'Texto do CV',cv_settings:'Configurações',
     cv_language:'Língua do CV',default_cv:'CV Principal',set_as_default:'Definir como padrão',
-    analysis:'Análise com IA',ai_note:'O Claude AI vai extrair as tuas competências, línguas e experiência.',
+    analysis:'Análise do CV',ai_note:'O sistema vai extrair automaticamente as tuas competências, línguas e experiência.',
     save_analyse:'Guardar e Analisar',tips:'Dicas para melhor análise',
-    skills:'Competências detectadas',languages:'Línguas',summary:'Resumo IA',filter:'Filtrar vagas',
+    skills:'Competências detectadas',languages:'Línguas',summary:'Resumo do Perfil',filter:'Filtrar vagas',
     all_jobs:'Todas as vagas',remote_only:'Só Remote',search_jobs_btn:'Pesquisar vagas',
     search_190:'Pesquisar 190+ fontes',edit_cv:'Editar CV',total:'Total',
     saved_sub:'Acompanha o estado das tuas candidaturas',job:'Vaga',company:'Empresa',
     match:'Match',status:'Estado',saved_at:'Guardada',no_saved:'Ainda não guardaste nenhuma vaga.',
     settings_sub:'Personaliza a tua experiência',profile:'Perfil',preferences:'Preferências',
     preferred_regime:'Regime preferido',target_regions:'Regiões alvo',interface_language:'Língua da interface',
-    api_note:'Para análise de CV com IA, o ANTHROPIC_API_KEY deve estar configurado nas Supabase Secrets.',
     save_settings:'Guardar configurações',save:'Guardar',close:'Fechar',confirm:'Confirmar',cancel:'Cancelar',
     cv_score:'Score',logout:'Sair',no_jobs:'Sem vagas para este filtro.',
-    location:'Localização',analysing:'A analisar com Claude AI...',
+    location:'Localização',analysing:'A analisar CV...',
     days_ago:'dias atrás',today:'hoje',yesterday:'ontem',weeks_ago:'sem.',months_ago:'mês',
     status_saved:'Guardada',status_applied:'Candidatado',status_interview:'Entrevista',
     status_offer:'Oferta',status_rejected:'Rejeitado',
-    auth_tagline:'Analisa o teu CV com IA, encontra as vagas perfeitas nas 190+ fontes globais. Para qualquer stack de TI.',
-    af1:'Análise de CV com Claude AI',af2:'190+ fontes: EU, Brasil, USA, DACH',
+    auth_tagline:'Analisa o teu CV, encontra as vagas perfeitas nas 190+ fontes globais. Para qualquer stack de TI.',
+    af1:'Análise automática de CV',af2:'190+ fontes: EU, Brasil, USA, DACH',
     af3:'Match score em tempo real',af4:'Dados protegidos e privados',sources:'fontes',
     hello:'Olá',welcome_back:'Bem-vindo ao CVMatch Pro',
     years_exp:'anos exp.',see_matches:'Ver matches',analyse:'Analisar',
     delete_cv_title:'Apagar CV',delete_cv_msg:'Esta acção é irreversível. O CV e todos os seus matches serão eliminados.',
     required_skills:'Skills Obrigatórias',nice_skills:'Skills Desejáveis',
     min_exp:'Experiência mínima',source:'Fonte',apply_job:'Ver vaga ↗',
-    searching:'A pesquisar...',calling_ai:'A chamar Claude AI...',
+    searching:'A pesquisar...',calling_ai:'A processar CV...',
     processing:'A processar resultados...',calculating:'A calcular matches...',
     completed:'Concluído!',characters:'caracteres',
     regime_remote:'🌍 Remote',regime_hybrid:'🏢 Híbrido',regime_onsite:'🏢 Presencial',
-    search_unavailable:'Pesquisa indisponível — configure ANTHROPIC_API_KEY',
     edge_not_deployed:'Edge function não implementada ainda',
-    analysis_fallback:'Análise IA indisponível — usando extracção local',
+    analysis_fallback:'Servidor indisponível — a usar análise local',
     cv_success:'CV analisado com sucesso! 🎉',
     tip1:'Inclui secção de competências com tecnologias específicas (ex: Python, AWS, React)',
     tip2:'Menciona anos de experiência com cada tecnologia e stack',
@@ -1157,37 +1155,35 @@ const I18N = {
     cv_name:'CV Name',upload_file:'Click to upload',or_drag:'or drag here',
     or_paste:'or paste the text',cv_text:'CV Text',cv_settings:'Settings',
     cv_language:'CV Language',default_cv:'Primary CV',set_as_default:'Set as default',
-    analysis:'AI Analysis',ai_note:'Claude AI will extract your skills, languages and experience.',
+    analysis:'CV Analysis',ai_note:'The system will automatically extract your skills, languages and experience.',
     save_analyse:'Save & Analyse',tips:'Tips for better analysis',
-    skills:'Detected Skills',languages:'Languages',summary:'AI Summary',filter:'Filter Jobs',
+    skills:'Detected Skills',languages:'Languages',summary:'Profile Summary',filter:'Filter Jobs',
     all_jobs:'All Jobs',remote_only:'Remote Only',search_jobs_btn:'Search Jobs',
     search_190:'Search 190+ sources',edit_cv:'Edit CV',total:'Total',
     saved_sub:'Track your job application status',job:'Job',company:'Company',
     match:'Match',status:'Status',saved_at:'Saved',no_saved:'No saved jobs yet.',
     settings_sub:'Personalise your experience',profile:'Profile',preferences:'Preferences',
     preferred_regime:'Preferred regime',target_regions:'Target regions',interface_language:'Interface language',
-    api_note:'For AI CV analysis, ANTHROPIC_API_KEY must be set in Supabase Secrets.',
     save_settings:'Save settings',save:'Save',close:'Close',confirm:'Confirm',cancel:'Cancel',
     cv_score:'Score',logout:'Sign out',no_jobs:'No jobs for this filter.',
-    location:'Location',analysing:'Analysing with Claude AI...',
+    location:'Location',analysing:'Analysing CV...',
     days_ago:'days ago',today:'today',yesterday:'yesterday',weeks_ago:'wk',months_ago:'mo',
     status_saved:'Saved',status_applied:'Applied',status_interview:'Interview',
     status_offer:'Offer',status_rejected:'Rejected',
-    auth_tagline:'Analyse your CV with AI, find the perfect jobs across 190+ global sources. For any IT stack.',
-    af1:'CV Analysis with Claude AI',af2:'190+ sources: EU, Brazil, USA, DACH',
+    auth_tagline:'Analyse your CV, find the perfect jobs across 190+ global sources. For any IT stack.',
+    af1:'Automatic CV Analysis',af2:'190+ sources: EU, Brazil, USA, DACH',
     af3:'Real-time match score',af4:'Protected and private data',sources:'sources',
     hello:'Hello',welcome_back:'Welcome to CVMatch Pro',
     years_exp:'yrs exp.',see_matches:'See matches',analyse:'Analyse',
     delete_cv_title:'Delete CV',delete_cv_msg:'This action is irreversible. The CV and all its matches will be deleted.',
     required_skills:'Required Skills',nice_skills:'Nice-to-have Skills',
     min_exp:'Minimum experience',source:'Source',apply_job:'View job ↗',
-    searching:'Searching...',calling_ai:'Calling Claude AI...',
+    searching:'Searching...',calling_ai:'Processing CV...',
     processing:'Processing results...',calculating:'Calculating matches...',
     completed:'Done!',characters:'characters',
     regime_remote:'🌍 Remote',regime_hybrid:'🏢 Hybrid',regime_onsite:'🏢 On-site',
-    search_unavailable:'Search unavailable — set ANTHROPIC_API_KEY',
     edge_not_deployed:'Edge function not deployed yet',
-    analysis_fallback:'AI analysis unavailable — using local extraction',
+    analysis_fallback:'Server unavailable — using local analysis',
     cv_success:'CV analysed successfully! 🎉',
     tip1:'Include a skills section with specific technologies (e.g. Python, AWS, React)',
     tip2:'Mention years of experience with each technology and stack',
@@ -1230,37 +1226,35 @@ const I18N = {
     cv_name:'Nombre del CV',upload_file:'Clic para subir',or_drag:'o arrastra aquí',
     or_paste:'o pega el texto',cv_text:'Texto del CV',cv_settings:'Configuración',
     cv_language:'Idioma del CV',default_cv:'CV Principal',set_as_default:'Establecer como predeterminado',
-    analysis:'Análisis con IA',ai_note:'Claude AI extraerá tus habilidades, idiomas y experiencia.',
+    analysis:'Análisis del CV',ai_note:'El sistema extraerá automáticamente tus habilidades, idiomas y experiencia.',
     save_analyse:'Guardar y Analizar',tips:'Consejos para mejor análisis',
-    skills:'Habilidades detectadas',languages:'Idiomas',summary:'Resumen IA',filter:'Filtrar empleos',
+    skills:'Habilidades detectadas',languages:'Idiomas',summary:'Resumen del Perfil',filter:'Filtrar empleos',
     all_jobs:'Todos los empleos',remote_only:'Solo Remoto',search_jobs_btn:'Buscar empleos',
     search_190:'Buscar 190+ fuentes',edit_cv:'Editar CV',total:'Total',
     saved_sub:'Seguimiento de tus postulaciones',job:'Empleo',company:'Empresa',
     match:'Coincidencia',status:'Estado',saved_at:'Guardado',no_saved:'No hay empleos guardados.',
     settings_sub:'Personaliza tu experiencia',profile:'Perfil',preferences:'Preferencias',
     preferred_regime:'Régimen preferido',target_regions:'Regiones objetivo',interface_language:'Idioma de interfaz',
-    api_note:'Para análisis de CV con IA, ANTHROPIC_API_KEY debe configurarse en Supabase Secrets.',
     save_settings:'Guardar configuración',save:'Guardar',close:'Cerrar',confirm:'Confirmar',cancel:'Cancelar',
     cv_score:'Puntaje',logout:'Cerrar sesión',no_jobs:'Sin empleos para este filtro.',
-    location:'Ubicación',analysing:'Analizando con Claude AI...',
+    location:'Ubicación',analysing:'Analizando CV...',
     days_ago:'días atrás',today:'hoy',yesterday:'ayer',weeks_ago:'sem.',months_ago:'mes',
     status_saved:'Guardado',status_applied:'Postulado',status_interview:'Entrevista',
     status_offer:'Oferta',status_rejected:'Rechazado',
-    auth_tagline:'Analiza tu CV con IA, encuentra los empleos perfectos en 190+ fuentes globales. Para cualquier stack de TI.',
-    af1:'Análisis de CV con Claude AI',af2:'190+ fuentes: EU, Brasil, USA, DACH',
+    auth_tagline:'Analiza tu CV, encuentra los empleos perfectos en 190+ fuentes globales. Para cualquier stack de TI.',
+    af1:'Análisis automático de CV',af2:'190+ fuentes: EU, Brasil, USA, DACH',
     af3:'Puntuación en tiempo real',af4:'Datos protegidos y privados',sources:'fuentes',
     hello:'Hola',welcome_back:'Bienvenido a CVMatch Pro',
     years_exp:'años exp.',see_matches:'Ver coincidencias',analyse:'Analizar',
     delete_cv_title:'Eliminar CV',delete_cv_msg:'Esta acción es irreversible. El CV y todas sus coincidencias serán eliminados.',
     required_skills:'Habilidades Requeridas',nice_skills:'Habilidades Deseables',
     min_exp:'Experiencia mínima',source:'Fuente',apply_job:'Ver empleo ↗',
-    searching:'Buscando...',calling_ai:'Llamando a Claude AI...',
+    searching:'Buscando...',calling_ai:'Procesando CV...',
     processing:'Procesando resultados...',calculating:'Calculando coincidencias...',
     completed:'¡Completado!',characters:'caracteres',
     regime_remote:'🌍 Remoto',regime_hybrid:'🏢 Híbrido',regime_onsite:'🏢 Presencial',
-    search_unavailable:'Búsqueda no disponible — configura ANTHROPIC_API_KEY',
     edge_not_deployed:'Edge function aún no implementada',
-    analysis_fallback:'Análisis IA no disponible — usando extracción local',
+    analysis_fallback:'Servidor no disponible — usando análisis local',
     cv_success:'¡CV analizado con éxito! 🎉',
     tip1:'Incluye sección de habilidades con tecnologías específicas (ej: Python, AWS, React)',
     tip2:'Menciona años de experiencia con cada tecnología y stack',
@@ -1303,37 +1297,35 @@ const I18N = {
     cv_name:'Nom du CV',upload_file:'Cliquez pour télécharger',or_drag:'ou glissez ici',
     or_paste:'ou collez le texte',cv_text:'Texte du CV',cv_settings:'Paramètres',
     cv_language:'Langue du CV',default_cv:'CV Principal',set_as_default:'Définir par défaut',
-    analysis:'Analyse IA',ai_note:"Claude AI extraira vos compétences, langues et expérience.",
+    analysis:'Analyse du CV',ai_note:"Le système extraira automatiquement vos compétences, langues et expérience.",
     save_analyse:'Sauvegarder et Analyser',tips:'Conseils pour une meilleure analyse',
-    skills:'Compétences détectées',languages:'Langues',summary:'Résumé IA',filter:'Filtrer les offres',
+    skills:'Compétences détectées',languages:'Langues',summary:'Résumé du Profil',filter:'Filtrer les offres',
     all_jobs:'Toutes les offres',remote_only:'Télétravail uniquement',search_jobs_btn:'Rechercher des offres',
     search_190:'Rechercher 190+ sources',edit_cv:'Modifier CV',total:'Total',
     saved_sub:'Suivez vos candidatures',job:'Offre',company:'Entreprise',
     match:'Match',status:'Statut',saved_at:'Sauvegardée',no_saved:'Aucune offre sauvegardée.',
     settings_sub:'Personnalisez votre expérience',profile:'Profil',preferences:'Préférences',
     preferred_regime:'Régime préféré',target_regions:'Régions cibles',interface_language:"Langue de l'interface",
-    api_note:"Pour l'analyse IA, ANTHROPIC_API_KEY doit être configuré dans Supabase Secrets.",
     save_settings:'Sauvegarder',save:'Sauvegarder',close:'Fermer',confirm:'Confirmer',cancel:'Annuler',
     cv_score:'Score',logout:'Se déconnecter',no_jobs:'Aucune offre pour ce filtre.',
-    location:'Localisation',analysing:'Analyse avec Claude AI...',
+    location:'Localisation',analysing:'Analyse du CV...',
     days_ago:'jours',today:"aujourd'hui",yesterday:'hier',weeks_ago:'sem.',months_ago:'mois',
     status_saved:'Sauvegardée',status_applied:'Postulé',status_interview:'Entretien',
     status_offer:'Offre',status_rejected:'Refusé',
-    auth_tagline:'Analysez votre CV avec IA, trouvez les offres parfaites parmi 190+ sources mondiales. Pour tout stack IT.',
-    af1:'Analyse de CV avec Claude AI',af2:'190+ sources : EU, Brésil, USA, DACH',
+    auth_tagline:'Analysez votre CV, trouvez les offres parfaites parmi 190+ sources mondiales. Pour tout stack IT.',
+    af1:'Analyse automatique de CV',af2:'190+ sources : EU, Brésil, USA, DACH',
     af3:'Score de correspondance en temps réel',af4:'Données protégées et privées',sources:'sources',
     hello:'Bonjour',welcome_back:'Bienvenue sur CVMatch Pro',
     years_exp:'ans exp.',see_matches:'Voir les correspondances',analyse:'Analyser',
     delete_cv_title:'Supprimer le CV',delete_cv_msg:'Cette action est irréversible. Le CV et toutes ses correspondances seront supprimés.',
     required_skills:'Compétences requises',nice_skills:'Compétences souhaitées',
     min_exp:'Expérience minimale',source:'Source',apply_job:"Voir l'offre ↗",
-    searching:'Recherche en cours...',calling_ai:'Appel à Claude AI...',
+    searching:'Recherche en cours...',calling_ai:'Traitement du CV...',
     processing:'Traitement des résultats...',calculating:'Calcul des correspondances...',
     completed:'Terminé !',characters:'caractères',
     regime_remote:'🌍 Télétravail',regime_hybrid:'🏢 Hybride',regime_onsite:'🏢 Présentiel',
-    search_unavailable:'Recherche indisponible — configurez ANTHROPIC_API_KEY',
     edge_not_deployed:'Edge function pas encore déployée',
-    analysis_fallback:'Analyse IA indisponible — extraction locale utilisée',
+    analysis_fallback:'Serveur indisponible — extraction locale utilisée',
     cv_success:'CV analysé avec succès ! 🎉',
     tip1:'Incluez une section compétences avec les technologies spécifiques (ex : Python, AWS, React)',
     tip2:"Mentionnez les années d'expérience avec chaque technologie",
@@ -1373,37 +1365,35 @@ const I18N = {
     cv_name:'Name des Lebenslaufs',upload_file:'Zum Hochladen klicken',or_drag:'oder hierher ziehen',
     or_paste:'oder Text einfügen',cv_text:'Lebenslauftext',cv_settings:'Einstellungen',
     cv_language:'Sprache des Lebenslaufs',default_cv:'Haupt-Lebenslauf',set_as_default:'Als Standard festlegen',
-    analysis:'KI-Analyse',ai_note:'Claude AI extrahiert Ihre Fähigkeiten, Sprachen und Erfahrung.',
+    analysis:'Lebenslauf-Analyse',ai_note:'Das System extrahiert automatisch Ihre Fähigkeiten, Sprachen und Erfahrung.',
     save_analyse:'Speichern und Analysieren',tips:'Tipps für eine bessere Analyse',
-    skills:'Erkannte Fähigkeiten',languages:'Sprachen',summary:'KI-Zusammenfassung',filter:'Stellen filtern',
+    skills:'Erkannte Fähigkeiten',languages:'Sprachen',summary:'Profil-Zusammenfassung',filter:'Stellen filtern',
     all_jobs:'Alle Stellen',remote_only:'Nur Remote',search_jobs_btn:'Stellen suchen',
     search_190:'190+ Quellen durchsuchen',edit_cv:'Lebenslauf bearbeiten',total:'Gesamt',
     saved_sub:'Bewerbungsstatus verfolgen',job:'Stelle',company:'Unternehmen',
     match:'Match',status:'Status',saved_at:'Gespeichert',no_saved:'Keine gespeicherten Stellen.',
     settings_sub:'Erfahrung personalisieren',profile:'Profil',preferences:'Präferenzen',
     preferred_regime:'Bevorzugtes Arbeitsmodell',target_regions:'Zielregionen',interface_language:'Schnittstellensprache',
-    api_note:'Für KI-Analyse muss ANTHROPIC_API_KEY in Supabase Secrets konfiguriert sein.',
     save_settings:'Einstellungen speichern',save:'Speichern',close:'Schließen',confirm:'Bestätigen',cancel:'Abbrechen',
     cv_score:'Score',logout:'Abmelden',no_jobs:'Keine Stellen für diesen Filter.',
-    location:'Standort',analysing:'Analyse mit Claude AI...',
+    location:'Standort',analysing:'Lebenslauf wird analysiert...',
     days_ago:'Tage her',today:'heute',yesterday:'gestern',weeks_ago:'Wo.',months_ago:'Mo.',
     status_saved:'Gespeichert',status_applied:'Beworben',status_interview:'Vorstellungsgespräch',
     status_offer:'Angebot',status_rejected:'Abgelehnt',
-    auth_tagline:'Analysieren Sie Ihren Lebenslauf mit KI und finden Sie perfekte Jobs aus 190+ globalen Quellen. Für jeden IT-Stack.',
-    af1:'Lebenslauf-Analyse mit Claude AI',af2:'190+ Quellen: EU, Brasilien, USA, DACH',
+    auth_tagline:'Analysieren Sie Ihren Lebenslauf und finden Sie perfekte Jobs aus 190+ globalen Quellen. Für jeden IT-Stack.',
+    af1:'Automatische Lebenslauf-Analyse',af2:'190+ Quellen: EU, Brasilien, USA, DACH',
     af3:'Echtzeit-Match-Score',af4:'Geschützte und private Daten',sources:'Quellen',
     hello:'Hallo',welcome_back:'Willkommen bei CVMatch Pro',
     years_exp:'J. Erfahrung',see_matches:'Übereinstimmungen ansehen',analyse:'Analysieren',
     delete_cv_title:'Lebenslauf löschen',delete_cv_msg:'Diese Aktion ist irreversibel. Der Lebenslauf und alle Übereinstimmungen werden gelöscht.',
     required_skills:'Erforderliche Fähigkeiten',nice_skills:'Wünschenswerte Fähigkeiten',
     min_exp:'Mindesterfahrung',source:'Quelle',apply_job:'Stelle ansehen ↗',
-    searching:'Suche läuft...',calling_ai:'Claude AI wird aufgerufen...',
+    searching:'Suche läuft...',calling_ai:'Lebenslauf wird verarbeitet...',
     processing:'Ergebnisse werden verarbeitet...',calculating:'Übereinstimmungen werden berechnet...',
     completed:'Abgeschlossen!',characters:'Zeichen',
     regime_remote:'🌍 Remote',regime_hybrid:'🏢 Hybrid',regime_onsite:'🏢 Vor Ort',
-    search_unavailable:'Suche nicht verfügbar — ANTHROPIC_API_KEY konfigurieren',
     edge_not_deployed:'Edge-Funktion noch nicht bereitgestellt',
-    analysis_fallback:'KI-Analyse nicht verfügbar — lokale Extraktion wird verwendet',
+    analysis_fallback:'Server nicht verfügbar — lokale Analyse wird verwendet',
     cv_success:'Lebenslauf erfolgreich analysiert! 🎉',
     tip1:'Fügen Sie einen Kompetenzbereich mit spezifischen Technologien ein (z.B. Python, AWS, React)',
     tip2:'Erwähnen Sie die Jahre Erfahrung mit jeder Technologie',
@@ -1885,7 +1875,7 @@ async function renderCVs() {
       ${mc?.high ? `<div style="font-size:.7rem;color:var(--g);margin-top:4px">🎯 ${mc.high} vagas com match ≥70%</div>` : ''}
       <div class="cv-card-actions">
         ${cv.status==='done'?`<button class="btn btn-ghost btn-sm" onclick="loadAnalysis('${cv.id}');event.stopPropagation()">📊 ${t('see_matches')}</button>`:''}
-        <button class="btn btn-ghost btn-sm" onclick="reanalyse('${cv.id}');event.stopPropagation()">${cv.status==='done'?'🔄':'🤖'} ${t('analyse')}</button>
+        <button class="btn btn-ghost btn-sm" onclick="reanalyse('${cv.id}');event.stopPropagation()">${cv.status==='done'?'🔄':'📄'} ${t('analyse')}</button>
         <button class="btn btn-ghost btn-sm btn-icon btn-danger" onclick="confirmDelete('${cv.id}');event.stopPropagation()" title="${t('delete_cv_title')}">🗑</button>
       </div>`
     div.onclick = () => cv.status === 'done' ? loadAnalysis(cv.id) : null
