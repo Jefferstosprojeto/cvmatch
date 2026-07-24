@@ -1,0 +1,2813 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>CVMatch Pro</title>
+<link rel="icon" type="image/svg+xml" href="logo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<style>
+:root{
+--bg:#070d14;--s:#0c1625;--s2:#111e33;--card:#0f1d2e;--card-h:#142035;
+--b:#1a3048;--b2:#1e4060;--b3:#245070;
+--t:#e2e8f0;--m:#5a7a94;--m2:#8aafc5;
+--a:#10b981;--a2:#059669;--a3:#34d399;
+--r:#ef4444;--r2:#fca5a5;--y:#f59e0b;--y2:#fcd34d;
+--bl:#3b82f6;--bl2:#93c5fd;--pu:#8b5cf6;--pu2:#c4b5fd;
+--sh:0 4px 24px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--t);font-size:14px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;overflow-x:hidden}
+a{color:var(--a);text-decoration:none}
+button{cursor:pointer;font-family:inherit}
+input,textarea,select{font-family:inherit}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--s)}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
+
+/* ── UTILS ── */
+.hidden{display:none!important}
+.flex{display:flex}.flex-col{flex-direction:column}.items-center{align-items:center}.justify-between{justify-content:space-between}.justify-center{justify-content:center}
+.gap-4{gap:4px}.gap-8{gap:8px}.gap-12{gap:12px}.gap-16{gap:16px}.gap-20{gap:20px}.gap-24{gap:24px}
+.w-full{width:100%}.text-center{text-align:center}
+.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mt-4{margin-top:4px}.mt-8{margin-top:8px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}.mt-24{margin-top:24px}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:9px;font-size:.82rem;font-weight:600;border:none;transition:all .15s;white-space:nowrap}
+.btn-primary{background:linear-gradient(135deg,var(--a),var(--a2));color:#fff}
+.btn-primary:hover{opacity:.88;transform:translateY(-1px)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-ghost{background:transparent;border:1px solid var(--b2);color:var(--m2)}
+.btn-ghost:hover{border-color:var(--a);color:var(--a);background:rgba(16,185,129,.06)}
+.btn-danger{background:transparent;border:1px solid rgba(239,68,68,.3);color:var(--r)}
+.btn-danger:hover{background:rgba(239,68,68,.1);border-color:var(--r)}
+.btn-sm{padding:6px 13px;font-size:.76rem}
+.btn-lg{padding:13px 28px;font-size:.92rem}
+.btn-icon{padding:8px;border-radius:8px;aspect-ratio:1}
+
+/* ── FORMS ── */
+.field{display:flex;flex-direction:column;gap:5px}
+.label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--m2)}
+.input,.select,.textarea{width:100%;background:var(--s2);border:1.5px solid var(--b);border-radius:9px;padding:10px 14px;color:var(--t);font-size:.88rem;outline:none;transition:border-color .2s}
+.input:focus,.select:focus,.textarea:focus{border-color:var(--a)}
+.input::placeholder,.textarea::placeholder{color:var(--m)}
+.select option{background:var(--s2)}
+.textarea{resize:vertical;min-height:200px;line-height:1.7}
+.form-error{display:none;padding:10px 14px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.35);border-radius:8px;color:#fca5a5;font-size:.82rem;line-height:1.5;margin-top:6px}
+.form-error.show{display:flex;align-items:flex-start;gap:8px}
+.form-error::before{content:'⚠';flex-shrink:0;font-size:.9rem}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--b);border-radius:12px;padding:20px}
+.card:hover{border-color:var(--b2)}
+.card-h{transition:all .18s}
+.card-h:hover{background:var(--card-h);transform:translateY(-2px);box-shadow:var(--sh)}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:.68rem;font-weight:600;border:1px solid;white-space:nowrap}
+.badge-green{background:#052e16;border-color:#166534;color:#4ade80}
+.badge-yellow{background:#1c1400;border-color:#92400e;color:#fbbf24}
+.badge-red{background:#1f0606;border-color:#991b1b;color:#fca5a5}
+.badge-blue{background:#0c1a2e;border-color:#1e3a5f;color:#7dd3fc}
+.badge-purple{background:#160d2e;border-color:#4c1d95;color:#c4b5fd}
+.badge-gray{background:var(--s2);border-color:var(--b2);color:var(--m2)}
+
+/* ── AVATAR ── */
+.avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--a),var(--bl));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800;color:#fff;flex-shrink:0;cursor:pointer;border:2px solid var(--b2)}
+.avatar-lg{width:56px;height:56px;font-size:1.1rem}
+
+/* ── LOADING ── */
+.spinner{width:36px;height:36px;border:3px solid var(--b2);border-top-color:var(--a);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+.spinner-sm{width:18px;height:18px;border-width:2px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.skeleton{background:linear-gradient(90deg,var(--s) 25%,var(--s2) 50%,var(--s) 75%);background-size:200% 100%;animation:skel 1.4s ease infinite;border-radius:6px}
+@keyframes skel{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ── TOASTS ── */
+#toast-wrap{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--s);border:1px solid var(--b2);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:.82rem;min-width:260px;max-width:360px;box-shadow:var(--sh);pointer-events:auto;animation:slideIn .3s cubic-bezier(0.22,1,0.36,1)}
+.toast-ok{border-color:rgba(16,185,129,.4);background:rgba(16,185,129,.06)}
+.toast-err{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.06)}
+.toast-info{border-color:rgba(59,130,246,.4);background:rgba(59,130,246,.06)}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:none;opacity:1}}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:8000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.modal{background:var(--s);border:1px solid var(--b2);border-radius:16px;padding:28px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;animation:fadeUp .2s ease}
+.modal-lg{max-width:760px}
+.modal-title{font-size:1rem;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+@keyframes fadeUp{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
+
+/* ════════════════════════════════
+   AUTH SCREEN
+════════════════════════════════ */
+#auth-screen{min-height:100vh;display:flex}
+.auth-left{flex:1;background:linear-gradient(135deg,#050d14,#0a1e30);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px;position:relative;overflow:hidden}
+.auth-left::before{content:'';position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(16,185,129,.12),transparent 70%);top:-100px;left:-100px}
+.auth-left::after{content:'';position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,.08),transparent 70%);bottom:-60px;right:-60px}
+.auth-brand{position:relative;z-index:1;text-align:center}
+.auth-logo-box{width:72px;height:72px;background:linear-gradient(135deg,var(--a),var(--a2));border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 20px;box-shadow:0 0 40px rgba(16,185,129,.3)}
+.auth-brand h1{font-size:2.2rem;font-weight:900;letter-spacing:-.03em;color:var(--t)}
+.auth-brand h1 span{color:var(--a)}
+.auth-brand p{font-size:.95rem;color:var(--m2);margin-top:10px;max-width:340px;line-height:1.6}
+.auth-features{margin-top:40px;display:flex;flex-direction:column;gap:14px;position:relative;z-index:1}
+.auth-feat{display:flex;align-items:center;gap:12px;font-size:.84rem;color:var(--m2)}
+.auth-feat-icon{width:32px;height:32px;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
+
+.auth-right{width:420px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;background:var(--bg)}
+.auth-box{width:100%;max-width:360px}
+.auth-tabs{display:flex;background:var(--s2);border-radius:10px;padding:3px;margin-bottom:24px}
+.auth-tab{flex:1;padding:8px;border:none;border-radius:8px;font-size:.82rem;font-weight:600;background:transparent;color:var(--m);transition:all .15s}
+.auth-tab.on{background:var(--card);color:var(--t);box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.auth-tab-panel{display:none}.auth-tab-panel.on{display:flex;flex-direction:column;gap:16px}
+.auth-divider{display:flex;align-items:center;gap:10px;font-size:.72rem;color:var(--m);margin:4px 0}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--b)}
+.auth-link{font-size:.8rem;color:var(--a);background:none;border:none;cursor:pointer;padding:0}
+.btn-linkedin{background:#0077B5;color:#fff;justify-content:center;width:100%}
+.btn-linkedin:hover{background:#005f93;transform:translateY(-1px)}
+
+/* ════════════════════════════════
+   APP SHELL
+════════════════════════════════ */
+#app-shell{display:none;flex-direction:column;min-height:100vh}
+.app-header{height:56px;background:var(--s);border-bottom:1px solid var(--b);display:flex;align-items:center;padding:0 20px;gap:16px;position:sticky;top:0;z-index:100}
+.app-logo{display:flex;align-items:center;gap:9px;text-decoration:none;flex-shrink:0}
+.app-logo-icon{width:30px;height:30px;background:linear-gradient(135deg,var(--a),var(--a2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.85rem}
+.app-logo-name{font-size:.95rem;font-weight:800;letter-spacing:-.02em;color:var(--t)}
+.app-logo-name span{color:var(--a)}
+.app-nav{display:flex;gap:2px;flex:1;margin:0 24px}
+.nav-btn{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;border:none;background:transparent;color:var(--m);font-size:.8rem;font-weight:500;transition:all .15s}
+.nav-btn:hover{background:var(--s2);color:var(--t)}
+.nav-btn.on{background:rgba(16,185,129,.12);color:var(--a)}
+.nav-btn .nav-icon{font-size:.95rem}
+.app-header-right{display:flex;align-items:center;gap:10px;margin-left:auto}
+.lang-select{background:var(--s2);border:1px solid var(--b);border-radius:7px;color:var(--m2);font-size:.75rem;padding:4px 8px;outline:none}
+.user-menu{position:relative}
+.user-dropdown{position:absolute;top:calc(100% + 8px);right:0;background:var(--s);border:1px solid var(--b2);border-radius:10px;min-width:180px;z-index:200;box-shadow:var(--sh);overflow:hidden}
+.user-dropdown-item{width:100%;text-align:left;padding:10px 14px;border:none;background:transparent;color:var(--m2);font-size:.8rem;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .12s}
+.user-dropdown-item:hover{background:var(--s2);color:var(--t)}
+
+.app-main{flex:1;display:flex}
+.app-view{display:none;flex:1;min-width:0}
+.app-view.on{display:flex;flex-direction:column}
+
+/* ════════════════════════════════
+   DASHBOARD
+════════════════════════════════ */
+.view-header{padding:28px 28px 0;border-bottom:1px solid var(--b);padding-bottom:20px;margin-bottom:24px}
+.view-title{font-size:1.3rem;font-weight:800;letter-spacing:-.02em}
+.view-sub{font-size:.82rem;color:var(--m2);margin-top:4px}
+.view-body{padding:0 28px 28px}
+
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px}
+.stat-card{background:var(--card);border:1px solid var(--b);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:6px}
+.stat-num{font-size:1.8rem;font-weight:800;line-height:1}
+.stat-lbl{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--m)}
+.stat-trend{font-size:.72rem;margin-top:4px}
+.stat-cv .stat-num{color:var(--a)}
+.stat-match .stat-num{color:var(--y)}
+.stat-saved .stat-num{color:var(--bl)}
+.stat-applied .stat-num{color:var(--pu)}
+
+.section-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--m);margin-bottom:12px}
+
+/* ════════════════════════════════
+   CV MANAGER
+════════════════════════════════ */
+.cv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.cv-card{background:var(--card);border:1px solid var(--b);border-radius:12px;padding:18px;cursor:pointer;transition:all .18s;position:relative}
+.cv-card:hover{background:var(--card-h);border-color:var(--b2);transform:translateY(-2px)}
+.cv-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.cv-icon{width:40px;height:40px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.cv-card-name{font-size:.9rem;font-weight:700;margin-bottom:3px}
+.cv-card-date{font-size:.7rem;color:var(--m)}
+.cv-card-skills{display:flex;flex-wrap:wrap;gap:4px;margin:10px 0}
+.skill-pill{padding:2px 7px;border-radius:5px;font-size:.65rem;font-weight:600;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.15);color:var(--a3)}
+.cv-card-actions{display:flex;gap:6px;margin-top:12px;padding-top:12px;border-top:1px solid var(--b)}
+.cv-add-card{background:transparent;border:2px dashed var(--b2);border-radius:12px;padding:28px 18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer;transition:all .18s;color:var(--m)}
+.cv-add-card:hover{border-color:var(--a);color:var(--a);background:rgba(16,185,129,.04)}
+
+/* ════════════════════════════════
+   CV EDITOR
+════════════════════════════════ */
+.editor-wrap{display:flex;gap:20px;padding:24px 28px;flex:1;min-height:0}
+.editor-main{flex:1;display:flex;flex-direction:column;gap:16px}
+.editor-side{width:260px;flex-shrink:0;display:flex;flex-direction:column;gap:14px}
+.upload-zone{background:var(--s2);border:2px dashed var(--b2);border-radius:12px;padding:28px;text-align:center;cursor:pointer;transition:all .2s}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--a);background:rgba(16,185,129,.04)}
+.upload-zone input{display:none}
+.upload-icon{font-size:2rem;margin-bottom:8px}
+.upload-text{font-size:.82rem;color:var(--m2);line-height:1.6}
+.upload-formats{display:flex;gap:6px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+
+/* ════════════════════════════════
+   ANALYSIS
+════════════════════════════════ */
+.analysis-layout{display:flex;flex:1;min-height:0}
+.analysis-side{width:300px;flex-shrink:0;background:var(--s);border-right:1px solid var(--b);padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;height:calc(100vh - 56px);position:sticky;top:56px}
+.analysis-main{flex:1;min-width:0;padding:20px 24px;overflow-y:auto}
+
+.profile-card{background:linear-gradient(135deg,#051e14,#0a1828);border:1px solid rgba(16,185,129,.2);border-radius:12px;padding:16px;text-align:center}
+.profile-ring{width:80px;height:80px;border-radius:50%;border:3px solid var(--a);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:8px auto;background:radial-gradient(circle,rgba(16,185,129,.1),transparent)}
+.profile-ring-num{font-size:1.4rem;font-weight:900;color:var(--a);line-height:1}
+.profile-ring-lbl{font-size:.44rem;text-transform:uppercase;letter-spacing:.1em;color:var(--m2)}
+.profile-name{font-weight:700;font-size:.92rem;margin-top:6px}
+.profile-title{font-size:.73rem;color:var(--m2);margin-top:2px}
+
+.skill-row{display:flex;align-items:center;justify-content:space-between;padding:5px 8px;border-radius:7px;border:1px solid;font-size:.73rem;gap:6px}
+.skill-row.sk-h{background:#052e16;border-color:#166534;color:#4ade80}
+.skill-row.sk-m{background:#1c1400;border-color:#92400e;color:#fbbf24}
+.skill-row.sk-l{background:#0c1a2e;border-color:#1e3a5f;color:#7dd3fc}
+.skill-bar-bg{height:3px;width:44px;background:var(--b);border-radius:2px;flex-shrink:0}
+.skill-bar-fill{height:100%;border-radius:2px;background:currentColor}
+
+.lang-row{display:flex;align-items:center;justify-content:space-between;padding:5px 10px;border-radius:7px;border:1px solid;font-size:.73rem}
+
+.filter-chip{width:100%;text-align:left;padding:6px 10px;border:1px solid transparent;border-radius:7px;background:transparent;color:var(--m2);cursor:pointer;font-size:.77rem;transition:all .14s;display:flex;align-items:center;gap:6px}
+.filter-chip:hover{border-color:var(--b2);color:var(--t);background:var(--s2)}
+.filter-chip.on{background:#052e16;border-color:var(--a2);color:var(--a);font-weight:600}
+
+.match-stats{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.mstat{background:var(--s);border:1px solid var(--b);border-radius:9px;padding:10px 14px;min-width:80px}
+.mstat-num{font-size:1.3rem;font-weight:800;line-height:1}
+.mstat-lbl{font-size:.6rem;text-transform:uppercase;color:var(--m);letter-spacing:.07em}
+.mstat-all .mstat-num{color:var(--a)}
+.mstat-hi  .mstat-num{color:#4ade80}
+.mstat-mid .mstat-num{color:#fbbf24}
+.mstat-lo  .mstat-num{color:var(--r)}
+
+/* ════════════════════════════════
+   JOB CARD
+════════════════════════════════ */
+.job-card{background:var(--card);border:1px solid var(--b);border-radius:12px;padding:16px;margin-bottom:10px;transition:transform .2s cubic-bezier(0.22,1,0.36,1),box-shadow .2s cubic-bezier(0.22,1,0.36,1),border-color .15s,background .15s;position:relative;display:none;overflow:hidden}
+.job-card.show{display:block}
+.job-card:hover{background:var(--card-h);border-color:var(--b2);transform:translateY(-1px);box-shadow:var(--sh)}
+.jcard-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}
+.jcard-co{font-size:.67rem;text-transform:uppercase;letter-spacing:.05em;color:var(--m);margin-bottom:3px}
+.jcard-title{font-size:.9rem;font-weight:700;line-height:1.3}
+.match-badge{flex-shrink:0;width:54px;height:54px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid;cursor:help}
+.match-badge.mb-h{border-color:#4ade80;color:#4ade80;background:radial-gradient(circle,rgba(74,222,128,.08),transparent)}
+.match-badge.mb-m{border-color:#fbbf24;color:#fbbf24;background:radial-gradient(circle,rgba(251,191,36,.08),transparent)}
+.match-badge.mb-l{border-color:var(--r);color:var(--r);background:radial-gradient(circle,rgba(239,68,68,.08),transparent)}
+.mb-pct{font-size:.85rem;font-weight:900;line-height:1}
+.mb-lbl{font-size:.44rem;text-transform:uppercase;letter-spacing:.06em;opacity:.7}
+.jcard-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:9px}
+.jcard-skills{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:11px}
+.sk-hit{padding:2px 7px;border-radius:5px;font-size:.65rem;font-weight:600;background:#052e16;border:1px solid #166534;color:#4ade80}
+.sk-miss{padding:2px 7px;border-radius:5px;font-size:.65rem;background:var(--s2);border:1px solid var(--b);color:var(--m);text-decoration:line-through;opacity:.5}
+.jcard-foot{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.jcard-breakdown{font-size:.68rem;color:var(--m);display:flex;gap:8px}
+.days-badge{font-size:.7rem;color:var(--m2);background:var(--s2);padding:2px 8px;border-radius:5px;border:1px solid var(--b)}
+
+/* ════════════════════════════════
+   SAVED JOBS
+════════════════════════════════ */
+.saved-table{width:100%;border-collapse:collapse}
+.saved-table th{padding:8px 12px;text-align:left;font-size:.67rem;text-transform:uppercase;letter-spacing:.08em;color:var(--m);border-bottom:1px solid var(--b);font-weight:600}
+.saved-table td{padding:12px;border-bottom:1px solid var(--b);vertical-align:middle}
+.saved-table tr:hover td{background:rgba(255,255,255,.015)}
+.status-select{background:transparent;border:1px solid var(--b2);border-radius:6px;color:var(--m2);font-size:.73rem;padding:3px 8px;outline:none}
+
+/* ════════════════════════════════
+   SETTINGS
+════════════════════════════════ */
+.settings-wrap{max-width:640px;display:flex;flex-direction:column;gap:20px}
+.settings-section{background:var(--card);border:1px solid var(--b);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.settings-section-title{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--a3);margin-bottom:4px;display:flex;align-items:center;gap:7px}
+.checkbox-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:background .12s}
+.checkbox-row:hover{background:var(--s2)}
+.checkbox-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--a);cursor:pointer}
+
+/* ════════════════════════════════
+   PROGRESS BAR
+════════════════════════════════ */
+.progress-bar{height:4px;background:var(--b);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--a),var(--bl));border-radius:2px;transition:width .4s ease}
+
+/* ════════════════════════════════
+   RESPONSIVE
+════════════════════════════════ */
+@media(max-width:900px){
+  .auth-left{display:none}
+  .auth-right{width:100%;padding:30px 20px}
+  .app-nav .nav-btn span{display:none}
+  .analysis-layout{flex-direction:column}
+  .analysis-side{width:100%;height:auto;position:static;border-right:none;border-bottom:1px solid var(--b)}
+  .editor-wrap{flex-direction:column}
+  .editor-side{width:100%}
+}
+@media(max-width:600px){
+  .view-body,.view-header{padding-left:16px;padding-right:16px}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .cv-grid{grid-template-columns:1fr}
+}
+
+/* ══════════════════════════════════
+   PROFESSIONAL IT VISUAL SYSTEM
+══════════════════════════════════ */
+
+/* Tech dot-grid background — visible */
+body{background:linear-gradient(145deg,#060c14 0%,#071220 50%,#06101a 100%)}
+body::before{content:'';position:fixed;inset:0;
+  background-image:
+    radial-gradient(circle, rgba(16,185,129,.14) 1px, transparent 1px),
+    linear-gradient(rgba(16,185,129,.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16,185,129,.02) 1px, transparent 1px);
+  background-size:30px 30px, 90px 90px, 90px 90px;
+  pointer-events:none;z-index:0}
+#app-shell,#auth-screen{position:relative;z-index:1}
+
+/* Glassmorphism header */
+.app-header{
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  background:rgba(6,12,20,.85)!important;
+  border-bottom:1px solid rgba(16,185,129,.12)!important;
+  box-shadow:0 1px 40px rgba(0,0,0,.6)!important}
+
+/* AUTH LEFT — dark overlay sobre foto de trabalho */
+.auth-left{
+  background:
+    linear-gradient(135deg,rgba(3,9,18,.87) 0%,rgba(5,18,35,.84) 45%,rgba(4,22,22,.86) 100%),
+    url('https://images.unsplash.com/photo-1497366216548-37526070297c?w=900&q=80&auto=format&fit=crop') center/cover no-repeat !important}
+.auth-left::before{
+  background:radial-gradient(circle,rgba(16,185,129,.25),transparent 65%)!important;
+  width:700px!important;height:700px!important;top:-150px!important;left:-150px!important}
+.auth-left::after{
+  background:radial-gradient(circle,rgba(59,130,246,.18),transparent 60%)!important;
+  width:500px!important;height:500px!important;bottom:-80px!important;right:-80px!important}
+
+/* Extra glow orb on auth left */
+.auth-left-orb{position:absolute;width:300px;height:300px;border-radius:50%;
+  background:radial-gradient(circle,rgba(139,92,246,.12),transparent 70%);
+  bottom:20%;left:60%;pointer-events:none}
+
+/* Stat cards — color-coded via border and shadow, no top-stripe */
+.stat-card{transition:transform .2s cubic-bezier(0.22,1,0.36,1),box-shadow .2s cubic-bezier(0.22,1,0.36,1)}
+.stat-cv{
+  background:linear-gradient(160deg,#0c1f16 0%,#071410 100%)!important;
+  border-color:rgba(16,185,129,.35)!important;
+  box-shadow:0 4px 24px rgba(16,185,129,.1),inset 0 1px 0 rgba(16,185,129,.15)!important}
+.stat-match{
+  background:linear-gradient(160deg,#1a1206 0%,#100d03 100%)!important;
+  border-color:rgba(245,158,11,.35)!important;
+  box-shadow:0 4px 24px rgba(245,158,11,.08),inset 0 1px 0 rgba(245,158,11,.12)!important}
+.stat-saved{
+  background:linear-gradient(160deg,#091428 0%,#050e1e 100%)!important;
+  border-color:rgba(59,130,246,.35)!important;
+  box-shadow:0 4px 24px rgba(59,130,246,.08),inset 0 1px 0 rgba(59,130,246,.12)!important}
+.stat-applied{
+  background:linear-gradient(160deg,#120b28 0%,#0c0820 100%)!important;
+  border-color:rgba(139,92,246,.35)!important;
+  box-shadow:0 4px 24px rgba(139,92,246,.08),inset 0 1px 0 rgba(139,92,246,.12)!important}
+.stat-card:hover{transform:translateY(-3px);filter:brightness(1.1)}
+
+/* Stat numbers — larger, bolder */
+.stat-num{font-size:2.2rem!important;text-shadow:0 0 20px currentColor}
+
+/* Primary buttons — green glow */
+.btn-primary{
+  background:linear-gradient(135deg,#10b981,#059669)!important;
+  box-shadow:0 4px 20px rgba(16,185,129,.35)!important;
+  font-weight:700!important}
+.btn-primary:hover{
+  box-shadow:0 6px 30px rgba(16,185,129,.55)!important;
+  transform:translateY(-2px)!important;opacity:1!important}
+
+/* Match bar on job cards */
+.job-card-bar{height:4px;position:absolute;top:0;left:0;right:0;border-radius:12px 12px 0 0}
+.jh .job-card-bar{background:linear-gradient(90deg,#4ade80,#10b981,#34d399)}
+.jm .job-card-bar{background:linear-gradient(90deg,#fbbf24,#f59e0b,#fcd34d)}
+.jl .job-card-bar{background:linear-gradient(90deg,#f87171,#ef4444)}
+
+/* Job cards — more depth */
+.job-card{border-color:rgba(26,48,72,.8)!important}
+.job-card:hover{
+  border-color:rgba(16,185,129,.25)!important;
+  box-shadow:0 8px 32px rgba(0,0,0,.4),0 0 0 1px rgba(16,185,129,.1)!important;
+  transform:translateY(-2px)!important}
+
+/* CV cards */
+.cv-card:hover{
+  border-color:rgba(16,185,129,.3)!important;
+  box-shadow:0 8px 28px rgba(16,185,129,.1)!important}
+
+/* Nav active — glow pill */
+.nav-btn.on{
+  background:linear-gradient(135deg,rgba(16,185,129,.15),rgba(16,185,129,.08))!important;
+  color:var(--a)!important;
+  box-shadow:0 0 0 1px rgba(16,185,129,.3)!important}
+
+/* Logo animated pulse */
+.auth-logo-box{animation:logoPulse 2.5s ease-in-out infinite}
+@keyframes logoPulse{
+  0%,100%{box-shadow:0 0 30px rgba(16,185,129,.4),0 0 60px rgba(16,185,129,.1)}
+  50%{box-shadow:0 0 50px rgba(16,185,129,.7),0 0 100px rgba(16,185,129,.2)}}
+
+/* App logo glow */
+.app-logo-icon{box-shadow:0 0 14px rgba(16,185,129,.4)}
+
+/* Profile ring glow */
+.profile-ring{box-shadow:0 0 28px rgba(16,185,129,.3),inset 0 0 20px rgba(16,185,129,.05)}
+
+/* SVG illustration */
+.auth-svg-wrap{position:relative;z-index:1;margin-top:24px}
+
+/* Stat pills */
+.auth-stat-pills{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:24px;position:relative;z-index:1}
+.auth-stat-pill{padding:7px 16px;border-radius:20px;font-size:.73rem;font-weight:700;border:1px solid;letter-spacing:.02em}
+.auth-stat-pill.green{background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.5);color:#34d399;box-shadow:0 0 12px rgba(16,185,129,.15)}
+.auth-stat-pill.blue{background:rgba(59,130,246,.15);border-color:rgba(59,130,246,.5);color:#93c5fd;box-shadow:0 0 12px rgba(59,130,246,.12)}
+.auth-stat-pill.purple{background:rgba(139,92,246,.15);border-color:rgba(139,92,246,.5);color:#c4b5fd;box-shadow:0 0 12px rgba(139,92,246,.1)}
+
+/* Auth features icon glow */
+.auth-feat-icon{box-shadow:0 0 10px rgba(16,185,129,.2)}
+.auth-feat{color:var(--m2)!important}
+
+/* Section headers */
+.view-header{
+  background:linear-gradient(180deg,rgba(6,12,20,.8) 0%,transparent 100%);
+  border-bottom:1px solid rgba(16,185,129,.08)!important}
+
+/* Cards base improvement */
+.card{border-color:rgba(26,48,72,.7)!important}
+
+/* Match badge glow */
+.match-badge.mb-h{box-shadow:0 0 16px rgba(74,222,128,.2)}
+.match-badge.mb-m{box-shadow:0 0 16px rgba(251,191,36,.15)}
+.match-badge.mb-l{box-shadow:0 0 16px rgba(239,68,68,.15)}
+
+/* Score number glow */
+.profile-ring-num{text-shadow:0 0 20px rgba(16,185,129,.6)}
+
+/* ── PASSWORD REQUIREMENTS ── */
+.pwd-req{font-size:.73rem;color:var(--m);display:flex;align-items:center;gap:6px;transition:color .2s}
+.pwd-req.ok{color:#4ade80}
+.pwd-req.ok .req-icon::before{content:'✓'}
+.pwd-req:not(.ok) .req-icon::before{content:'○'}
+.req-icon{width:14px;font-size:.75rem;flex-shrink:0}
+
+/* ══════════════════════════════════
+   TYPOGRAPHY & MOTION REFINEMENTS
+══════════════════════════════════ */
+
+/* Inter font features */
+body{font-feature-settings:"kern" 1,"liga" 1,"calt" 1,"cv05" 1}
+
+/* Heading and numeric font weight */
+.stat-num,.profile-ring-num,.mb-pct{font-variant-numeric:tabular-nums}
+.auth-brand h1{letter-spacing:-.04em;font-weight:900}
+
+/* Reduce eyebrow aggressiveness — keep function, reduce visual noise */
+.label{font-size:.71rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--m)}
+.section-title{font-weight:700;letter-spacing:.04em}
+.jcard-co{letter-spacing:.03em;font-size:.68rem}
+.settings-section-title{letter-spacing:.05em}
+
+/* Button easing */
+.btn{transition:transform .2s cubic-bezier(0.22,1,0.36,1),box-shadow .2s cubic-bezier(0.22,1,0.36,1),opacity .15s,background .15s,border-color .15s}
+
+/* Card hover easing */
+.card-h{transition:transform .2s cubic-bezier(0.22,1,0.36,1),box-shadow .2s cubic-bezier(0.22,1,0.36,1),background .15s,border-color .15s}
+.cv-card{transition:transform .2s cubic-bezier(0.22,1,0.36,1),box-shadow .2s cubic-bezier(0.22,1,0.36,1),border-color .15s}
+
+/* Modal animation — spring feel */
+@keyframes fadeUp{from{transform:translateY(16px) scale(.985);opacity:0}to{transform:none;opacity:1}}
+.modal{animation:fadeUp .28s cubic-bezier(0.22,1,0.36,1)}
+
+/* Toast slide — spring feel */
+@keyframes slideIn{from{transform:translateX(calc(100% + 8px));opacity:0}to{transform:none;opacity:1}}
+
+/* Dot-grid less aggressive */
+body::before{opacity:.65}
+
+/* Stat number: remove heavy glow, use subtle shadow */
+.stat-num{text-shadow:0 0 12px currentColor!important;opacity:.97}
+
+/* Job card padding increase with new top bar */
+.job-card{padding-top:20px}
+
+/* Smooth progress fills */
+.progress-fill{transition:width .5s cubic-bezier(0.22,1,0.36,1)}
+
+/* Input focus ring */
+.input:focus,.select:focus,.textarea:focus{
+  box-shadow:0 0 0 3px rgba(16,185,129,.12);
+  border-color:var(--a)}
+
+/* Text wrapping on headings */
+h1,h2,h3{text-wrap:balance}
+
+/* ── REDUCED MOTION ── */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+    scroll-behavior:auto!important}
+  .auth-logo-box{animation:none!important}
+  body::before{transition:none}}
+</style>
+</head>
+<body>
+
+<!-- ══ TOAST ══ -->
+<div id="toast-wrap"></div>
+
+<!-- ════════════════════════════════
+     AUTH SCREEN
+════════════════════════════════ -->
+<div id="auth-screen">
+  <div class="auth-left">
+    <div class="auth-left-orb"></div>
+    <div class="auth-brand">
+      <div class="auth-logo-box" style="background:none;box-shadow:none;animation:none;padding:0;width:110px;height:110px">
+        <img src="logo.svg" width="110" height="110" alt="CVMatch Pro" style="display:block;border-radius:22px;box-shadow:0 0 40px rgba(99,102,241,.5)">
+      </div>
+      <h1>CV<span>Match</span> Pro</h1>
+      <p data-i="auth_tagline" style="font-size:1rem;max-width:360px;line-height:1.7;color:#8aafc5">Analisa o teu CV, encontra as vagas perfeitas nas 190+ fontes globais.</p>
+    </div>
+    <!-- Tech network SVG illustration -->
+    <div class="auth-svg-wrap">
+      <svg width="300" height="160" viewBox="0 0 300 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="0" y1="80" x2="300" y2="80" stroke="rgba(16,185,129,.08)" stroke-width="1"/>
+        <line x1="150" y1="0" x2="150" y2="160" stroke="rgba(16,185,129,.08)" stroke-width="1"/>
+        <line x1="48" y1="45" x2="150" y2="80" stroke="rgba(16,185,129,.5)" stroke-width="1.8" stroke-dasharray="5,3">
+          <animate attributeName="stroke-dashoffset" values="0;-16" dur="1.5s" repeatCount="indefinite"/>
+        </line>
+        <line x1="252" y1="45" x2="150" y2="80" stroke="rgba(59,130,246,.5)" stroke-width="1.8" stroke-dasharray="5,3">
+          <animate attributeName="stroke-dashoffset" values="0;-16" dur="1.8s" repeatCount="indefinite"/>
+        </line>
+        <line x1="48" y1="115" x2="150" y2="80" stroke="rgba(245,158,11,.5)" stroke-width="1.8" stroke-dasharray="5,3">
+          <animate attributeName="stroke-dashoffset" values="0;-16" dur="2s" repeatCount="indefinite"/>
+        </line>
+        <line x1="252" y1="115" x2="150" y2="80" stroke="rgba(139,92,246,.5)" stroke-width="1.8" stroke-dasharray="5,3">
+          <animate attributeName="stroke-dashoffset" values="0;-16" dur="1.6s" repeatCount="indefinite"/>
+        </line>
+        <line x1="20" y1="30" x2="48" y2="45" stroke="rgba(16,185,129,.3)" stroke-width="1"/>
+        <line x1="20" y1="130" x2="48" y2="115" stroke="rgba(245,158,11,.3)" stroke-width="1"/>
+        <line x1="280" y1="30" x2="252" y2="45" stroke="rgba(59,130,246,.3)" stroke-width="1"/>
+        <line x1="280" y1="130" x2="252" y2="115" stroke="rgba(139,92,246,.3)" stroke-width="1"/>
+        <circle cx="150" cy="80" r="28" fill="rgba(16,185,129,.06)" stroke="rgba(16,185,129,.25)" stroke-width="1">
+          <animate attributeName="r" values="28;32;28" dur="3s" repeatCount="indefinite"/>
+          <animate attributeName="stroke-opacity" values=".25;.05;.25" dur="3s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="150" cy="80" r="22" fill="rgba(16,185,129,.14)" stroke="rgba(16,185,129,.8)" stroke-width="2.5"/>
+        <circle cx="150" cy="80" r="13" fill="rgba(16,185,129,.25)"/>
+        <text x="150" y="84" text-anchor="middle" font-size="11" fill="#34d399" font-weight="800">CV</text>
+        <circle cx="48" cy="45" r="18" fill="rgba(59,130,246,.15)" stroke="rgba(59,130,246,.7)" stroke-width="2"/>
+        <text x="48" y="49" text-anchor="middle" font-size="8.5" fill="#93c5fd" font-weight="700">CLOUD</text>
+        <circle cx="252" cy="45" r="18" fill="rgba(245,158,11,.12)" stroke="rgba(245,158,11,.7)" stroke-width="2"/>
+        <text x="252" y="49" text-anchor="middle" font-size="8.5" fill="#fcd34d" font-weight="700">DATA</text>
+        <circle cx="48" cy="115" r="18" fill="rgba(249,115,22,.12)" stroke="rgba(249,115,22,.6)" stroke-width="2"/>
+        <text x="48" y="119" text-anchor="middle" font-size="8.5" fill="#fdba74" font-weight="700">ARCH</text>
+        <circle cx="252" cy="115" r="18" fill="rgba(139,92,246,.15)" stroke="rgba(139,92,246,.7)" stroke-width="2"/>
+        <text x="252" y="119" text-anchor="middle" font-size="8.5" fill="#c4b5fd" font-weight="700">MATCH</text>
+        <circle cx="20" cy="30" r="5" fill="rgba(16,185,129,.3)" stroke="rgba(16,185,129,.6)" stroke-width="1"/>
+        <circle cx="20" cy="130" r="5" fill="rgba(245,158,11,.3)" stroke="rgba(245,158,11,.6)" stroke-width="1"/>
+        <circle cx="280" cy="30" r="5" fill="rgba(59,130,246,.3)" stroke="rgba(59,130,246,.6)" stroke-width="1"/>
+        <circle cx="280" cy="130" r="5" fill="rgba(139,92,246,.3)" stroke="rgba(139,92,246,.6)" stroke-width="1"/>
+        <text x="48" y="73" text-anchor="middle" font-size="7" fill="rgba(147,197,253,.7)">96%</text>
+        <text x="252" y="73" text-anchor="middle" font-size="7" fill="rgba(252,211,77,.7)">88%</text>
+        <text x="48" y="139" text-anchor="middle" font-size="7" fill="rgba(253,186,116,.7)">82%</text>
+        <text x="252" y="139" text-anchor="middle" font-size="7" fill="rgba(196,181,253,.7)">75%</text>
+      </svg>
+    </div>
+    <!-- Stats pills -->
+    <div class="auth-stat-pills">
+      <span class="auth-stat-pill green">✅ 190+ <span data-i="sources">fontes</span></span>
+      <span class="auth-stat-pill blue">⚡ 100% Grátis</span>
+      <span class="auth-stat-pill purple">🌍 PT · EN · ES</span>
+    </div>
+    <div class="auth-features" style="margin-top:28px">
+      <div class="auth-feat"><div class="auth-feat-icon">📄</div><span data-i="af1">Análise automática de CV</span></div>
+      <div class="auth-feat"><div class="auth-feat-icon">🌍</div><span data-i="af2">190+ fontes: EU, Brasil, USA, DACH</span></div>
+      <div class="auth-feat"><div class="auth-feat-icon">📊</div><span data-i="af3">Match score em tempo real</span></div>
+      <div class="auth-feat"><div class="auth-feat-icon">🔒</div><span data-i="af4">Dados protegidos e privados</span></div>
+    </div>
+  </div>
+  <div class="auth-right">
+    <div class="auth-box">
+      <div id="auth-panel-main">
+        <div class="auth-tabs">
+          <button class="auth-tab on" onclick="authTab('login')" id="tab-login">Login</button>
+          <button class="auth-tab" onclick="authTab('register')" id="tab-register" data-i="auth_register">Criar conta</button>
+        </div>
+        <!-- LOGIN -->
+        <div class="auth-tab-panel on" id="panel-login">
+          <div class="field"><label class="label" data-i="email">Email</label><input class="input" type="email" id="login-email" placeholder="you@email.com"></div>
+          <div class="field"><label class="label" data-i="password">Password</label><input class="input" type="password" id="login-pwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+          <div id="login-error" class="form-error"></div>
+          <button class="btn btn-primary w-full btn-lg" onclick="doLogin()" id="btn-login"><span id="btn-login-txt" data-i="sign_in">Entrar</span></button>
+          <button class="auth-link" onclick="authPanel('forgot')" data-i="forgot_password">Esqueci a password</button>
+          <div class="auth-divider" data-i="or_continue_with">ou continua com</div>
+          <button class="btn btn-lg btn-linkedin" onclick="signInWithLinkedIn()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="white" style="flex-shrink:0"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            <span data-i="continue_with_linkedin">Continuar com LinkedIn</span>
+          </button>
+        </div>
+        <!-- REGISTER -->
+        <div class="auth-tab-panel" id="panel-register">
+          <div class="field"><label class="label" data-i="full_name">Nome completo</label><input class="input" type="text" id="reg-name" placeholder="Ex: Maria Costa"></div>
+          <div class="field"><label class="label" data-i="email">Email</label><input class="input" type="email" id="reg-email" placeholder="you@email.com"></div>
+          <div class="field">
+            <label class="label" data-i="password">Password</label>
+            <input class="input" type="password" id="reg-pwd" placeholder="mínimo 8 caracteres" oninput="checkPwdStrength(this.value)">
+            <div id="pwd-strength-bar" style="height:3px;border-radius:2px;background:var(--b);margin-top:4px;overflow:hidden;display:none"><div id="pwd-strength-fill" style="height:100%;width:0%;transition:all .3s;border-radius:2px"></div></div>
+            <!-- Requisitos em tempo real -->
+            <div id="pwd-reqs" style="display:none;margin-top:8px;flex-direction:column;gap:3px">
+              <div class="pwd-req" id="req-len"><span class="req-icon">○</span> <span data-i="req_len">Mínimo 8 caracteres</span></div>
+              <div class="pwd-req" id="req-upper"><span class="req-icon">○</span> <span data-i="req_upper">Uma letra maiúscula (A-Z)</span></div>
+              <div class="pwd-req" id="req-num"><span class="req-icon">○</span> <span data-i="req_num">Um número (0-9)</span></div>
+            </div>
+          </div>
+          <div class="field">
+            <label class="label" data-i="confirm_password">Confirmar password</label>
+            <input class="input" type="password" id="reg-pwd-confirm" placeholder="repete a password" oninput="checkPwdMatch()" onkeydown="if(event.key==='Enter')doRegister()">
+            <div id="pwd-match-hint" style="font-size:.72rem;margin-top:3px;display:none"></div>
+          </div>
+          <div id="reg-error" class="form-error"></div>
+          <button class="btn btn-primary w-full btn-lg" onclick="doRegister()" id="btn-register"><span data-i="create_account">Criar conta</span></button>
+          <p style="font-size:.73rem;color:var(--m);text-align:center" data-i="terms_note">Ao criar conta aceitas os termos de uso.</p>
+          <div class="auth-divider" data-i="or_continue_with">ou continua com</div>
+          <button class="btn btn-lg btn-linkedin" onclick="signInWithLinkedIn()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="white" style="flex-shrink:0"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            <span data-i="continue_with_linkedin">Continuar com LinkedIn</span>
+          </button>
+        </div>
+      </div>
+      <!-- FORGOT PASSWORD -->
+      <div id="auth-panel-forgot" class="hidden">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:16px" data-i="reset_password">Recuperar password</h3>
+        <div class="field"><label class="label" data-i="email">Email</label><input class="input" type="email" id="forgot-email" placeholder="you@email.com"></div>
+        <div id="forgot-error" class="form-error"></div>
+        <button class="btn btn-primary w-full" onclick="doForgot()" style="margin-top:8px" data-i="send_link">Enviar link</button>
+        <button class="auth-link mt-8" onclick="authPanel('main')" data-i="back_to_login">← Voltar ao login</button>
+      </div>
+      <!-- EMAIL SENT -->
+      <div id="auth-panel-email-sent" class="hidden" style="text-align:center;padding:20px 0">
+        <div style="font-size:3rem;margin-bottom:14px">📧</div>
+        <h3 style="font-weight:700;margin-bottom:8px" data-i="check_email">Verifica o teu email</h3>
+        <p style="font-size:.83rem;color:var(--m2);line-height:1.6" id="email-sent-msg"></p>
+        <button class="auth-link mt-16" onclick="authPanel('main')" data-i="back_to_login">← Voltar ao login</button>
+      </div>
+      <!-- NEW PASSWORD (after reset link click) -->
+      <div id="auth-panel-new-password" class="hidden">
+        <div style="font-size:2rem;margin-bottom:12px;text-align:center">🔑</div>
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:6px;text-align:center">Definir nova password</h3>
+        <p style="font-size:.78rem;color:var(--m2);margin-bottom:16px;text-align:center">Escolhe uma password segura para a tua conta.</p>
+        <div class="field">
+          <label class="label">Nova password</label>
+          <input class="input" type="password" id="new-pwd" placeholder="mínimo 8 caracteres" oninput="checkNewPwd()">
+        </div>
+        <div class="field">
+          <label class="label">Confirmar password</label>
+          <input class="input" type="password" id="new-pwd-confirm" placeholder="repete a password">
+        </div>
+        <div id="new-pwd-error" class="form-error"></div>
+        <button class="btn btn-primary w-full" onclick="doSetNewPassword()" style="margin-top:8px">✅ Guardar nova password</button>
+      </div>
+    </div>
+    <div style="margin-top:20px;text-align:center">
+      <select class="lang-select" onchange="setLang(this.value)" id="auth-lang-sel">
+        <option value="pt">🇧🇷 Português</option>
+        <option value="en">🇬🇧 English</option>
+        <option value="es">🇪🇸 Español</option>
+        <option value="fr">🇫🇷 Français</option>
+        <option value="de">🇩🇪 Deutsch</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     APP SHELL
+════════════════════════════════ -->
+<div id="app-shell" class="flex flex-col">
+
+  <header class="app-header">
+    <a href="#" class="app-logo"><div class="app-logo-icon" style="background:none;box-shadow:none;padding:0"><img src="logo.svg" width="30" height="30" alt="" style="display:block;border-radius:7px"></div><div class="app-logo-name">CV<span>Match</span></div></a>
+    <nav class="app-nav">
+      <button class="nav-btn on" onclick="nav('dashboard')" data-nav="dashboard"><span class="nav-icon">📊</span><span data-i="dashboard">Dashboard</span></button>
+      <button class="nav-btn" onclick="nav('cvs')" data-nav="cvs"><span class="nav-icon">📄</span><span data-i="my_cvs">Meus CVs</span></button>
+      <button class="nav-btn" onclick="nav('saved')" data-nav="saved"><span class="nav-icon">🔖</span><span data-i="saved_jobs">Vagas Guardadas</span></button>
+      <button class="nav-btn" onclick="nav('settings')" data-nav="settings"><span class="nav-icon">⚙️</span><span data-i="settings">Configurações</span></button>
+      <button class="nav-btn" onclick="nav('admin')" data-nav="admin" id="nav-admin" style="display:none"><span class="nav-icon">🔐</span><span>Admin</span></button>
+    </nav>
+    <div class="app-header-right">
+      <select class="lang-select" onchange="setLang(this.value)" id="app-lang-sel">
+        <option value="pt">🇧🇷 PT</option>
+        <option value="en">🇬🇧 EN</option>
+        <option value="es">🇪🇸 ES</option>
+        <option value="fr">🇫🇷 FR</option>
+        <option value="de">🇩🇪 DE</option>
+      </select>
+      <div id="dd-name" style="font-size:.78rem;font-weight:600;color:var(--m2);white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis"></div>
+      <button onclick="doLogout()" title="Sair" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);color:#fca5a5;border-radius:7px;padding:5px 10px;font-size:.75rem;cursor:pointer;white-space:nowrap">🚪 <span data-i="logout">Sair</span></button>
+    </div>
+  </header>
+
+  <main class="app-main">
+
+    <!-- DASHBOARD -->
+    <div class="app-view on" id="view-dashboard">
+      <div class="view-header">
+        <div style="display:flex;align-items:center;gap:16px">
+          <div id="dash-avatar" style="width:58px;height:58px;border-radius:50%;background:var(--a);display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0;border:2px solid var(--b)"></div>
+          <div><div class="view-title" id="dash-greeting">Olá 👋</div><div class="view-sub" id="dash-sub">Bem-vindo ao CVMatch Pro</div></div>
+        </div>
+      </div>
+      <div class="view-body">
+        <div class="stats-grid" id="stats-grid">
+          <div class="stat-card stat-cv">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div><div class="stat-num" id="stat-cvs">—</div><div class="stat-lbl" data-i="cvs_analysed">CVs analisados</div></div>
+              <div style="font-size:1.8rem;opacity:.7">📄</div>
+            </div>
+          </div>
+          <div class="stat-card stat-match">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div><div class="stat-num" id="stat-matches">—</div><div class="stat-lbl" data-i="matches_found">Matches encontrados</div></div>
+              <div style="font-size:1.8rem;opacity:.7">⚡</div>
+            </div>
+          </div>
+          <div class="stat-card stat-saved">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div><div class="stat-num" id="stat-saved">—</div><div class="stat-lbl" data-i="saved_jobs">Vagas guardadas</div></div>
+              <div style="font-size:1.8rem;opacity:.7">🔖</div>
+            </div>
+          </div>
+          <div class="stat-card stat-applied">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div><div class="stat-num" id="stat-applied">—</div><div class="stat-lbl" data-i="applications">Candidaturas</div></div>
+              <div style="font-size:1.8rem;opacity:.7">🚀</div>
+            </div>
+          </div>
+        </div>
+        <div class="section-title" data-i="quick_actions">Acções rápidas</div>
+        <div class="flex gap-12" style="flex-wrap:wrap;margin-bottom:24px">
+          <button class="btn btn-primary" onclick="nav('cv-editor')">➕ <span data-i="add_cv">Adicionar CV</span></button>
+          <button class="btn btn-ghost" onclick="nav('cvs')">📄 <span data-i="my_cvs">Meus CVs</span></button>
+          <button class="btn btn-ghost" onclick="nav('saved')">🔖 <span data-i="saved_jobs">Vagas Guardadas</span></button>
+        </div>
+        <div class="section-title" data-i="recent_matches">Matches recentes</div>
+        <div id="dash-recent-matches"><div class="skeleton" style="height:60px;margin-bottom:8px"></div><div class="skeleton" style="height:60px;margin-bottom:8px"></div></div>
+      </div>
+    </div>
+
+    <!-- CV MANAGER -->
+    <div class="app-view" id="view-cvs">
+      <div class="view-header flex items-center justify-between">
+        <div><div class="view-title" data-i="my_cvs">Meus CVs</div><div class="view-sub" data-i="cv_sub">Gere e analisa os teus currículos</div></div>
+        <button class="btn btn-primary" onclick="nav('cv-editor')">➕ <span data-i="add_cv">Adicionar CV</span></button>
+      </div>
+      <div class="view-body">
+        <div class="cv-grid" id="cv-grid">
+          <div class="skeleton" style="height:180px;border-radius:12px"></div>
+          <div class="skeleton" style="height:180px;border-radius:12px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CV EDITOR -->
+    <div class="app-view" id="view-cv-editor">
+      <div class="view-header flex items-center justify-between">
+        <div><div class="view-title" id="editor-title" data-i="new_cv">Novo CV</div><div class="view-sub" data-i="editor-sub">Cola o texto ou faz upload do ficheiro</div></div>
+        <button class="btn btn-ghost" onclick="nav('cvs')">← <span data-i="back">Voltar</span></button>
+      </div>
+      <div class="editor-wrap">
+        <div class="editor-main">
+          <div class="field"><label class="label" data-i="cv_name">Nome do CV</label><input class="input" id="cv-name" placeholder="Ex: CV Senior Developer 2026"></div>
+          <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)">
+            <input type="file" id="file-input" accept=".pdf,.docx,.txt" onchange="handleFile(this.files[0])">
+            <div class="upload-icon">📎</div>
+            <div class="upload-text"><strong data-i="upload_file">Clica para fazer upload</strong> <span data-i="or_drag">ou arrasta aqui</span></div>
+            <div class="upload-formats">
+              <span class="badge badge-blue">PDF</span>
+              <span class="badge badge-blue">DOCX</span>
+              <span class="badge badge-blue">TXT</span>
+            </div>
+            <div id="file-info" style="margin-top:8px;font-size:.78rem;color:var(--a);display:none"></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;margin:4px 0"><div style="flex:1;height:1px;background:var(--b)"></div><span style="font-size:.72rem;color:var(--m)" data-i="or_paste">ou cola o texto</span><div style="flex:1;height:1px;background:var(--b)"></div></div>
+          <div class="field">
+            <div class="flex justify-between items-center"><label class="label" data-i="cv_text">Texto do CV</label><span style="font-size:.7rem;color:var(--m)" id="cv-char-count">0 caracteres</span></div>
+            <textarea class="textarea" id="cv-text" style="min-height:300px" placeholder="Cola aqui o conteúdo completo do CV..." oninput="updateCharCount()"></textarea>
+          </div>
+        </div>
+        <div class="editor-side">
+          <div class="card">
+            <div class="section-title" data-i="cv_settings">Configurações</div>
+            <div class="field"><label class="label" data-i="cv_language">Língua do CV</label>
+              <select class="select" id="cv-lang">
+                <option value="pt">🇧🇷 Português</option>
+                <option value="en">🇬🇧 English</option>
+                <option value="es">🇪🇸 Español</option>
+                <option value="de">🇩🇪 Deutsch</option>
+              </select>
+            </div>
+            <div class="field"><label class="label" data-i="default_cv">CV Principal</label>
+              <div class="checkbox-row"><input type="checkbox" id="cv-default"><label for="cv-default" style="cursor:pointer;font-size:.82rem" data-i="set_as_default">Definir como padrão</label></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="section-title" data-i="analysis">Análise do CV</div>
+            <p style="font-size:.78rem;color:var(--m2);line-height:1.6;margin-bottom:12px" data-i="ai_note">O sistema vai extrair automaticamente as tuas competências, línguas e experiência para sugerir as melhores vagas.</p>
+            <div class="progress-bar hidden" id="analysis-progress"><div class="progress-fill" id="analysis-progress-fill" style="width:0%"></div></div>
+            <div style="font-size:.73rem;color:var(--a);margin:6px 0;display:none" id="analysis-status-txt"></div>
+            <button class="btn btn-primary w-full" id="btn-save-cv" onclick="saveAndAnalyse()">📄 <span data-i="save_analyse">Guardar e Analisar</span></button>
+          </div>
+          <div class="card" id="tips-card">
+            <div class="section-title" data-i="tips">Dicas</div>
+            <ul style="font-size:.75rem;color:var(--m2);line-height:1.9;padding-left:14px" id="tips-list"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYSIS RESULTS -->
+    <div class="app-view" id="view-analysis">
+      <div class="analysis-layout">
+        <!-- SIDEBAR: Profile -->
+        <div class="analysis-side">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <button class="btn btn-ghost btn-sm" onclick="nav('cvs')" style="padding:4px 8px;font-size:.72rem">← <span data-i="back">Voltar</span></button>
+            <div id="ap-cv-label" style="font-size:.72rem;color:var(--m2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+          </div>
+          <div class="profile-card">
+            <div id="ap-name" style="font-weight:700;font-size:.9rem">—</div>
+            <div id="ap-title" style="font-size:.72rem;color:var(--m2);margin-top:2px">—</div>
+            <div class="profile-ring"><div class="profile-ring-num" id="ap-score">—</div><div class="profile-ring-lbl" data-i="cv_score">Score</div></div>
+            <div id="ap-exp" style="font-size:.73rem;color:var(--m2)">—</div>
+          </div>
+          <div>
+            <div class="section-title" data-i="skills">Competências</div>
+            <div id="ap-skills" style="display:flex;flex-direction:column;gap:5px"></div>
+          </div>
+          <div>
+            <div class="section-title" data-i="languages">Línguas</div>
+            <div id="ap-langs" style="display:flex;flex-direction:column;gap:5px"></div>
+          </div>
+          <div>
+            <div class="section-title" data-i="summary">Resumo do Perfil</div>
+            <p id="ap-summary" style="font-size:.74rem;color:var(--m2);line-height:1.65">—</p>
+          </div>
+          <div>
+            <div class="section-title" data-i="filter">Filtrar</div>
+            <div style="display:flex;flex-direction:column;gap:3px" id="filter-chips">
+              <button class="filter-chip on" onclick="setFilter('all',this)">🔎 <span data-i="all_jobs">Todas</span></button>
+              <button class="filter-chip" onclick="setFilter('high',this)">🟢 Match ≥ 75%</button>
+              <button class="filter-chip" onclick="setFilter('remote',this)">🌍 <span data-i="remote_only">Só Remote</span></button>
+              <button class="filter-chip" onclick="setFilter('brazil',this)">🇧🇷 Brasil</button>
+              <button class="filter-chip" onclick="setFilter('eu',this)">🇪🇺 Europa</button>
+              <button class="filter-chip" onclick="setFilter('usa',this)">🇺🇸 USA</button>
+              <button class="filter-chip" onclick="setFilter('dach',this)">🇩🇪 DACH</button>
+              <button class="filter-chip" onclick="setFilter('worldwide',this)">🌐 Worldwide</button>
+            </div>
+          </div>
+          <div>
+            <div class="section-title" data-i="search_jobs_btn">Buscar novas vagas</div>
+            <button class="btn btn-ghost w-full" id="btn-search-jobs" onclick="searchNewJobs()">🔍 <span data-i="search_190">Pesquisar 190+ fontes</span></button>
+            <div id="search-status" style="font-size:.7rem;color:var(--m);margin-top:6px;text-align:center;display:none"></div>
+          </div>
+          <button class="btn btn-ghost w-full" onclick="nav('cv-editor',{edit:true})">✏️ <span data-i="edit_cv">Editar CV</span></button>
+        </div>
+        <!-- MAIN: Job results -->
+        <div class="analysis-main">
+          <div class="match-stats">
+            <div class="mstat mstat-all"><div class="mstat-num" id="ms-total">0</div><div class="mstat-lbl" data-i="total">Total</div></div>
+            <div class="mstat mstat-hi"><div class="mstat-num" id="ms-high">0</div><div class="mstat-lbl">≥ 75%</div></div>
+            <div class="mstat mstat-mid"><div class="mstat-num" id="ms-mid">0</div><div class="mstat-lbl">40–74%</div></div>
+            <div class="mstat mstat-lo"><div class="mstat-num" id="ms-low">0</div><div class="mstat-lbl">&lt; 40%</div></div>
+          </div>
+          <div id="jobs-container"></div>
+          <div id="jobs-empty" class="hidden" style="text-align:center;padding:60px 20px;color:var(--m)">
+            <div style="font-size:2.5rem;margin-bottom:12px">🔍</div>
+            <div style="font-weight:700;color:var(--t);margin-bottom:8px" data-i="no_jobs_title">Sem vagas relevantes para o teu perfil</div>
+            <div style="font-size:.85rem;max-width:340px;margin:0 auto;line-height:1.6" data-i="no_jobs_sub">As vagas disponíveis não correspondem às skills do teu CV. Carrega um CV actualizado ou clica em "Nova Pesquisa" para tentar novamente.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SAVED JOBS -->
+    <div class="app-view" id="view-saved">
+      <div class="view-header"><div class="view-title" data-i="saved_jobs">Vagas Guardadas</div><div class="view-sub" data-i="saved_sub">Acompanha o estado das tuas candidaturas</div></div>
+      <div class="view-body">
+        <div style="overflow-x:auto">
+          <table class="saved-table" id="saved-table">
+            <thead><tr>
+              <th data-i="job">Vaga</th><th data-i="company">Empresa</th>
+              <th data-i="match">Match</th><th data-i="status">Estado</th>
+              <th data-i="saved_at">Guardada</th><th></th>
+            </tr></thead>
+            <tbody id="saved-tbody"></tbody>
+          </table>
+        </div>
+        <div id="saved-empty" class="hidden" style="text-align:center;padding:60px;color:var(--m)">
+          <div style="font-size:2.5rem;margin-bottom:10px">🔖</div>
+          <div data-i="no_saved">Ainda não guardaste nenhuma vaga.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="app-view" id="view-settings">
+      <div class="view-header"><div class="view-title" data-i="settings">Configurações</div><div class="view-sub" id="settings-greeting">Personaliza a tua experiência</div></div>
+      <div class="view-body">
+        <div class="settings-wrap">
+          <div class="settings-section">
+            <div class="settings-section-title">👤 <span data-i="profile">Perfil</span></div>
+            <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
+              <div id="s-avatar-preview" onclick="document.getElementById('avatar-input').click()" style="width:72px;height:72px;border-radius:50%;background:var(--a);display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;color:#fff;overflow:hidden;cursor:pointer;flex-shrink:0;border:2px solid var(--b)"></div>
+              <div>
+                <div style="font-size:.82rem;font-weight:600;margin-bottom:3px">📸 Foto de perfil</div>
+                <div style="font-size:.72rem;color:var(--m2);margin-bottom:8px">JPG, PNG ou WebP · máx 2MB</div>
+                <button class="btn btn-ghost btn-sm" onclick="document.getElementById('avatar-input').click()" type="button">📤 Escolher foto</button>
+                <input type="file" id="avatar-input" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="uploadAvatar(this.files[0])">
+              </div>
+            </div>
+            <div class="field"><label class="label" data-i="full_name">Nome</label><input class="input" id="s-name" placeholder="Ex: Maria Costa"></div>
+            <div class="field"><label class="label" data-i="location">Localização</label><input class="input" id="s-location" placeholder="Lisboa, Portugal"></div>
+            <div class="field"><label class="label">LinkedIn</label><input class="input" id="s-linkedin" placeholder="linkedin.com/in/..."></div>
+          </div>
+          <div class="settings-section">
+            <div class="settings-section-title">🎯 <span data-i="preferences">Preferências</span></div>
+            <div class="field"><label class="label" data-i="preferred_regime">Regime preferido</label>
+              <select class="select" id="s-regime">
+                <option value="remote">🌍 Remote</option>
+                <option value="hybrid">🏢 Híbrido</option>
+                <option value="onsite">🏢 Presencial</option>
+                <option value="any">✅ Qualquer</option>
+              </select>
+            </div>
+            <div class="field"><label class="label" data-i="target_regions">Regiões alvo</label>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px" id="region-checks">
+                <label class="checkbox-row"><input type="checkbox" value="eu" checked> 🇪🇺 Europa</label>
+                <label class="checkbox-row"><input type="checkbox" value="dach"> 🇩🇪 DACH</label>
+                <label class="checkbox-row"><input type="checkbox" value="brazil" checked> 🇧🇷 Brasil</label>
+                <label class="checkbox-row"><input type="checkbox" value="usa"> 🇺🇸 USA</label>
+                <label class="checkbox-row"><input type="checkbox" value="worldwide" checked> 🌐 Worldwide</label>
+              </div>
+            </div>
+            <div class="field"><label class="label" data-i="interface_language">Língua da interface</label>
+              <select class="select" id="s-lang" onchange="setLang(this.value)">
+                <option value="pt">🇧🇷 Português</option>
+                <option value="en">🇬🇧 English</option>
+                <option value="es">🇪🇸 Español</option>
+                <option value="fr">🇫🇷 Français</option>
+                <option value="de">🇩🇪 Deutsch</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="saveSettings()" style="width:fit-content">💾 <span data-i="save_settings">Guardar configurações</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN PANEL -->
+    <div class="app-view" id="view-admin">
+      <div class="view-header">
+        <div class="view-title">🔐 Admin Panel</div>
+        <div class="view-sub">Gestão de utilizadores e crescimento da plataforma</div>
+      </div>
+      <div class="view-body">
+        <div class="stats-grid" style="margin-bottom:24px">
+          <div class="stat-card stat-cv"><div class="stat-num" id="adm-total">—</div><div class="stat-lbl">👥 Total utilizadores</div></div>
+          <div class="stat-card stat-match"><div class="stat-num" id="adm-free">—</div><div class="stat-lbl">🆓 Plano gratuito</div></div>
+          <div class="stat-card stat-saved"><div class="stat-num" id="adm-pro">—</div><div class="stat-lbl">💎 Pro / Team</div></div>
+          <div class="stat-card stat-applied"><div class="stat-num" id="adm-blocked">—</div><div class="stat-lbl">🚫 Bloqueados</div></div>
+        </div>
+        <div style="display:flex;gap:4px;margin-bottom:16px">
+          <button class="btn btn-primary btn-sm" id="adm-tab-btn-users" onclick="adminTab('users')">👥 Utilizadores</button>
+          <button class="btn btn-ghost btn-sm" id="adm-tab-btn-growth" onclick="adminTab('growth')">📈 Crescimento</button>
+        </div>
+        <!-- Users Tab -->
+        <div id="adm-panel-users">
+          <div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse;font-size:.78rem">
+              <thead>
+                <tr style="border-bottom:2px solid var(--b);text-align:left">
+                  <th style="padding:8px 6px;color:var(--m);font-weight:600">Nome</th>
+                  <th style="padding:8px 6px;color:var(--m);font-weight:600">Email</th>
+                  <th style="padding:8px 6px;color:var(--m);font-weight:600">Plano</th>
+                  <th style="padding:8px 6px;color:var(--m);font-weight:600;text-align:center">CVs</th>
+                  <th style="padding:8px 6px;color:var(--m);font-weight:600;text-align:center">Limite CV</th>
+                  <th style="padding:8px 6px;color:var(--m);font-weight:600">Registo</th>
+                  <th style="padding:8px 6px;color:var(--m);font-weight:600;text-align:center">Estado</th>
+                  <th style="padding:8px 6px;color:var(--m);font-weight:600">Acções</th>
+                </tr>
+              </thead>
+              <tbody id="admin-users-body">
+                <tr><td colspan="8" style="padding:20px;text-align:center;color:var(--m)">A carregar...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!-- Growth Tab -->
+        <div id="adm-panel-growth" style="display:none">
+          <div class="section-title" style="margin-bottom:12px">📅 Novos utilizadores por semana (últimas 12 semanas)</div>
+          <div style="display:flex;align-items:flex-end;gap:6px;height:100px;padding:8px 0;border-bottom:1px solid var(--b)" id="adm-growth-chart"></div>
+          <div style="margin-top:20px">
+            <div class="section-title" style="margin-bottom:12px">📊 Métricas gerais</div>
+            <div id="adm-growth-totals" style="display:flex;gap:12px;flex-wrap:wrap"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay hidden" id="modal-job">
+  <div class="modal modal-lg">
+    <div class="modal-title">💼 <span id="mjob-title">—</span></div>
+    <div id="mjob-body"></div>
+    <div class="flex gap-8 justify-between" style="margin-top:20px;flex-wrap:wrap">
+      <div class="flex gap-8">
+        <button class="btn btn-primary" id="mjob-apply" data-i="apply_job">Ver vaga ↗</button>
+        <button class="btn btn-ghost" id="mjob-save">🔖 <span data-i="save">Guardar</span></button>
+      </div>
+      <button class="btn btn-ghost" onclick="closeModal('modal-job')">✕ <span data-i="close">Fechar</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="modal-confirm">
+  <div class="modal" style="max-width:400px;text-align:center">
+    <div style="font-size:2.5rem;margin-bottom:12px" id="mconf-icon">⚠️</div>
+    <div style="font-weight:700;margin-bottom:8px" id="mconf-title">Confirmar</div>
+    <div style="font-size:.83rem;color:var(--m2);margin-bottom:20px" id="mconf-msg"></div>
+    <div class="flex gap-8 justify-center">
+      <button class="btn btn-danger" id="mconf-ok" data-i="confirm">Confirmar</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-confirm')" data-i="cancel">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════════
+const CFG = {
+  url: 'https://pgscdvsmlojpfitbzrmo.supabase.co',
+  key: 'sb_publishable_67Q2CrO9g_bhKZFGp0Iv6g_56DczwE7',
+  edge: 'https://pgscdvsmlojpfitbzrmo.supabase.co/functions/v1'
+}
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js'
+const db = supabase.createClient(CFG.url, CFG.key)
+
+// ══════════════════════════════════════════════════
+// I18N
+// ══════════════════════════════════════════════════
+const I18N = {
+  pt:{
+    dashboard:'Dashboard',my_cvs:'Meus CVs',saved_jobs:'Vagas Guardadas',settings:'Configurações',
+    email:'Email',password:'Password',sign_in:'Entrar',create_account:'Criar conta',
+    full_name:'Nome completo',forgot_password:'Esqueci a password',back_to_login:'← Voltar ao login',
+    send_link:'Enviar link de recuperação',check_email:'Verifica o teu email',reset_password:'Recuperar password',
+    auth_register:'Criar conta',terms_note:'Ao criar conta aceitas os termos de uso.',
+    cvs_analysed:'CVs Analisados',matches_found:'Matches Encontrados',applications:'Candidaturas',
+    quick_actions:'Acções Rápidas',add_cv:'Adicionar CV',recent_matches:'Matches Recentes',
+    cv_sub:'Gere e analisa os teus currículos',new_cv:'Novo CV',
+    editor_sub:'Cola o texto ou faz upload do ficheiro',back:'Voltar',
+    cv_name:'Nome do CV',upload_file:'Clica para fazer upload',or_drag:'ou arrasta aqui',
+    or_paste:'ou cola o texto',cv_text:'Texto do CV',cv_settings:'Configurações',
+    cv_language:'Língua do CV',default_cv:'CV Principal',set_as_default:'Definir como padrão',
+    analysis:'Análise do CV',ai_note:'O sistema vai extrair automaticamente as tuas competências, línguas e experiência.',
+    save_analyse:'Guardar e Analisar',tips:'Dicas para melhor análise',
+    skills:'Competências detectadas',languages:'Línguas',summary:'Resumo do Perfil',filter:'Filtrar vagas',
+    all_jobs:'Todas as vagas',remote_only:'Só Remote',search_jobs_btn:'Pesquisar vagas',
+    search_190:'Pesquisar 190+ fontes',edit_cv:'Editar CV',total:'Total',
+    saved_sub:'Acompanha o estado das tuas candidaturas',job:'Vaga',company:'Empresa',
+    match:'Match',status:'Estado',saved_at:'Guardada',no_saved:'Ainda não guardaste nenhuma vaga.',
+    settings_sub:'Personaliza a tua experiência',profile:'Perfil',preferences:'Preferências',
+    preferred_regime:'Regime preferido',target_regions:'Regiões alvo',interface_language:'Língua da interface',
+    save_settings:'Guardar configurações',save:'Guardar',close:'Fechar',confirm:'Confirmar',cancel:'Cancelar',
+    cv_score:'Score',logout:'Sair',no_jobs:'Sem vagas para este filtro.',
+    location:'Localização',analysing:'A analisar CV...',
+    days_ago:'dias atrás',today:'hoje',yesterday:'ontem',weeks_ago:'sem.',months_ago:'mês',
+    status_saved:'Guardada',status_applied:'Candidatado',status_interview:'Entrevista',
+    status_offer:'Oferta',status_rejected:'Rejeitado',
+    auth_tagline:'Analisa o teu CV, encontra as vagas perfeitas nas 190+ fontes globais. Para qualquer stack de TI.',
+    af1:'Análise automática de CV',af2:'190+ fontes: EU, Brasil, USA, DACH',
+    af3:'Match score em tempo real',af4:'Dados protegidos e privados',sources:'fontes',
+    hello:'Olá',welcome_back:'Bem-vindo ao CVMatch Pro',
+    years_exp:'anos exp.',see_matches:'Ver matches',analyse:'Analisar',
+    delete_cv_title:'Apagar CV',delete_cv_msg:'Esta acção é irreversível. O CV e todos os seus matches serão eliminados.',
+    required_skills:'Skills Obrigatórias',nice_skills:'Skills Desejáveis',
+    min_exp:'Experiência mínima',source:'Fonte',apply_job:'Ver vaga ↗',
+    searching:'A pesquisar...',calling_ai:'A processar CV...',
+    processing:'A processar resultados...',calculating:'A calcular matches...',
+    completed:'Concluído!',characters:'caracteres',
+    regime_remote:'🌍 Remote',regime_hybrid:'🏢 Híbrido',regime_onsite:'🏢 Presencial',
+    edge_not_deployed:'Edge function não implementada ainda',
+    analysis_fallback:'Servidor indisponível — a usar análise local',
+    cv_success:'CV analisado com sucesso! 🎉',
+    tip1:'Inclui secção de competências com tecnologias específicas (ex: Python, AWS, React)',
+    tip2:'Menciona anos de experiência com cada tecnologia e stack',
+    tip3:'Lista línguas com nível de proficiência (fluente, C1, nativo, etc.)',
+    tip4:'Inclui projectos, empresas e resultados quantificáveis',
+    tip5:'Indica o regime preferido (remoto, híbrido, presencial)',
+    fill_all_fields:'Preenche todos os campos obrigatórios.',
+    pwd_min8:'A password deve ter no mínimo 8 caracteres.',
+    pwd_min6:'A password deve ter no mínimo 6 caracteres.',
+    pwd_hint:'Mínimo 8 caracteres',
+    pwd_weak:'Fraca',pwd_medium:'Média',pwd_strong:'Forte',
+    err_invalid_login:'Email ou password incorretos. Verifica os dados.',
+    err_email_not_confirmed:'Email não confirmado — verifica a tua caixa de entrada.',
+    err_already_registered:'Este email já tem conta. Faz login ou recupera a password.',
+    err_pwd_complexity:'A password precisa de maiúsculas, minúsculas, número e símbolo.',
+    err_invalid_email:'Formato de email inválido.',
+    err_rate_limit:'Demasiadas tentativas. Aguarda alguns minutos.',
+    err_network:'Erro de ligação. Verifica a tua internet.',
+    unknown_error:'Ocorreu um erro. Tenta novamente.',
+    confirm_password:'Confirmar password',
+    req_len:'Mínimo 8 caracteres',
+    req_upper:'Uma letra maiúscula (A-Z)',
+    req_num:'Um número (0-9)',
+    pwd_match:'Passwords iguais ✓',
+    pwd_no_match:'Passwords não coincidem',
+    or_continue_with:'ou continua com',continue_with_linkedin:'Continuar com LinkedIn',
+    onboard_title:'Bem-vindo ao CVMatch Pro!',onboard_sub:'Antes de começar, diz-nos como te chamas.',onboard_save:'Guardar e continuar',
+    no_jobs_title:'Sem vagas relevantes para o teu perfil',no_jobs_sub:'As vagas disponíveis não correspondem às skills do teu CV. Carrega um CV actualizado ou clica em "Nova Pesquisa" para tentar novamente.'
+  },
+  en:{
+    dashboard:'Dashboard',my_cvs:'My CVs',saved_jobs:'Saved Jobs',settings:'Settings',
+    email:'Email',password:'Password',sign_in:'Sign In',create_account:'Create Account',
+    full_name:'Full Name',forgot_password:'Forgot password',back_to_login:'← Back to login',
+    send_link:'Send reset link',check_email:'Check your email',reset_password:'Reset Password',
+    auth_register:'Sign Up',terms_note:'By creating an account you accept the terms of use.',
+    cvs_analysed:'CVs Analysed',matches_found:'Matches Found',applications:'Applications',
+    quick_actions:'Quick Actions',add_cv:'Add CV',recent_matches:'Recent Matches',
+    cv_sub:'Manage and analyse your CVs',new_cv:'New CV',
+    editor_sub:'Paste text or upload a file',back:'Back',
+    cv_name:'CV Name',upload_file:'Click to upload',or_drag:'or drag here',
+    or_paste:'or paste the text',cv_text:'CV Text',cv_settings:'Settings',
+    cv_language:'CV Language',default_cv:'Primary CV',set_as_default:'Set as default',
+    analysis:'CV Analysis',ai_note:'The system will automatically extract your skills, languages and experience.',
+    save_analyse:'Save & Analyse',tips:'Tips for better analysis',
+    skills:'Detected Skills',languages:'Languages',summary:'Profile Summary',filter:'Filter Jobs',
+    all_jobs:'All Jobs',remote_only:'Remote Only',search_jobs_btn:'Search Jobs',
+    search_190:'Search 190+ sources',edit_cv:'Edit CV',total:'Total',
+    saved_sub:'Track your job application status',job:'Job',company:'Company',
+    match:'Match',status:'Status',saved_at:'Saved',no_saved:'No saved jobs yet.',
+    settings_sub:'Personalise your experience',profile:'Profile',preferences:'Preferences',
+    preferred_regime:'Preferred regime',target_regions:'Target regions',interface_language:'Interface language',
+    save_settings:'Save settings',save:'Save',close:'Close',confirm:'Confirm',cancel:'Cancel',
+    cv_score:'Score',logout:'Sign out',no_jobs:'No jobs for this filter.',
+    location:'Location',analysing:'Analysing CV...',
+    days_ago:'days ago',today:'today',yesterday:'yesterday',weeks_ago:'wk',months_ago:'mo',
+    status_saved:'Saved',status_applied:'Applied',status_interview:'Interview',
+    status_offer:'Offer',status_rejected:'Rejected',
+    auth_tagline:'Analyse your CV, find the perfect jobs across 190+ global sources. For any IT stack.',
+    af1:'Automatic CV Analysis',af2:'190+ sources: EU, Brazil, USA, DACH',
+    af3:'Real-time match score',af4:'Protected and private data',sources:'sources',
+    hello:'Hello',welcome_back:'Welcome to CVMatch Pro',
+    years_exp:'yrs exp.',see_matches:'See matches',analyse:'Analyse',
+    delete_cv_title:'Delete CV',delete_cv_msg:'This action is irreversible. The CV and all its matches will be deleted.',
+    required_skills:'Required Skills',nice_skills:'Nice-to-have Skills',
+    min_exp:'Minimum experience',source:'Source',apply_job:'View job ↗',
+    searching:'Searching...',calling_ai:'Processing CV...',
+    processing:'Processing results...',calculating:'Calculating matches...',
+    completed:'Done!',characters:'characters',
+    regime_remote:'🌍 Remote',regime_hybrid:'🏢 Hybrid',regime_onsite:'🏢 On-site',
+    edge_not_deployed:'Edge function not deployed yet',
+    analysis_fallback:'Server unavailable — using local analysis',
+    cv_success:'CV analysed successfully! 🎉',
+    tip1:'Include a skills section with specific technologies (e.g. Python, AWS, React)',
+    tip2:'Mention years of experience with each technology and stack',
+    tip3:'List languages with proficiency level (fluent, C1, native, etc.)',
+    tip4:'Include projects, companies and quantifiable results',
+    tip5:'Indicate preferred work regime (remote, hybrid, on-site)',
+    fill_all_fields:'Please fill in all required fields.',
+    pwd_min8:'Password must be at least 8 characters.',
+    pwd_min6:'Password must be at least 6 characters.',
+    pwd_hint:'Minimum 8 characters',
+    pwd_weak:'Weak',pwd_medium:'Medium',pwd_strong:'Strong',
+    err_invalid_login:'Incorrect email or password. Please check your details.',
+    err_email_not_confirmed:'Email not confirmed — check your inbox.',
+    err_already_registered:'This email already has an account. Sign in or reset your password.',
+    err_pwd_complexity:'Password needs uppercase, lowercase, number and symbol.',
+    err_invalid_email:'Invalid email format.',
+    err_rate_limit:'Too many attempts. Please wait a few minutes.',
+    err_network:'Connection error. Check your internet.',
+    unknown_error:'An error occurred. Please try again.',
+    confirm_password:'Confirm password',
+    req_len:'At least 8 characters',
+    req_upper:'One uppercase letter (A-Z)',
+    req_num:'One number (0-9)',
+    pwd_match:'Passwords match ✓',
+    pwd_no_match:'Passwords do not match',
+    or_continue_with:'or continue with',continue_with_linkedin:'Continue with LinkedIn',
+    onboard_title:'Welcome to CVMatch Pro!',onboard_sub:'Before we start, tell us your name.',onboard_save:'Save and continue',
+    no_jobs_title:'No relevant jobs for your profile',no_jobs_sub:'The available jobs do not match your CV skills. Upload an updated CV or click "New Search" to try again.'
+  },
+  es:{
+    dashboard:'Inicio',my_cvs:'Mis CVs',saved_jobs:'Empleos Guardados',settings:'Configuración',
+    email:'Correo',password:'Contraseña',sign_in:'Iniciar sesión',create_account:'Crear cuenta',
+    full_name:'Nombre completo',forgot_password:'Olvidé la contraseña',back_to_login:'← Volver al login',
+    send_link:'Enviar enlace',check_email:'Revisa tu correo',reset_password:'Recuperar contraseña',
+    auth_register:'Registrarse',terms_note:'Al crear cuenta aceptas los términos de uso.',
+    cvs_analysed:'CVs Analizados',matches_found:'Coincidencias',applications:'Postulaciones',
+    quick_actions:'Acciones rápidas',add_cv:'Agregar CV',recent_matches:'Coincidencias recientes',
+    cv_sub:'Gestiona y analiza tus currículums',new_cv:'Nuevo CV',
+    editor_sub:'Pega el texto o sube un archivo',back:'Volver',
+    cv_name:'Nombre del CV',upload_file:'Clic para subir',or_drag:'o arrastra aquí',
+    or_paste:'o pega el texto',cv_text:'Texto del CV',cv_settings:'Configuración',
+    cv_language:'Idioma del CV',default_cv:'CV Principal',set_as_default:'Establecer como predeterminado',
+    analysis:'Análisis del CV',ai_note:'El sistema extraerá automáticamente tus habilidades, idiomas y experiencia.',
+    save_analyse:'Guardar y Analizar',tips:'Consejos para mejor análisis',
+    skills:'Habilidades detectadas',languages:'Idiomas',summary:'Resumen del Perfil',filter:'Filtrar empleos',
+    all_jobs:'Todos los empleos',remote_only:'Solo Remoto',search_jobs_btn:'Buscar empleos',
+    search_190:'Buscar 190+ fuentes',edit_cv:'Editar CV',total:'Total',
+    saved_sub:'Seguimiento de tus postulaciones',job:'Empleo',company:'Empresa',
+    match:'Coincidencia',status:'Estado',saved_at:'Guardado',no_saved:'No hay empleos guardados.',
+    settings_sub:'Personaliza tu experiencia',profile:'Perfil',preferences:'Preferencias',
+    preferred_regime:'Régimen preferido',target_regions:'Regiones objetivo',interface_language:'Idioma de interfaz',
+    save_settings:'Guardar configuración',save:'Guardar',close:'Cerrar',confirm:'Confirmar',cancel:'Cancelar',
+    cv_score:'Puntaje',logout:'Cerrar sesión',no_jobs:'Sin empleos para este filtro.',
+    location:'Ubicación',analysing:'Analizando CV...',
+    days_ago:'días atrás',today:'hoy',yesterday:'ayer',weeks_ago:'sem.',months_ago:'mes',
+    status_saved:'Guardado',status_applied:'Postulado',status_interview:'Entrevista',
+    status_offer:'Oferta',status_rejected:'Rechazado',
+    auth_tagline:'Analiza tu CV, encuentra los empleos perfectos en 190+ fuentes globales. Para cualquier stack de TI.',
+    af1:'Análisis automático de CV',af2:'190+ fuentes: EU, Brasil, USA, DACH',
+    af3:'Puntuación en tiempo real',af4:'Datos protegidos y privados',sources:'fuentes',
+    hello:'Hola',welcome_back:'Bienvenido a CVMatch Pro',
+    years_exp:'años exp.',see_matches:'Ver coincidencias',analyse:'Analizar',
+    delete_cv_title:'Eliminar CV',delete_cv_msg:'Esta acción es irreversible. El CV y todas sus coincidencias serán eliminados.',
+    required_skills:'Habilidades Requeridas',nice_skills:'Habilidades Deseables',
+    min_exp:'Experiencia mínima',source:'Fuente',apply_job:'Ver empleo ↗',
+    searching:'Buscando...',calling_ai:'Procesando CV...',
+    processing:'Procesando resultados...',calculating:'Calculando coincidencias...',
+    completed:'¡Completado!',characters:'caracteres',
+    regime_remote:'🌍 Remoto',regime_hybrid:'🏢 Híbrido',regime_onsite:'🏢 Presencial',
+    edge_not_deployed:'Edge function aún no implementada',
+    analysis_fallback:'Servidor no disponible — usando análisis local',
+    cv_success:'¡CV analizado con éxito! 🎉',
+    tip1:'Incluye sección de habilidades con tecnologías específicas (ej: Python, AWS, React)',
+    tip2:'Menciona años de experiencia con cada tecnología y stack',
+    tip3:'Lista idiomas con nivel de competencia (fluido, C1, nativo, etc.)',
+    tip4:'Incluye proyectos, empresas y resultados cuantificables',
+    tip5:'Indica el régimen de trabajo preferido (remoto, híbrido, presencial)',
+    fill_all_fields:'Por favor completa todos los campos obligatorios.',
+    pwd_min8:'La contraseña debe tener al menos 8 caracteres.',
+    pwd_min6:'La contraseña debe tener al menos 6 caracteres.',
+    pwd_hint:'Mínimo 8 caracteres',
+    pwd_weak:'Débil',pwd_medium:'Media',pwd_strong:'Fuerte',
+    err_invalid_login:'Email o contraseña incorrectos. Verifica tus datos.',
+    err_email_not_confirmed:'Email no confirmado — revisa tu bandeja de entrada.',
+    err_already_registered:'Este email ya tiene cuenta. Inicia sesión o recupera la contraseña.',
+    err_pwd_complexity:'La contraseña necesita mayúsculas, minúsculas, número y símbolo.',
+    err_invalid_email:'Formato de email inválido.',
+    err_rate_limit:'Demasiados intentos. Espera unos minutos.',
+    err_network:'Error de conexión. Verifica tu internet.',
+    unknown_error:'Ocurrió un error. Inténtalo de nuevo.',
+    confirm_password:'Confirmar contraseña',
+    req_len:'Mínimo 8 caracteres',
+    req_upper:'Una letra mayúscula (A-Z)',
+    req_num:'Un número (0-9)',
+    pwd_match:'Contraseñas iguales ✓',
+    pwd_no_match:'Las contraseñas no coinciden',
+    or_continue_with:'o continúa con',continue_with_linkedin:'Continuar con LinkedIn',
+    onboard_title:'¡Bienvenido a CVMatch Pro!',onboard_sub:'Antes de empezar, dinos tu nombre.',onboard_save:'Guardar y continuar',
+    no_jobs_title:'Sin empleos relevantes para tu perfil',no_jobs_sub:'Los empleos disponibles no coinciden con las skills de tu CV. Sube un CV actualizado o haz clic en "Nueva búsqueda" para intentarlo de nuevo.'
+  },
+  fr:{
+    dashboard:'Tableau de bord',my_cvs:'Mes CVs',saved_jobs:'Offres sauvegardées',settings:'Paramètres',
+    email:'Email',password:'Mot de passe',sign_in:'Se connecter',create_account:'Créer un compte',
+    full_name:'Nom complet',forgot_password:'Mot de passe oublié',back_to_login:'← Retour à la connexion',
+    send_link:'Envoyer le lien',check_email:'Vérifiez votre email',reset_password:'Réinitialiser le mot de passe',
+    auth_register:"S'inscrire",terms_note:"En créant un compte, vous acceptez les conditions d'utilisation.",
+    cvs_analysed:'CVs Analysés',matches_found:'Correspondances',applications:'Candidatures',
+    quick_actions:'Actions rapides',add_cv:'Ajouter CV',recent_matches:'Correspondances récentes',
+    cv_sub:'Gérez et analysez vos CVs',new_cv:'Nouveau CV',
+    editor_sub:'Collez le texte ou téléchargez un fichier',back:'Retour',
+    cv_name:'Nom du CV',upload_file:'Cliquez pour télécharger',or_drag:'ou glissez ici',
+    or_paste:'ou collez le texte',cv_text:'Texte du CV',cv_settings:'Paramètres',
+    cv_language:'Langue du CV',default_cv:'CV Principal',set_as_default:'Définir par défaut',
+    analysis:'Analyse du CV',ai_note:"Le système extraira automatiquement vos compétences, langues et expérience.",
+    save_analyse:'Sauvegarder et Analyser',tips:'Conseils pour une meilleure analyse',
+    skills:'Compétences détectées',languages:'Langues',summary:'Résumé du Profil',filter:'Filtrer les offres',
+    all_jobs:'Toutes les offres',remote_only:'Télétravail uniquement',search_jobs_btn:'Rechercher des offres',
+    search_190:'Rechercher 190+ sources',edit_cv:'Modifier CV',total:'Total',
+    saved_sub:'Suivez vos candidatures',job:'Offre',company:'Entreprise',
+    match:'Match',status:'Statut',saved_at:'Sauvegardée',no_saved:'Aucune offre sauvegardée.',
+    settings_sub:'Personnalisez votre expérience',profile:'Profil',preferences:'Préférences',
+    preferred_regime:'Régime préféré',target_regions:'Régions cibles',interface_language:"Langue de l'interface",
+    save_settings:'Sauvegarder',save:'Sauvegarder',close:'Fermer',confirm:'Confirmer',cancel:'Annuler',
+    cv_score:'Score',logout:'Se déconnecter',no_jobs:'Aucune offre pour ce filtre.',
+    location:'Localisation',analysing:'Analyse du CV...',
+    days_ago:'jours',today:"aujourd'hui",yesterday:'hier',weeks_ago:'sem.',months_ago:'mois',
+    status_saved:'Sauvegardée',status_applied:'Postulé',status_interview:'Entretien',
+    status_offer:'Offre',status_rejected:'Refusé',
+    auth_tagline:'Analysez votre CV, trouvez les offres parfaites parmi 190+ sources mondiales. Pour tout stack IT.',
+    af1:'Analyse automatique de CV',af2:'190+ sources : EU, Brésil, USA, DACH',
+    af3:'Score de correspondance en temps réel',af4:'Données protégées et privées',sources:'sources',
+    hello:'Bonjour',welcome_back:'Bienvenue sur CVMatch Pro',
+    years_exp:'ans exp.',see_matches:'Voir les correspondances',analyse:'Analyser',
+    delete_cv_title:'Supprimer le CV',delete_cv_msg:'Cette action est irréversible. Le CV et toutes ses correspondances seront supprimés.',
+    required_skills:'Compétences requises',nice_skills:'Compétences souhaitées',
+    min_exp:'Expérience minimale',source:'Source',apply_job:"Voir l'offre ↗",
+    searching:'Recherche en cours...',calling_ai:'Traitement du CV...',
+    processing:'Traitement des résultats...',calculating:'Calcul des correspondances...',
+    completed:'Terminé !',characters:'caractères',
+    regime_remote:'🌍 Télétravail',regime_hybrid:'🏢 Hybride',regime_onsite:'🏢 Présentiel',
+    edge_not_deployed:'Edge function pas encore déployée',
+    analysis_fallback:'Serveur indisponible — extraction locale utilisée',
+    cv_success:'CV analysé avec succès ! 🎉',
+    tip1:'Incluez une section compétences avec les technologies spécifiques (ex : Python, AWS, React)',
+    tip2:"Mentionnez les années d'expérience avec chaque technologie",
+    tip3:'Listez les langues avec le niveau de maîtrise (courant, C1, natif, etc.)',
+    tip4:'Incluez des projets, entreprises et résultats quantifiables',
+    tip5:'Indiquez le régime de travail préféré (télétravail, hybride, présentiel)',
+    fill_all_fields:'Veuillez remplir tous les champs obligatoires.',
+    pwd_min8:'Le mot de passe doit contenir au moins 8 caractères.',
+    pwd_min6:'Le mot de passe doit contenir au moins 6 caractères.',
+    pwd_hint:'Minimum 8 caractères',
+    pwd_weak:'Faible',pwd_medium:'Moyen',pwd_strong:'Fort',
+    err_invalid_login:'Email ou mot de passe incorrect. Vérifiez vos informations.',
+    err_email_not_confirmed:'Email non confirmé — vérifiez votre boîte de réception.',
+    err_already_registered:'Cet email a déjà un compte. Connectez-vous ou réinitialisez le mot de passe.',
+    err_pwd_complexity:'Le mot de passe doit contenir majuscules, minuscules, chiffre et symbole.',
+    err_invalid_email:'Format email invalide.',
+    err_rate_limit:'Trop de tentatives. Veuillez patienter quelques minutes.',
+    err_network:'Erreur de connexion. Vérifiez votre internet.',
+    unknown_error:'Une erreur est survenue. Veuillez réessayer.',
+    confirm_password:'Confirmer le mot de passe',
+    req_len:'Minimum 8 caractères',req_upper:'Une lettre majuscule (A-Z)',req_num:'Un chiffre (0-9)',
+    pwd_match:'Mots de passe identiques ✓',pwd_no_match:'Les mots de passe ne correspondent pas',
+    or_continue_with:'ou continuer avec',continue_with_linkedin:'Continuer avec LinkedIn',
+    onboard_title:'Bienvenue sur CVMatch Pro !',onboard_sub:'Avant de commencer, dites-nous votre nom.',onboard_save:'Enregistrer et continuer',
+    no_jobs_title:'Aucune offre pertinente pour votre profil',no_jobs_sub:"Les offres disponibles ne correspondent pas aux compétences de votre CV. Téléchargez un CV mis à jour ou cliquez sur \"Nouvelle recherche\" pour réessayer."
+  },
+  de:{
+    dashboard:'Dashboard',my_cvs:'Meine Lebensläufe',saved_jobs:'Gespeicherte Stellen',settings:'Einstellungen',
+    email:'E-Mail',password:'Passwort',sign_in:'Anmelden',create_account:'Konto erstellen',
+    full_name:'Vollständiger Name',forgot_password:'Passwort vergessen',back_to_login:'← Zurück zur Anmeldung',
+    send_link:'Link senden',check_email:'E-Mail überprüfen',reset_password:'Passwort zurücksetzen',
+    auth_register:'Registrieren',terms_note:'Mit der Kontoerstellung akzeptieren Sie die Nutzungsbedingungen.',
+    cvs_analysed:'Analysierte Lebensläufe',matches_found:'Übereinstimmungen',applications:'Bewerbungen',
+    quick_actions:'Schnellaktionen',add_cv:'Lebenslauf hinzufügen',recent_matches:'Aktuelle Übereinstimmungen',
+    cv_sub:'Verwalten und analysieren Sie Ihre Lebensläufe',new_cv:'Neuer Lebenslauf',
+    editor_sub:'Text einfügen oder Datei hochladen',back:'Zurück',
+    cv_name:'Name des Lebenslaufs',upload_file:'Zum Hochladen klicken',or_drag:'oder hierher ziehen',
+    or_paste:'oder Text einfügen',cv_text:'Lebenslauftext',cv_settings:'Einstellungen',
+    cv_language:'Sprache des Lebenslaufs',default_cv:'Haupt-Lebenslauf',set_as_default:'Als Standard festlegen',
+    analysis:'Lebenslauf-Analyse',ai_note:'Das System extrahiert automatisch Ihre Fähigkeiten, Sprachen und Erfahrung.',
+    save_analyse:'Speichern und Analysieren',tips:'Tipps für eine bessere Analyse',
+    skills:'Erkannte Fähigkeiten',languages:'Sprachen',summary:'Profil-Zusammenfassung',filter:'Stellen filtern',
+    all_jobs:'Alle Stellen',remote_only:'Nur Remote',search_jobs_btn:'Stellen suchen',
+    search_190:'190+ Quellen durchsuchen',edit_cv:'Lebenslauf bearbeiten',total:'Gesamt',
+    saved_sub:'Bewerbungsstatus verfolgen',job:'Stelle',company:'Unternehmen',
+    match:'Match',status:'Status',saved_at:'Gespeichert',no_saved:'Keine gespeicherten Stellen.',
+    settings_sub:'Erfahrung personalisieren',profile:'Profil',preferences:'Präferenzen',
+    preferred_regime:'Bevorzugtes Arbeitsmodell',target_regions:'Zielregionen',interface_language:'Schnittstellensprache',
+    save_settings:'Einstellungen speichern',save:'Speichern',close:'Schließen',confirm:'Bestätigen',cancel:'Abbrechen',
+    cv_score:'Score',logout:'Abmelden',no_jobs:'Keine Stellen für diesen Filter.',
+    location:'Standort',analysing:'Lebenslauf wird analysiert...',
+    days_ago:'Tage her',today:'heute',yesterday:'gestern',weeks_ago:'Wo.',months_ago:'Mo.',
+    status_saved:'Gespeichert',status_applied:'Beworben',status_interview:'Vorstellungsgespräch',
+    status_offer:'Angebot',status_rejected:'Abgelehnt',
+    auth_tagline:'Analysieren Sie Ihren Lebenslauf und finden Sie perfekte Jobs aus 190+ globalen Quellen. Für jeden IT-Stack.',
+    af1:'Automatische Lebenslauf-Analyse',af2:'190+ Quellen: EU, Brasilien, USA, DACH',
+    af3:'Echtzeit-Match-Score',af4:'Geschützte und private Daten',sources:'Quellen',
+    hello:'Hallo',welcome_back:'Willkommen bei CVMatch Pro',
+    years_exp:'J. Erfahrung',see_matches:'Übereinstimmungen ansehen',analyse:'Analysieren',
+    delete_cv_title:'Lebenslauf löschen',delete_cv_msg:'Diese Aktion ist irreversibel. Der Lebenslauf und alle Übereinstimmungen werden gelöscht.',
+    required_skills:'Erforderliche Fähigkeiten',nice_skills:'Wünschenswerte Fähigkeiten',
+    min_exp:'Mindesterfahrung',source:'Quelle',apply_job:'Stelle ansehen ↗',
+    searching:'Suche läuft...',calling_ai:'Lebenslauf wird verarbeitet...',
+    processing:'Ergebnisse werden verarbeitet...',calculating:'Übereinstimmungen werden berechnet...',
+    completed:'Abgeschlossen!',characters:'Zeichen',
+    regime_remote:'🌍 Remote',regime_hybrid:'🏢 Hybrid',regime_onsite:'🏢 Vor Ort',
+    edge_not_deployed:'Edge-Funktion noch nicht bereitgestellt',
+    analysis_fallback:'Server nicht verfügbar — lokale Analyse wird verwendet',
+    cv_success:'Lebenslauf erfolgreich analysiert! 🎉',
+    tip1:'Fügen Sie einen Kompetenzbereich mit spezifischen Technologien ein (z.B. Python, AWS, React)',
+    tip2:'Erwähnen Sie die Jahre Erfahrung mit jeder Technologie',
+    tip3:'Listen Sie Sprachen mit Kenntnisstand (fließend, C1, Muttersprache usw.) auf',
+    tip4:'Fügen Sie Projekte, Unternehmen und messbare Ergebnisse ein',
+    tip5:'Geben Sie das bevorzugte Arbeitsmodell an (Remote, Hybrid, Vor Ort)',
+    fill_all_fields:'Bitte alle Pflichtfelder ausfüllen.',
+    pwd_min8:'Das Passwort muss mindestens 8 Zeichen haben.',
+    pwd_min6:'Das Passwort muss mindestens 6 Zeichen haben.',
+    pwd_hint:'Mindestens 8 Zeichen',
+    pwd_weak:'Schwach',pwd_medium:'Mittel',pwd_strong:'Stark',
+    err_invalid_login:'Falsche E-Mail oder falsches Passwort. Bitte überprüfen.',
+    err_email_not_confirmed:'E-Mail nicht bestätigt — überprüfen Sie Ihren Posteingang.',
+    err_already_registered:'Diese E-Mail hat bereits ein Konto. Melden Sie sich an oder setzen Sie das Passwort zurück.',
+    err_pwd_complexity:'Passwort benötigt Groß-, Kleinbuchstaben, Zahl und Symbol.',
+    err_invalid_email:'Ungültiges E-Mail-Format.',
+    err_rate_limit:'Zu viele Versuche. Bitte warten Sie einige Minuten.',
+    err_network:'Verbindungsfehler. Überprüfen Sie Ihre Internetverbindung.',
+    unknown_error:'Ein Fehler ist aufgetreten. Bitte erneut versuchen.',
+    confirm_password:'Passwort bestätigen',
+    req_len:'Mindestens 8 Zeichen',req_upper:'Ein Großbuchstabe (A-Z)',req_num:'Eine Zahl (0-9)',
+    pwd_match:'Passwörter stimmen überein ✓',pwd_no_match:'Passwörter stimmen nicht überein',
+    or_continue_with:'oder weiter mit',continue_with_linkedin:'Mit LinkedIn fortfahren',
+    onboard_title:'Willkommen bei CVMatch Pro!',onboard_sub:'Bevor wir beginnen, sagen Sie uns Ihren Namen.',onboard_save:'Speichern und fortfahren',
+    no_jobs_title:'Keine relevanten Stellen für Ihr Profil',no_jobs_sub:'Die verfügbaren Stellen entsprechen nicht den Fähigkeiten in Ihrem Lebenslauf. Laden Sie einen aktuellen Lebenslauf hoch oder klicken Sie auf "Neue Suche".'
+  }
+}
+
+// ══════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════
+const S = {
+  user: null, profile: null, lang: localStorage.getItem('lang') || 'pt',
+  view: 'dashboard', cvs: [], currentCV: null, currentAnalysis: null,
+  jobs: [], allMatches: [], savedJobs: [], filter: 'all'
+}
+const t = k => I18N[S.lang]?.[k] || I18N.pt[k] || k
+
+// ══════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════
+function toast(msg, type='ok', dur=3500) {
+  const w = document.getElementById('toast-wrap')
+  const el = document.createElement('div')
+  el.className = `toast toast-${type}`
+  el.innerHTML = `<span>${{ok:'✅',err:'❌',info:'ℹ️'}[type]||'ℹ️'}</span><span>${msg}</span>`
+  w.appendChild(el)
+  setTimeout(() => el.remove(), dur)
+}
+
+// ══════════════════════════════════════════════════
+// I18N APPLICATION
+// ══════════════════════════════════════════════════
+function applyI18n() {
+  document.querySelectorAll('[data-i]').forEach(el => {
+    const k = el.dataset.i
+    if (k) el.textContent = t(k)
+  })
+  document.getElementById('auth-lang-sel').value = S.lang
+  const appSel = document.getElementById('app-lang-sel')
+  if (appSel) appSel.value = S.lang
+  const sSel = document.getElementById('s-lang')
+  if (sSel) sSel.value = S.lang
+}
+
+function setLang(l) {
+  S.lang = l
+  localStorage.setItem('lang', l)
+  document.getElementById('auth-lang-sel').value = l
+  const appSel = document.getElementById('app-lang-sel')
+  if (appSel) appSel.value = l
+  const sSel = document.getElementById('s-lang')
+  if (sSel) sSel.value = l
+  applyI18n()
+  // Re-render the active view so dynamic content updates
+  if (S.user) {
+    const renders = {
+      dashboard: renderDashboard, cvs: renderCVs, analysis: renderAnalysis,
+      saved: renderSaved, settings: renderSettings, admin: renderAdmin
+    }
+    if (S.view === 'cv-editor') renderCVEditor()
+    else renders[S.view]?.()
+  }
+}
+
+// ══════════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════════
+// AUTH HELPERS
+// ══════════════════════════════════════════════════
+function showAuthErr(el, msg) {
+  el.textContent = msg
+  el.classList.add('show')
+}
+
+function translateSupabaseError(msg) {
+  if (!msg) return t('unknown_error')
+  const m = msg.toLowerCase()
+  if (m.includes('invalid login') || m.includes('invalid credentials') || m.includes('wrong password'))
+    return t('err_invalid_login')
+  if (m.includes('email not confirmed'))
+    return t('err_email_not_confirmed')
+  if (m.includes('already registered') || m.includes('user already'))
+    return t('err_already_registered')
+  if (m.includes('at least 8') || m.includes('minimum 8'))
+    return t('pwd_min8')
+  if (m.includes('at least 6') || m.includes('minimum 6'))
+    return t('pwd_min6')
+  if (m.includes('password') && (m.includes('uppercase') || m.includes('number') || m.includes('special')))
+    return t('err_pwd_complexity')
+  if (m.includes('email') && m.includes('invalid'))
+    return t('err_invalid_email')
+  if (m.includes('rate limit') || m.includes('too many'))
+    return t('err_rate_limit')
+  if (m.includes('network') || m.includes('fetch'))
+    return t('err_network')
+  return msg
+}
+
+function checkPwdStrength(val) {
+  const bar = document.getElementById('pwd-strength-bar')
+  const fill = document.getElementById('pwd-strength-fill')
+  const reqs = document.getElementById('pwd-reqs')
+  if (!val) { bar.style.display='none'; if(reqs) reqs.style.display='none'; return }
+  bar.style.display = 'block'
+  if(reqs) reqs.style.display = 'flex'
+
+  const hasLen   = val.length >= 8
+  const hasUpper = /[A-Z]/.test(val)
+  const hasNum   = /[0-9]/.test(val)
+  const hasSpec  = /[^A-Za-z0-9]/.test(val)
+
+  // Update requirement indicators
+  const setReq = (id, ok) => {
+    const el = document.getElementById(id)
+    if (el) el.classList.toggle('ok', ok)
+  }
+  setReq('req-len',   hasLen)
+  setReq('req-upper', hasUpper)
+  setReq('req-num',   hasNum)
+
+  // Strength bar
+  let score = [hasLen, hasUpper, hasNum, hasSpec, val.length >= 12].filter(Boolean).length
+  const colors = ['#ef4444','#ef4444','#f59e0b','#10b981','#10b981']
+  fill.style.width   = Math.max(10, score/5*100) + '%'
+  fill.style.background = colors[score-1] || '#ef4444'
+
+  // Also refresh confirm match hint
+  checkPwdMatch()
+}
+
+function checkPwdMatch() {
+  const pwd  = document.getElementById('reg-pwd')?.value || ''
+  const conf = document.getElementById('reg-pwd-confirm')?.value || ''
+  const hint = document.getElementById('pwd-match-hint')
+  if (!hint || !conf) return
+  hint.style.display = 'block'
+  if (conf === pwd) {
+    hint.textContent = '✓ ' + (t('pwd_match') || 'Passwords iguais')
+    hint.style.color = '#4ade80'
+  } else {
+    hint.textContent = '✗ ' + (t('pwd_no_match') || 'Passwords não coincidem')
+    hint.style.color = '#fca5a5'
+  }
+}
+
+// ══════════════════════════════════════════════════
+function authTab(tab) {
+  document.getElementById('panel-login').classList.toggle('on', tab==='login')
+  document.getElementById('panel-register').classList.toggle('on', tab==='register')
+  document.getElementById('tab-login').classList.toggle('on', tab==='login')
+  document.getElementById('tab-register').classList.toggle('on', tab==='register')
+}
+function authPanel(p) {
+  ['main','forgot','email-sent','new-password'].forEach(id => {
+    const el = document.getElementById(`auth-panel-${id}`)
+    if (el) el.classList.toggle('hidden', id !== p)
+  })
+}
+
+async function signInWithLinkedIn() {
+  const { error } = await db.auth.signInWithOAuth({
+    provider: 'linkedin_oidc',
+    options: {
+      redirectTo: window.location.origin + window.location.pathname,
+      scopes: 'openid profile email'
+    }
+  })
+  if (error) toast('LinkedIn: ' + error.message, 'err')
+}
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim()
+  const pwd = document.getElementById('login-pwd').value
+  const errEl = document.getElementById('login-error')
+  errEl.classList.remove('show')
+  if (!email || !pwd) { showAuthErr(errEl, t('fill_all_fields')); return }
+  const btn = document.getElementById('btn-login')
+  btn.disabled = true
+  const { error } = await db.auth.signInWithPassword({ email, password: pwd })
+  btn.disabled = false
+  if (error) { showAuthErr(errEl, translateSupabaseError(error.message)) }
+}
+
+async function doRegister() {
+  const name = document.getElementById('reg-name').value.trim()
+  const email = document.getElementById('reg-email').value.trim()
+  const pwd = document.getElementById('reg-pwd').value
+  const errEl = document.getElementById('reg-error')
+  errEl.classList.remove('show')
+  const pwdConfirm = document.getElementById('reg-pwd-confirm').value
+  if (!name || !email || !pwd) { showAuthErr(errEl, t('fill_all_fields')); return }
+  if (pwd.length < 8) { showAuthErr(errEl, t('pwd_min8')); return }
+  if (!/[A-Z]/.test(pwd)) { showAuthErr(errEl, t('req_upper')); return }
+  if (!/[0-9]/.test(pwd)) { showAuthErr(errEl, t('req_num')); return }
+  if (pwd !== pwdConfirm) { showAuthErr(errEl, t('pwd_no_match')); return }
+  const btn = document.getElementById('btn-register')
+  btn.disabled = true
+  const { data: signUpData, error } = await db.auth.signUp({
+    email, password: pwd,
+    options: { data: { full_name: name, ui_language: S.lang } }
+  })
+  btn.disabled = false
+
+  if (error) {
+    showAuthErr(errEl, translateSupabaseError(error.message))
+    return
+  }
+
+  // Se sessão já foi criada (email confirm desactivado no Supabase) — login automático
+  if (signUpData?.session) {
+    toast('Conta criada! Bem-vindo 🎉', 'ok')
+    return
+  }
+
+  // Email confirmation necessário
+  document.getElementById('email-sent-msg').innerHTML =
+    `Enviámos um email de confirmação para <strong>${email}</strong>.<br><br>
+     Clica no link do email para activar a tua conta.<br>
+     <span style="font-size:.78rem;color:var(--m)">Não chegou? Verifica a pasta Spam.</span>`
+  authPanel('email-sent')
+}
+
+async function doForgot() {
+  const email = document.getElementById('forgot-email').value.trim()
+  const errEl = document.getElementById('forgot-error')
+  errEl.classList.remove('show')
+  if (!email) { errEl.textContent = 'Introduz o teu email'; errEl.classList.add('show'); return }
+  const { error } = await db.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname })
+  if (error) { showAuthErr(errEl, translateSupabaseError(error.message)); return }
+  document.getElementById('email-sent-msg').textContent = `Enviámos um link de recuperação para ${email}.`
+  authPanel('email-sent')
+}
+
+function doLogout() {
+  // Clear session immediately — don't wait for network
+  Object.keys(localStorage).filter(k => k.startsWith('sb-')).forEach(k => localStorage.removeItem(k))
+  try { db.auth.signOut() } catch {}
+  location.href = location.pathname
+}
+
+// ══════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════
+function showScreen(screen) {
+  document.getElementById('auth-screen').style.display = screen === 'auth' ? 'flex' : 'none'
+  document.getElementById('app-shell').style.display = screen === 'app' ? 'flex' : 'none'
+}
+function nav(view, opts = {}) {
+  S.view = view
+  if (!opts.noSave) localStorage.setItem('cvmatch_view', view)
+  document.querySelectorAll('.app-view').forEach(el => el.classList.toggle('on', el.id === `view-${view}`))
+  document.querySelectorAll('[data-nav]').forEach(btn => btn.classList.toggle('on', btn.dataset.nav === view))
+  const renders = {
+    dashboard: renderDashboard, cvs: renderCVs, analysis: renderAnalysis,
+    saved: renderSaved, settings: renderSettings
+  }
+  if (view === 'cv-editor') renderCVEditor(opts)
+  else renders[view]?.()
+}
+function toggleDropdown() {
+  document.getElementById('user-dropdown').classList.toggle('hidden')
+}
+document.addEventListener('click', e => {
+  const um = document.querySelector('.user-menu')
+  if (um && !um.contains(e.target)) document.getElementById('user-dropdown').classList.add('hidden')
+})
+
+// ══════════════════════════════════════════════════
+// USER PROFILE
+// ══════════════════════════════════════════════════
+async function loadUserProfile() {
+  if (!S.user) return
+  const meta = S.user?.user_metadata || {}
+  const identity = S.user?.identities?.[0]?.identity_data || {}
+  const oauthName = meta.full_name || meta.name
+    || (meta.given_name && meta.family_name ? `${meta.given_name} ${meta.family_name}` : '')
+    || identity.full_name || identity.name
+    || (identity.given_name && identity.family_name ? `${identity.given_name} ${identity.family_name}` : '')
+    || ''
+  const oauthAvatar = meta.avatar_url || meta.picture || identity.avatar_url || identity.picture || ''
+  const provider = S.user?.app_metadata?.provider || ''
+  const isOAuth = provider !== 'email' && provider !== ''
+
+  const { data } = await db.from('user_profiles').select('*').eq('id', S.user.id).single()
+  if (data) {
+    S.profile = data
+    if (data.is_blocked) {
+      doLogout()
+      setTimeout(() => toast('Conta suspensa. Contacte o administrador.', 'err', 6000), 500)
+      return
+    }
+    const updates = {}
+    const emailPrefix = S.user.email?.split('@')[0] || ''
+    // Replace name if missing or if it's just the email prefix (trigger fallback)
+    if (isOAuth && oauthName && (!data.full_name || data.full_name === emailPrefix)) {
+      updates.full_name = oauthName
+    }
+    if (isOAuth && oauthAvatar && !data.avatar_url) updates.avatar_url = oauthAvatar
+    if (!data.onboarded) updates.onboarded = true
+    if (Object.keys(updates).length) {
+      await db.from('user_profiles').update(updates).eq('id', S.user.id)
+      Object.assign(S.profile, updates)
+    }
+    const displayName = S.profile.full_name || S.user.email
+    const initials = displayName.slice(0, 2).toUpperCase()
+    updateAvatarDisplay(S.profile.avatar_url, initials)
+    document.getElementById('dd-name').textContent = displayName
+    const ddEmail = document.getElementById('dd-email'); if (ddEmail) ddEmail.textContent = S.user.email
+    if (data.ui_language) setLang(data.ui_language)
+    populateSettings(S.profile)
+    const adminNav = document.getElementById('nav-admin')
+    if (adminNav) adminNav.style.display = S.profile.is_admin ? '' : 'none'
+    if (provider === 'linkedin_oidc' && !data.onboarded) {
+      setTimeout(() => showLinkedInBanner(), 1200)
+    }
+  }
+}
+
+function showLinkedInBanner() {
+  if (document.getElementById('li-banner')) return
+  const name = S.profile?.full_name?.split(' ')[0] || ''
+  const banner = document.createElement('div')
+  banner.id = 'li-banner'
+  banner.style.cssText = 'background:linear-gradient(135deg,#0077B5,#005f93);color:#fff;border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:14px'
+  banner.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="white" style="flex-shrink:0"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+    <div style="flex:1">
+      <div style="font-weight:700;margin-bottom:2px">${name ? 'Olá, ' + name + '!' : 'Perfil LinkedIn detectado!'}</div>
+      <div style="font-size:.83rem;opacity:.9">Queres carregar o teu CV e encontrar vagas compatíveis com o teu perfil?</div>
+    </div>
+    <button onclick="nav('cvs');document.getElementById('li-banner')?.remove()" style="background:#fff;color:#0077B5;border:none;padding:8px 16px;border-radius:8px;font-weight:700;cursor:pointer;white-space:nowrap;font-size:.83rem">Carregar CV</button>
+    <button onclick="document.getElementById('li-banner').remove()" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4);padding:8px 12px;border-radius:8px;cursor:pointer;font-size:.83rem">Agora não</button>
+  `
+  const dashBody = document.querySelector('#view-dashboard .view-body')
+  if (dashBody) dashBody.prepend(banner)
+}
+
+function updateAvatarDisplay(url, initials) {
+  const _initials = initials || (S.profile?.full_name || S.user?.email || '?').slice(0,2).toUpperCase()
+  const ids = ['s-avatar-preview', 'dash-avatar']
+  ids.forEach(id => {
+    const el = document.getElementById(id)
+    if (!el) return
+    if (url) {
+      el.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+    } else {
+      el.innerHTML = ''
+      el.textContent = _initials
+    }
+  })
+}
+
+async function uploadAvatar(file) {
+  if (!file || !S.user) return
+  if (file.size > 2 * 1024 * 1024) { toast('Ficheiro demasiado grande (máx 2MB)', 'err'); return }
+  const validTypes = ['image/jpeg','image/png','image/webp']
+  if (!validTypes.includes(file.type)) { toast('Formato inválido. Use JPG, PNG ou WebP.', 'err'); return }
+  toast('A carregar foto...', 'info', 8000)
+  const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg'
+  const path = `${S.user.id}/avatar.${ext}`
+  const { error: upErr } = await db.storage.from('avatars').upload(path, file, { upsert: true, contentType: file.type })
+  if (upErr) { toast('Erro ao carregar foto: ' + upErr.message, 'err'); return }
+  const { data: { publicUrl } } = db.storage.from('avatars').getPublicUrl(path)
+  const { error: updateErr } = await db.from('user_profiles').update({ avatar_url: publicUrl }).eq('id', S.user.id)
+  if (updateErr) { toast('Erro ao guardar foto', 'err'); return }
+  if (S.profile) S.profile.avatar_url = publicUrl
+  updateAvatarDisplay(publicUrl)
+  toast('Foto actualizada ✓', 'ok')
+}
+
+// ══════════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════════
+function getFirstName() {
+  return S.profile?.full_name?.split(' ')[0]
+    || S.user?.user_metadata?.full_name?.split(' ')[0]
+    || S.user?.email?.split('@')[0]
+    || 'User'
+}
+
+async function renderDashboard() {
+  const name = getFirstName()
+  document.getElementById('dash-greeting').textContent = `${t('hello')}, ${name} 👋`
+  document.getElementById('dash-sub').textContent = t('welcome_back')
+  const { data: stats } = await db.rpc('get_user_stats', { p_user_id: S.user.id })
+  if (stats) {
+    document.getElementById('stat-cvs').textContent = stats.cv_count || 0
+    document.getElementById('stat-matches').textContent = stats.match_count || 0
+    document.getElementById('stat-saved').textContent = stats.saved_count || 0
+    document.getElementById('stat-applied').textContent = stats.applied_count || 0
+  }
+  // Recent matches
+  const { data: recent } = await db.from('matches').select('*,job:jobs(title,company,region,flag,regime,salary)')
+    .eq('user_id', S.user.id).order('match_score', {ascending:false}).limit(8)
+  const el = document.getElementById('dash-recent-matches')
+  if (!recent?.length) { el.innerHTML = `<div style="color:var(--m);font-size:.82rem">${t('no_jobs')}</div>`; return }
+  el.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px'
+  el.innerHTML = recent.map(m => {
+    const sc = m.match_score
+    const scCls = sc>=75?'badge-green':sc>=40?'badge-yellow':'badge-red'
+    const regColor = {remote:'var(--g)',hybrid:'var(--y,#f59e0b)',onsite:'var(--r)'}[m.job?.regime]||'var(--m)'
+    return `<div class="card" style="cursor:pointer;padding:14px;display:flex;flex-direction:column;gap:8px;transition:transform .15s" onclick="openJobDetail('${m.job_id}')" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform=''">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px">
+        <span style="font-size:1.2rem">${m.job?.flag||'🌐'}</span>
+        <span class="badge ${scCls}" style="font-size:.7rem;font-weight:700">⚡ ${sc}%</span>
+      </div>
+      <div style="font-size:.78rem;font-weight:700;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${m.job?.title||'—'}</div>
+      <div style="font-size:.68rem;color:var(--m2)">${m.job?.company||'—'}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto">
+        <span style="font-size:.65rem;color:${regColor};font-weight:600">${{remote:'🌍 Remote',hybrid:'🏢 Hybrid',onsite:'🏢 On-site'}[m.job?.regime]||''}</span>
+        ${m.job?.salary&&m.job.salary!=='—'?`<span style="font-size:.65rem;color:var(--m2)">${m.job.salary}</span>`:''}
+      </div>
+    </div>`
+  }).join('')
+}
+
+// ══════════════════════════════════════════════════
+// CV MANAGER
+// ══════════════════════════════════════════════════
+async function renderCVs() {
+  const { data: cvs } = await db.from('cvs').select('*').eq('user_id', S.user.id).order('created_at', {ascending:false})
+  S.cvs = cvs || []
+  const grid = document.getElementById('cv-grid')
+  grid.innerHTML = `<div class="cv-add-card" onclick="nav('cv-editor')"><div style="font-size:2rem">➕</div><div style="font-size:.84rem;font-weight:600">${t('add_cv')}</div></div>`
+  if (!S.cvs.length) return
+
+  // Load match counts per CV
+  const cvIds = S.cvs.filter(c => c.status === 'done').map(c => c.id)
+  let matchCounts = {}
+  if (cvIds.length) {
+    const { data: mRows } = await db.from('matches').select('cv_id, match_score').eq('user_id', S.user.id).in('cv_id', cvIds)
+    if (mRows) mRows.forEach(m => {
+      if (!matchCounts[m.cv_id]) matchCounts[m.cv_id] = { total: 0, high: 0 }
+      matchCounts[m.cv_id].total++
+      if (m.match_score >= 70) matchCounts[m.cv_id].high++
+    })
+  }
+
+  S.cvs.forEach(cv => {
+    const skills = (cv.skills_primary || []).slice(0,4)
+    const statusCol = {done:'badge-green',pending:'badge-gray',analysing:'badge-yellow',error:'badge-red'}[cv.status]||'badge-gray'
+    const mc = matchCounts[cv.id]
+    const matchBadge = mc ? `<span class="badge badge-purple" style="font-size:.62rem" title="${mc.high} matches ≥70%">⚡ ${mc.total} matches</span>` : ''
+    const div = document.createElement('div')
+    div.className = 'cv-card'
+    div.innerHTML = `
+      <div class="cv-card-top">
+        <div class="cv-icon">📄</div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">
+          <span class="badge ${statusCol}" style="font-size:.62rem">${cv.status}</span>
+          ${matchBadge}
+        </div>
+      </div>
+      <div class="cv-card-name">${cv.name}</div>
+      <div class="cv-card-date">${fmtDate(cv.created_at)}</div>
+      <div class="cv-card-skills">${skills.map(s=>`<span class="skill-pill">${s}</span>`).join('')}</div>
+      ${cv.experience_years ? `<div style="font-size:.7rem;color:var(--m2)">${cv.experience_years}+ ${t('years_exp')}</div>` : ''}
+      ${mc?.high ? `<div style="font-size:.7rem;color:var(--g);margin-top:4px">🎯 ${mc.high} vagas com match ≥70%</div>` : ''}
+      <div class="cv-card-actions">
+        ${cv.status==='done'?`<button class="btn btn-ghost btn-sm" onclick="loadAnalysis('${cv.id}');event.stopPropagation()">📊 ${t('see_matches')}</button>`:''}
+        <button class="btn btn-ghost btn-sm" onclick="reanalyse('${cv.id}');event.stopPropagation()">${cv.status==='done'?'🔄':'📄'} ${t('analyse')}</button>
+        <button class="btn btn-ghost btn-sm btn-icon btn-danger" onclick="confirmDelete('${cv.id}');event.stopPropagation()" title="${t('delete_cv_title')}">🗑</button>
+      </div>`
+    div.onclick = () => cv.status === 'done' ? loadAnalysis(cv.id) : null
+    grid.appendChild(div)
+  })
+}
+
+// ══════════════════════════════════════════════════
+// CV EDITOR
+// ══════════════════════════════════════════════════
+function renderCVEditor(opts = {}) {
+  document.getElementById('cv-name').value = ''
+  document.getElementById('cv-text').value = ''
+  document.getElementById('cv-char-count').textContent = '0 caracteres'
+  document.getElementById('file-info').style.display = 'none'
+  document.getElementById('analysis-progress').classList.add('hidden')
+  document.getElementById('analysis-status-txt').style.display = 'none'
+  document.getElementById('tips-list').innerHTML = [
+    t('tip1'), t('tip2'), t('tip3'), t('tip4')
+  ].map(tip => `<li>${tip}</li>`).join('')
+}
+
+function updateCharCount() {
+  const len = document.getElementById('cv-text').value.length
+  document.getElementById('cv-char-count').textContent = `${len} ${t('characters')}`
+}
+
+async function handleFile(file) {
+  if (!file) return
+  document.getElementById('file-info').style.display = 'block'
+  document.getElementById('file-info').textContent = `📎 ${file.name} (${(file.size/1024).toFixed(1)}KB)`
+  const ext = file.name.split('.').pop().toLowerCase()
+  let text = ''
+  try {
+    if (ext === 'txt') {
+      text = await file.text()
+    } else if (ext === 'pdf') {
+      const ab = await file.arrayBuffer()
+      const pdf = await pdfjsLib.getDocument({ data: ab }).promise
+      const pages = []
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i)
+        const tc = await page.getTextContent()
+        pages.push(tc.items.map(item => item.str).join(' '))
+      }
+      text = pages.join('\n')
+    } else if (ext === 'docx') {
+      const ab = await file.arrayBuffer()
+      const result = await mammoth.extractRawText({ arrayBuffer: ab })
+      text = result.value
+    }
+    if (text.trim()) {
+      document.getElementById('cv-text').value = text
+      updateCharCount()
+      toast(`${file.name} carregado ✓`, 'ok')
+    } else {
+      toast('Não foi possível extrair texto', 'err')
+    }
+  } catch (e) {
+    toast('Erro ao ler ficheiro: ' + e.message, 'err')
+  }
+}
+
+function handleDrop(e) {
+  e.preventDefault()
+  document.getElementById('upload-zone').classList.remove('drag')
+  const file = e.dataTransfer.files[0]
+  if (file) handleFile(file)
+}
+
+async function saveAndAnalyse() {
+  if (!S.user) { toast('Não estás autenticado. Faz login primeiro.', 'err'); return }
+  const name = document.getElementById('cv-name').value.trim() || 'Meu CV'
+  const content = document.getElementById('cv-text').value.trim()
+  const language = document.getElementById('cv-lang').value
+  const isDefault = document.getElementById('cv-default').checked
+  if (content.length < 100) { toast('CV muito curto (mínimo 100 caracteres)', 'err'); return }
+
+  // CV limit check (free plan = 2 CVs, unless admin override)
+  if (!S._editingCvId) {
+    const isPro = ['pro','team'].includes(S.profile?.plan)
+    if (!isPro) {
+      const { count } = await db.from('cvs').select('*', { count: 'exact', head: true }).eq('user_id', S.user.id)
+      const limit = S.profile?.cv_limit ?? 2
+      if (count >= limit) {
+        toast(`Limite de ${limit} CV${limit===1?'':'s'} no plano gratuito. Actualize para Pro ou contacte o administrador.`, 'err', 6000)
+        return
+      }
+    }
+  }
+
+  const btn = document.getElementById('btn-save-cv')
+  btn.disabled = true
+  setAnalysisProgress(10, t('analysing'))
+
+  try {
+    // Save CV
+    const { data: cv, error: cvErr } = await db.from('cvs').insert({
+      user_id: S.user.id, name, content, language, is_default: isDefault, status: 'analysing'
+    }).select().single()
+    if (cvErr) throw new Error(`Erro ao guardar CV: ${cvErr.message} (code: ${cvErr.code})`)
+
+    setAnalysisProgress(25, t('calling_ai'))
+
+    // Call edge function (with fallback if unavailable)
+    let analysis = null
+    try {
+      const { data: { session } } = await db.auth.getSession()
+      const res = await fetch(`${CFG.edge}/analyse-cv`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({ cv_text: content, language })
+      })
+      const result = await res.json()
+      if (result.success && result.analysis) {
+        analysis = result.analysis
+      } else {
+        analysis = localExtract(content)
+        toast(t('analysis_fallback'), 'info')
+      }
+    } catch {
+      analysis = localExtract(content)
+      toast(t('analysis_fallback'), 'info')
+    }
+
+    setAnalysisProgress(60, t('processing'))
+
+    // Update CV with analysis
+    await db.from('cvs').update({
+      analysis,
+      skills_primary: analysis.skills_primary || [],
+      skills_secondary: analysis.skills_secondary || [],
+      languages_detected: analysis.languages || [],
+      experience_years: analysis.experience_years || 0,
+      seniority: analysis.seniority || 'mid',
+      status: 'done',
+      last_analysed_at: new Date().toISOString()
+    }).eq('id', cv.id)
+
+    setAnalysisProgress(85, t('calculating'))
+
+    // Load jobs and calculate matches
+    const { data: jobs } = await db.from('jobs').select('*').eq('is_active', true).order('posted_at', {ascending:false})
+    if (jobs?.length) {
+      const matches = jobs.map(j => ({ ...j, match: calcMatch(analysis, j) }))
+        .sort((a,b) => b.match.score - a.match.score)
+        .slice(0, 50)
+      // Save top 20 matches
+      const toInsert = matches.slice(0,20).map(m => ({
+        user_id: S.user.id, cv_id: cv.id, job_id: m.id,
+        match_score: m.match.score, lang_score: m.match.langScore,
+        tech_score: m.match.techScore, exp_score: m.match.expScore,
+        regime_score: m.match.regimeScore,
+        hit_skills: m.match.hitNames, miss_skills: m.match.missNames
+      }))
+      await db.from('matches').upsert(toInsert, { onConflict: 'cv_id,job_id', ignoreDuplicates: true })
+      S.jobs = jobs; S.allMatches = matches; S.currentCV = { ...cv, analysis }
+    }
+
+    setAnalysisProgress(100, t('completed'))
+    toast(t('cv_success'), 'ok')
+    setTimeout(() => { nav('analysis'); renderAnalysis() }, 600)
+
+  } catch (e) {
+    toast('Erro: ' + e.message, 'err')
+    setAnalysisProgress(0)
+  } finally {
+    btn.disabled = false
+  }
+}
+
+function setAnalysisProgress(pct, msg = '') {
+  const bar = document.getElementById('analysis-progress')
+  const fill = document.getElementById('analysis-progress-fill')
+  const txt = document.getElementById('analysis-status-txt')
+  if (pct > 0) { bar.classList.remove('hidden'); fill.style.width = pct + '%'; txt.style.display = 'block'; txt.textContent = msg }
+  else { bar.classList.add('hidden'); txt.style.display = 'none' }
+}
+
+async function reanalyse(cvId) {
+  const { data: cv } = await db.from('cvs').select('*').eq('id', cvId).single()
+  if (!cv) return
+  document.getElementById('cv-name').value = cv.name
+  document.getElementById('cv-text').value = cv.content
+  document.getElementById('cv-lang').value = cv.language || 'pt'
+  updateCharCount()
+  nav('cv-editor')
+  // override save to update existing
+  S._editingCvId = cvId
+}
+
+// ══════════════════════════════════════════════════
+// ANALYSIS VIEW
+// ══════════════════════════════════════════════════
+async function loadAnalysis(cvId) {
+  const { data: cv } = await db.from('cvs').select('*').eq('id', cvId).single()
+  if (!cv?.analysis) { toast('Sem análise disponível', 'info'); return }
+  S.currentCV = cv
+  const { data: jobs } = await db.from('jobs').select('*').eq('is_active', true)
+  S.jobs = jobs || []
+  S.allMatches = S.jobs.map(j => ({ ...j, match: calcMatch(cv.analysis, j) })).sort((a,b) => b.match.score - a.match.score)
+
+  // Save/refresh top matches to DB for this CV
+  const toInsert = S.allMatches.slice(0,20).map(m => ({
+    user_id: S.user.id, cv_id: cv.id, job_id: m.id,
+    match_score: m.match.score, lang_score: m.match.langScore,
+    tech_score: m.match.techScore, exp_score: m.match.expScore,
+    regime_score: m.match.regimeScore,
+    hit_skills: m.match.hitNames, miss_skills: m.match.missNames
+  }))
+  if (toInsert.length) {
+    await db.from('matches').upsert(toInsert, { onConflict: 'cv_id,job_id', ignoreDuplicates: false })
+  }
+
+  nav('analysis')
+}
+
+function renderAnalysis() {
+  if (!S.currentCV?.analysis) return
+  const a = S.currentCV.analysis
+  // CV label
+  const cvLabel = document.getElementById('ap-cv-label')
+  if (cvLabel) cvLabel.textContent = `📄 ${S.currentCV.name}`
+  // Profile card
+  document.getElementById('ap-name').textContent = a.name || t('profile')
+  document.getElementById('ap-title').textContent = a.title || ''
+  document.getElementById('ap-score').textContent = (a.profile_score || 75) + '%'
+  document.getElementById('ap-exp').textContent = a.experience_years ? `${a.experience_years}+ anos · ${a.seniority || ''}` : ''
+  document.getElementById('ap-summary').textContent = a.summary || ''
+  // Skills
+  const sk = document.getElementById('ap-skills')
+  sk.innerHTML = '';
+  (a.skills_primary || []).slice(0,10).forEach((s,i) => {
+    const cls = i < 3 ? 'sk-h' : i < 6 ? 'sk-m' : 'sk-l'
+    const pct = Math.round(((10-i)/10)*100)
+    sk.innerHTML += `<div class="skill-row ${cls}"><span class="truncate">${s}</span><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:${pct}%"></div></div></div>`
+  })
+  // Languages
+  const la = document.getElementById('ap-langs')
+  la.innerHTML = '';
+  (a.languages || []).forEach(l => {
+    const lvlCls = ['native','fluent'].includes(l.level)?'sk-h':['advanced'].includes(l.level)?'sk-m':'sk-l'
+    la.innerHTML += `<div class="lang-row ${lvlCls}"><span>${l.name||l.key}</span><span style="font-size:.68rem;opacity:.8">${l.level||''}</span><span style="font-size:.7rem;font-weight:700">${l.score||0}%</span></div>`
+  })
+  renderJobs()
+}
+
+function renderJobs() {
+  const container = document.getElementById('jobs-container')
+  container.innerHTML = ''
+  const filtered = filterJobs(S.allMatches)
+  document.getElementById('ms-total').textContent = filtered.length
+  document.getElementById('ms-high').textContent = filtered.filter(j=>j.match.score>=75).length
+  document.getElementById('ms-mid').textContent = filtered.filter(j=>j.match.score>=40&&j.match.score<75).length
+  document.getElementById('ms-low').textContent = filtered.filter(j=>j.match.score<40).length
+  document.getElementById('jobs-empty').classList.toggle('hidden', filtered.length > 0)
+  filtered.forEach(job => {
+    const s = job.match.score
+    const mbCls = s>=75?'mb-h':s>=40?'mb-m':'mb-l'
+    const jCls = s>=75?'jh':s>=40?'jm':'jl'
+    const regTag = {remote:`badge-green`,hybrid:`badge-yellow`,onsite:`badge-red`}[job.regime]||'badge-gray'
+    const regLbl = {remote:t('regime_remote'),hybrid:t('regime_hybrid'),onsite:t('regime_onsite')}[job.regime]||job.regime
+    const regMap = {dach:'🇩🇪 DACH',eu:'🇪🇺 EU',brazil:'🇧🇷 Brasil',usa:'🇺🇸 USA',worldwide:'🌐 Worldwide'}
+    const skills = (job.skills_required||[]).map(sk => {
+      const hit = job.match.hitNames.map(h=>h.toLowerCase()).includes(sk.toLowerCase())
+      return `<span class="${hit?'sk-hit':'sk-miss'}">${sk}</span>`
+    }).join('')
+    const div = document.createElement('div')
+    div.className = `job-card ${jCls} show`
+    div.innerHTML = `
+      <div class="job-card-bar" style="width:${s}%"></div>
+      <div class="jcard-top">
+        <div style="flex:1;min-width:0">
+          <div class="jcard-co">${job.company} · ${job.country}</div>
+          <div class="jcard-title">${job.title}</div>
+        </div>
+        <div class="match-badge ${mbCls}" title="Match: Língua ${job.match.langScore}% · Skills ${job.match.techScore}% · Exp ${job.match.expScore}% · Regime ${job.match.regimeScore}%">
+          <div class="mb-pct">${s}%</div><div class="mb-lbl">Match</div>
+        </div>
+      </div>
+      <div class="jcard-tags">
+        <span class="badge ${regTag}">${regLbl}</span>
+        <span class="badge badge-gray">${regMap[job.region]||job.region}</span>
+        ${job.salary&&job.salary!=='—'?`<span class="badge badge-green">💰 ${job.salary}`+'</span>':''}
+        <span class="days-badge">${daysAgo(job.posted_at)}</span>
+      </div>
+      <div class="jcard-skills">${skills}</div>
+      <div class="jcard-foot">
+        <div class="jcard-breakdown">
+          <span>🌐 ${job.match.langScore}%</span>
+          <span>⚙️ ${job.match.techScore}%</span>
+          <span>📅 ${job.match.expScore}%</span>
+          <span>🏠 ${job.match.regimeScore}%</span>
+        </div>
+        <div class="flex gap-8">
+          <button class="btn btn-ghost btn-sm" onclick="toggleSaveJob('${job.id}',this)">🔖</button>
+          <a class="btn btn-primary btn-sm" href="${job.url}" target="_blank" rel="noopener">${t('apply_job')}</a>
+        </div>
+      </div>`
+    container.appendChild(div)
+  })
+}
+
+function filterJobs(jobs) {
+  const base = jobs.filter(j => j.match.score >= 10)
+  if (S.filter === 'all') return base
+  if (S.filter === 'high') return base.filter(j => j.match.score >= 75)
+  if (S.filter === 'remote') return base.filter(j => j.regime === 'remote')
+  return base.filter(j => j.region === S.filter)
+}
+
+function setFilter(f, btn) {
+  S.filter = f
+  document.querySelectorAll('.filter-chip').forEach(b => b.classList.toggle('on', b === btn))
+  renderJobs()
+}
+
+// ══════════════════════════════════════════════════
+// MATCHING ALGORITHM
+// ══════════════════════════════════════════════════
+const LANG_LEVEL_SCORE = { native:100, fluent:92, advanced:78, intermediate:55, basic:28 }
+function calcMatch(analysis, job) {
+  // Language 35%
+  const jobLangs = job.languages_accepted || ['english']
+  const cvLangs = analysis.languages || []
+  const langScore = Math.max(0, ...jobLangs.map(jl => {
+    const found = cvLangs.find(l => l.key === jl || l.name?.toLowerCase() === jl)
+    return found ? (LANG_LEVEL_SCORE[found.level] || found.score || 50) : 0
+  }))
+
+  // Technical skills 45%
+  const cvSkills = [
+    ...(analysis.skills_primary || []).map(s => s.toLowerCase()),
+    ...(analysis.skills_secondary || []).map(s => s.toLowerCase())
+  ]
+  const reqSkills = job.skills_required || []
+  const niceSkills = job.skills_nice || []
+  let reqHits = 0, niceHits = 0
+  const hitNames = [], missNames = []
+  reqSkills.forEach(sk => {
+    const m = cvSkills.some(c => c.includes(sk.toLowerCase()) || sk.toLowerCase().includes(c.substring(0, Math.min(c.length, 5))))
+    if (m) { reqHits++; hitNames.push(sk) } else missNames.push(sk)
+  })
+  niceSkills.forEach(sk => {
+    if (cvSkills.some(c => c.includes(sk.toLowerCase()) || sk.toLowerCase().includes(c.substring(0,5)))) { niceHits++; hitNames.push(sk) }
+  })
+  const reqT = reqSkills.length || 1, niceT = niceSkills.length || 1
+  const techScore = Math.round((reqHits / reqT) * 70 + (niceHits / niceT) * 30)
+
+  // Experience 12%
+  const expMin = job.experience_min || 0
+  const cvExp = analysis.experience_years || 0
+  const expScore = expMin === 0 ? 100 : Math.min(100, Math.round((cvExp / expMin) * 100))
+
+  // Regime 8%
+  const rm = { remote:{remote:100,hybrid:65,onsite:25}, hybrid:{remote:80,hybrid:100,onsite:45}, onsite:{remote:40,hybrid:70,onsite:100}, any:{remote:90,hybrid:90,onsite:90} }
+  const cvReg = analysis.preferred_regime || 'remote'
+  const regimeScore = rm[cvReg]?.[job.regime] ?? 60
+
+  const score = Math.min(100, Math.round(langScore*0.35 + techScore*0.45 + expScore*0.12 + regimeScore*0.08))
+  return { score, langScore, techScore, expScore, regimeScore, hitNames, missNames }
+}
+
+// ══════════════════════════════════════════════════
+// LOCAL CV EXTRACTION (fallback if no API)
+// ══════════════════════════════════════════════════
+const SKILL_KW = [
+  // ── SAP ──────────────────────────────────────────
+  {name:'SAP Datasphere',keys:['datasphere','sap datasphere'],area:'SAP'},
+  {name:'SAP BW/4HANA',keys:['bw/4hana','bw4hana','bw 4hana'],area:'SAP'},
+  {name:'SAP BW',keys:['sap bw','business warehouse','bi/bw'],area:'SAP'},
+  {name:'SAP Analytics Cloud',keys:['sap analytics cloud','sac planning'],area:'SAP'},
+  {name:'SAP HANA',keys:['sap hana',' hana '],area:'SAP'},
+  {name:'SAP BPC',keys:['sap bpc',' bpc ','business planning and consolidation'],area:'SAP'},
+  {name:'SAP BDC',keys:['sap bdc','business data cloud'],area:'SAP'},
+  {name:'ABAP',keys:['abap'],area:'SAP'},
+  {name:'CDS Views',keys:['cds views','cds view','core data services'],area:'SAP'},
+  {name:'S/4HANA',keys:['s/4hana','s4hana'],area:'SAP'},
+  {name:'SAP ECC',keys:['sap ecc','r/3'],area:'SAP'},
+  {name:'SAP BO',keys:['businessobjects','business objects','sap bo','bo reports'],area:'SAP'},
+  {name:'SAP BTP',keys:['sap btp','business technology platform'],area:'SAP'},
+  {name:'SAP Group Reporting',keys:['group reporting','sap gr'],area:'SAP'},
+  // ── CLOUD ─────────────────────────────────────────
+  {name:'AWS',keys:['amazon web services',' aws ','aws '],area:'Cloud'},
+  {name:'Azure',keys:['microsoft azure',' azure ','azure '],area:'Cloud'},
+  {name:'GCP',keys:['google cloud','gcp','google cloud platform'],area:'Cloud'},
+  {name:'Kubernetes',keys:['kubernetes',' k8s '],area:'Cloud'},
+  {name:'Docker',keys:['docker','containers','containerization'],area:'Cloud'},
+  {name:'Terraform',keys:['terraform','infrastructure as code','iac'],area:'Cloud'},
+  {name:'Serverless',keys:['serverless','lambda','cloud functions','azure functions'],area:'Cloud'},
+  {name:'Kafka',keys:['apache kafka','kafka','event streaming'],area:'Cloud'},
+  // ── DATA ENGINEERING ──────────────────────────────
+  {name:'Databricks',keys:['databricks','delta lake'],area:'Data'},
+  {name:'Snowflake',keys:['snowflake'],area:'Data'},
+  {name:'dbt',keys:[' dbt ','data build tool'],area:'Data'},
+  {name:'Apache Spark',keys:['apache spark','pyspark',' spark '],area:'Data'},
+  {name:'Airflow',keys:['apache airflow','airflow','dag'],area:'Data'},
+  {name:'BigQuery',keys:['bigquery','big query'],area:'Data'},
+  {name:'Redshift',keys:['redshift','amazon redshift'],area:'Data'},
+  {name:'Data Lake',keys:['data lake','datalake','data lakehouse'],area:'Data'},
+  {name:'Data Warehouse',keys:['data warehouse','datawarehouse','dwh'],area:'Data'},
+  {name:'ETL/ELT',keys:[' etl ',' elt ','data pipeline','pipeline de dados'],area:'Data'},
+  {name:'Data Modeling',keys:['data model','modelagem de dados','dimensional model','star schema'],area:'Data'},
+  {name:'Data Governance',keys:['data governance','governança de dados','data catalog'],area:'Data'},
+  {name:'Apache Hadoop',keys:['hadoop','hdfs','hive','mapreduce'],area:'Data'},
+  {name:'Elasticsearch',keys:['elasticsearch','elastic search','opensearch'],area:'Data'},
+  // ── AI / ML ───────────────────────────────────────
+  {name:'Machine Learning',keys:['machine learning',' ml ','aprendizado de máquina'],area:'AI/ML'},
+  {name:'Deep Learning',keys:['deep learning','redes neurais','neural network'],area:'AI/ML'},
+  {name:'TensorFlow',keys:['tensorflow'],area:'AI/ML'},
+  {name:'PyTorch',keys:['pytorch'],area:'AI/ML'},
+  {name:'scikit-learn',keys:['scikit-learn','sklearn'],area:'AI/ML'},
+  {name:'NLP',keys:['nlp','natural language processing','processamento de linguagem'],area:'AI/ML'},
+  {name:'LLM',keys:['llm','large language model','generative ai','ia generativa','chatgpt','claude ai'],area:'AI/ML'},
+  {name:'MLOps',keys:['mlops','ml pipeline','model deployment'],area:'AI/ML'},
+  // ── BACKEND ───────────────────────────────────────
+  {name:'Python',keys:['python'],area:'Backend'},
+  {name:'Java',keys:[' java ',' java,','java developer','java 8','java 11','java 17'],area:'Backend'},
+  {name:'Node.js',keys:['node.js','nodejs',' node '],area:'Backend'},
+  {name:'.NET / C#',keys:['.net','c#','dotnet','asp.net'],area:'Backend'},
+  {name:'Go',keys:[' golang ',' go ','linguagem go'],area:'Backend'},
+  {name:'Ruby',keys:['ruby on rails','ruby'],area:'Backend'},
+  {name:'PHP',keys:[' php ','laravel','symfony'],area:'Backend'},
+  {name:'Rust',keys:[' rust ','rust lang'],area:'Backend'},
+  {name:'Microservices',keys:['microservices','microsserviços','microserviço'],area:'Backend'},
+  {name:'REST API',keys:['rest api','restful','api rest'],area:'Backend'},
+  {name:'GraphQL',keys:['graphql'],area:'Backend'},
+  {name:'gRPC',keys:['grpc'],area:'Backend'},
+  // ── FRONTEND ──────────────────────────────────────
+  {name:'React',keys:['react.js','reactjs',' react '],area:'Frontend'},
+  {name:'Angular',keys:['angular'],area:'Frontend'},
+  {name:'Vue.js',keys:['vue.js','vuejs',' vue '],area:'Frontend'},
+  {name:'TypeScript',keys:['typescript'],area:'Frontend'},
+  {name:'JavaScript',keys:['javascript',' js '],area:'Frontend'},
+  {name:'Next.js',keys:['next.js','nextjs'],area:'Frontend'},
+  {name:'Flutter',keys:['flutter'],area:'Mobile'},
+  {name:'React Native',keys:['react native'],area:'Mobile'},
+  {name:'iOS / Swift',keys:[' swift ','ios developer','xcode'],area:'Mobile'},
+  {name:'Android / Kotlin',keys:['android',' kotlin '],area:'Mobile'},
+  // ── DATABASES ─────────────────────────────────────
+  {name:'PostgreSQL',keys:['postgresql','postgres'],area:'Database'},
+  {name:'MySQL',keys:['mysql'],area:'Database'},
+  {name:'MongoDB',keys:['mongodb','mongo'],area:'Database'},
+  {name:'Redis',keys:[' redis '],area:'Database'},
+  {name:'Oracle DB',keys:['oracle database','oracle db',' oracle '],area:'Database'},
+  {name:'SQL Server',keys:['sql server','mssql','microsoft sql'],area:'Database'},
+  {name:'SQL',keys:[' sql,','advanced sql','structured query'],area:'Database'},
+  {name:'NoSQL',keys:['nosql','no-sql'],area:'Database'},
+  // ── DEVOPS / SRE ──────────────────────────────────
+  {name:'CI/CD',keys:['ci/cd','cicd','continuous integration','continuous deployment'],area:'DevOps'},
+  {name:'Jenkins',keys:['jenkins'],area:'DevOps'},
+  {name:'GitLab CI',keys:['gitlab','gitlab ci'],area:'DevOps'},
+  {name:'GitHub Actions',keys:['github actions'],area:'DevOps'},
+  {name:'Ansible',keys:['ansible'],area:'DevOps'},
+  {name:'Prometheus',keys:['prometheus','grafana','observabilidade'],area:'DevOps'},
+  {name:'Linux',keys:['linux','ubuntu','centos','bash scripting'],area:'DevOps'},
+  // ── SECURITY ──────────────────────────────────────
+  {name:'Cybersecurity',keys:['cybersecurity','cibersegurança','segurança da informação','information security'],area:'Security'},
+  {name:'Penetration Testing',keys:['pentest','penetration test','ethical hacking'],area:'Security'},
+  {name:'SIEM',keys:['siem','splunk','qradar'],area:'Security'},
+  {name:'IAM',keys:[' iam ','identity and access','active directory','ldap'],area:'Security'},
+  {name:'LGPD / GDPR',keys:['lgpd','gdpr','data protection'],area:'Security'},
+  // ── BI & ANALYTICS ────────────────────────────────
+  {name:'Power BI',keys:['power bi','powerbi'],area:'BI'},
+  {name:'Tableau',keys:['tableau'],area:'BI'},
+  {name:'Looker',keys:['looker','looker studio'],area:'BI'},
+  {name:'Qlik',keys:['qlik','qlikview','qliksense'],area:'BI'},
+  {name:'MicroStrategy',keys:['microstrategy'],area:'BI'},
+  // ── PROJECT / MANAGEMENT ──────────────────────────
+  {name:'Scrum / Agile',keys:['scrum','agile','sprint','kanban'],area:'Management'},
+  {name:'ITIL',keys:['itil'],area:'Management'},
+  {name:'PMP',keys:[' pmp ','project management professional'],area:'Management'},
+  {name:'TOGAF',keys:['togaf','enterprise architecture'],area:'Management'},
+  {name:'Solution Architect',keys:['solution architect','arquiteto de soluções','data architect'],area:'Architecture'},
+  {name:'Cloud Architect',keys:['cloud architect','cloud architecture'],area:'Architecture'},
+]
+
+function localExtract(text) {
+  const tl = text.toLowerCase()
+  const found = SKILL_KW.filter(s => s.keys.some(k => tl.includes(k)))
+  const skills_primary = found.slice(0, 12).map(s => s.name)
+  const skills_secondary = found.slice(12, 20).map(s => s.name)
+
+  // Detect dominant area
+  const areaCounts = {}
+  found.forEach(s => { areaCounts[s.area] = (areaCounts[s.area] || 0) + 1 })
+  const topArea = Object.entries(areaCounts).sort((a,b) => b[1]-a[1])[0]?.[0] || 'IT'
+  const titleMap = {
+    'SAP':'SAP Consultant','Cloud':'Cloud Engineer','Data':'Data Engineer',
+    'AI/ML':'ML Engineer','Backend':'Backend Developer','Frontend':'Frontend Developer',
+    'Mobile':'Mobile Developer','DevOps':'DevOps Engineer','Security':'Security Specialist',
+    'BI':'BI Analyst','Management':'IT Project Manager','Architecture':'Solution Architect',
+    'Database':'Database Administrator'
+  }
+  const title = titleMap[topArea] || 'IT Professional'
+
+  const langs = []
+  if (/portugu[eê]s|portuguese|nativo/i.test(text)) langs.push({name:'Portuguese',key:'portuguese',level:'native',score:100})
+  if (/ingl[eê]s|english|fluent/i.test(text)) langs.push({name:'English',key:'english',level:'fluent',score:90})
+  if (/alem[ãa]o|german|deutsch/i.test(text)) langs.push({name:'German',key:'german',level:'intermediate',score:55})
+  if (/espanh[ao]l|spanish|español/i.test(text)) langs.push({name:'Spanish',key:'spanish',level:'intermediate',score:65})
+  if (/franc[eê]s|french|français/i.test(text)) langs.push({name:'French',key:'french',level:'intermediate',score:55})
+
+  const expM = text.match(/(\d{1,2})\+?\s*(anos?|years?)\s*(de\s*)?(experi[eê]ncia|experience)/i)
+  const exp = expM ? parseInt(expM[1]) : 0
+  const firstLine = text.trim().split('\n')[0].trim()
+  const name = firstLine.length < 60 && !/[:=@]/.test(firstLine) ? firstLine : 'Candidato'
+
+  return {
+    name, title,
+    summary: `Profissional de ${topArea} com ${exp > 0 ? exp + ' anos de' : ''} experiência em ${skills_primary.slice(0,3).join(', ')}.`,
+    experience_years: exp,
+    seniority: exp >= 10 ? 'senior' : exp >= 5 ? 'mid' : 'junior',
+    skills_primary, skills_secondary,
+    languages: langs.length ? langs : [{name:'English',key:'english',level:'fluent',score:90}],
+    preferred_regime: /remot[oe]|trabalho remoto|remote work/i.test(text) ? 'remote' : 'remote',
+    profile_score: Math.min(90, 40 + found.length * 3 + (exp > 0 ? 10 : 0)),
+    dominant_area: topArea,
+    education: '', certifications: [], strengths: [], target_roles: [], location: '', availability: 'immediate'
+  }
+}
+
+// ══════════════════════════════════════════════════
+// SEARCH NEW JOBS
+// ══════════════════════════════════════════════════
+async function searchNewJobs() {
+  if (!S.currentCV?.analysis) { toast('Abre um CV primeiro para pesquisar vagas.', 'info'); return }
+  const btn = document.getElementById('btn-search-jobs')
+  const status = document.getElementById('search-status')
+  btn.disabled = true; status.style.display = 'block'; status.textContent = t('searching')
+
+  let usedEdge = false
+  try {
+    const skills = S.currentCV?.skills_primary || S.currentCV?.analysis?.skills_primary || []
+    const regions = S.profile?.preferred_regions || ['worldwide']
+    const { data: { session } } = await db.auth.getSession()
+    const res = await fetch(`${CFG.edge}/search-jobs`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify({ skills, regions, user_id: S.user.id }),
+      signal: AbortSignal.timeout(8000)
+    })
+    const result = await res.json()
+    if (result.success) {
+      usedEdge = true
+      status.textContent = `✅ ${result.jobs_found} vagas encontradas, ${result.new_in_db} novas`
+      toast(`${result.jobs_found} vagas encontradas!`, 'ok')
+    }
+  } catch { /* fallback below */ }
+
+  // Always reload jobs and recalculate matches (works with or without edge function)
+  status.textContent = t('calculating')
+  const { data: jobs } = await db.from('jobs').select('*').eq('is_active', true).order('posted_at', {ascending:false})
+  if (jobs?.length && S.currentCV?.analysis) {
+    S.jobs = jobs
+    S.allMatches = jobs.map(j => ({ ...j, match: calcMatch(S.currentCV.analysis, j) })).sort((a,b) => b.match.score - a.match.score)
+    // Save updated matches to DB
+    const toInsert = S.allMatches.slice(0,20).map(m => ({
+      user_id: S.user.id, cv_id: S.currentCV.id, job_id: m.id,
+      match_score: m.match.score, lang_score: m.match.langScore,
+      tech_score: m.match.techScore, exp_score: m.match.expScore,
+      regime_score: m.match.regimeScore, hit_skills: m.match.hitNames, miss_skills: m.match.missNames
+    }))
+    await db.from('matches').upsert(toInsert, { onConflict: 'cv_id,job_id', ignoreDuplicates: false })
+    renderJobs()
+    if (!usedEdge) {
+      status.textContent = `✅ ${S.allMatches.length} vagas calculadas localmente`
+      toast(`${S.allMatches.length} vagas actualizadas!`, 'ok')
+    }
+  } else {
+    status.textContent = '⚠️ Sem vagas na base de dados'
+  }
+  btn.disabled = false
+}
+
+// ══════════════════════════════════════════════════
+// SAVE JOB
+// ══════════════════════════════════════════════════
+async function toggleSaveJob(jobId, btn) {
+  const { data: existing } = await db.from('saved_jobs').select('id').eq('user_id', S.user.id).eq('job_id', jobId).single()
+  if (existing) {
+    await db.from('saved_jobs').delete().eq('id', existing.id)
+    if (btn) btn.style.filter = ''
+    toast('Removido das guardadas', 'info')
+  } else {
+    await db.from('saved_jobs').insert({ user_id: S.user.id, job_id: jobId, cv_id: S.currentCV?.id })
+    if (btn) btn.style.filter = 'sepia(1) saturate(3) hue-rotate(35deg)'
+    toast('Vaga guardada 🔖', 'ok')
+  }
+}
+
+// ══════════════════════════════════════════════════
+// SAVED JOBS VIEW
+// ══════════════════════════════════════════════════
+async function renderSaved() {
+  const { data } = await db.from('saved_jobs').select('*,job:jobs(title,company,flag,regime,url)')
+    .eq('user_id', S.user.id).order('saved_at', {ascending:false})
+  const tbody = document.getElementById('saved-tbody')
+  tbody.innerHTML = ''
+  document.getElementById('saved-empty').classList.toggle('hidden', !!(data?.length))
+  if (!data?.length) return
+  const statuses = ['saved','applied','interview','offer','rejected']
+  data.forEach(s => {
+    const sc = {saved:'badge-gray',applied:'badge-blue',interview:'badge-yellow',offer:'badge-green',rejected:'badge-red'}[s.status]||'badge-gray'
+    const tr = document.createElement('tr')
+    tr.innerHTML = `
+      <td><div style="font-weight:600;font-size:.85rem">${s.job?.title||'—'}</div></td>
+      <td><span>${s.job?.flag||''} ${s.job?.company||'—'}</span></td>
+      <td>—</td>
+      <td>
+        <select class="status-select" onchange="updateSavedStatus('${s.id}',this.value)">
+          ${statuses.map(st => `<option value="${st}" ${st===s.status?'selected':''}>${t('status_'+st)}</option>`).join('')}
+        </select>
+      </td>
+      <td style="font-size:.73rem;color:var(--m)">${fmtDate(s.saved_at)}</td>
+      <td><a class="btn btn-ghost btn-sm" href="${s.job?.url||'#'}" target="_blank" rel="noopener">↗</a></td>`
+    tbody.appendChild(tr)
+  })
+}
+
+async function updateSavedStatus(id, status) {
+  await db.from('saved_jobs').update({ status, ...(status==='applied'?{applied_at:new Date().toISOString()}:{}) }).eq('id', id)
+  toast(t('status_'+status), 'ok')
+}
+
+// ══════════════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════════════
+function populateSettings(profile) {
+  if (document.getElementById('s-name')) document.getElementById('s-name').value = profile.full_name || ''
+  if (document.getElementById('s-location')) document.getElementById('s-location').value = profile.location || ''
+  if (document.getElementById('s-linkedin')) document.getElementById('s-linkedin').value = profile.linkedin_url || ''
+  if (document.getElementById('s-regime')) document.getElementById('s-regime').value = profile.preferred_regime || 'remote'
+  const regions = profile.preferred_regions || []
+  document.querySelectorAll('#region-checks input').forEach(cb => { cb.checked = regions.includes(cb.value) })
+  const initials = (profile.full_name || S.user?.email || '?').slice(0,2).toUpperCase()
+  updateAvatarDisplay(profile.avatar_url, initials)
+}
+function renderSettings() {
+  const firstName = getFirstName()
+  const greetEl = document.getElementById('settings-greeting')
+  if (greetEl) greetEl.textContent = `${t('hello')}, ${firstName} — ${t('settings_sub')}`
+  if (S.profile) populateSettings(S.profile)
+}
+async function saveSettings() {
+  const regions = [...document.querySelectorAll('#region-checks input:checked')].map(cb => cb.value)
+  const { error } = await db.from('user_profiles').update({
+    full_name: document.getElementById('s-name').value,
+    location: document.getElementById('s-location').value,
+    linkedin_url: document.getElementById('s-linkedin').value,
+    preferred_regime: document.getElementById('s-regime').value,
+    preferred_regions: regions,
+    ui_language: S.lang
+  }).eq('id', S.user.id)
+  if (error) toast('Erro ao guardar', 'err')
+  else { toast('Configurações guardadas ✓', 'ok'); loadUserProfile() }
+}
+
+// ══════════════════════════════════════════════════
+// DELETE CV
+// ══════════════════════════════════════════════════
+function confirmDelete(cvId) {
+  document.getElementById('mconf-title').textContent = t('delete_cv_title')
+  document.getElementById('mconf-msg').textContent = t('delete_cv_msg')
+  document.getElementById('mconf-ok').onclick = async () => {
+    await db.from('cvs').delete().eq('id', cvId)
+    closeModal('modal-confirm'); toast('CV eliminado', 'ok'); renderCVs()
+  }
+  document.getElementById('modal-confirm').classList.remove('hidden')
+}
+
+// ══════════════════════════════════════════════════
+// JOB DETAIL MODAL
+// ══════════════════════════════════════════════════
+async function openJobDetail(jobId) {
+  const { data: job } = await db.from('jobs').select('*').eq('id', jobId).single()
+  if (!job) return
+  const match = S.allMatches.find(m => m.id === jobId)?.match
+  document.getElementById('mjob-title').textContent = job.title
+  document.getElementById('mjob-body').innerHTML = `
+    <div class="flex gap-12" style="flex-wrap:wrap;margin-bottom:16px">
+      <span class="badge badge-green">${job.flag} ${job.country}</span>
+      <span class="badge ${job.regime==='remote'?'badge-green':job.regime==='hybrid'?'badge-yellow':'badge-red'}">${{remote:t('regime_remote'),hybrid:t('regime_hybrid'),onsite:t('regime_onsite')}[job.regime]||job.regime}</span>
+      ${job.salary&&job.salary!=='—'?`<span class="badge badge-green">💰 ${job.salary}</span>`:''}
+      ${match?`<span class="badge badge-purple">⚡ ${match.score}% match</span>`:''}
+      <span class="badge badge-gray">${daysAgo(job.posted_at)}</span>
+    </div>
+    <div style="margin-bottom:14px"><div class="section-title" style="margin-bottom:8px">${t('required_skills')}</div><div style="display:flex;flex-wrap:wrap;gap:5px">${(job.skills_required||[]).map(s=>`<span class="badge badge-blue">${s}</span>`).join('')}</div></div>
+    <div><div class="section-title" style="margin-bottom:8px">${t('nice_skills')}</div><div style="display:flex;flex-wrap:wrap;gap:5px">${(job.skills_nice||[]).map(s=>`<span class="badge badge-gray">${s}</span>`).join('')}</div></div>
+    ${job.experience_min?`<div style="margin-top:14px;font-size:.82rem;color:var(--m2)">⏱ ${t('min_exp')}: ${job.experience_min} anos</div>`:''}
+    ${job.source?`<div style="margin-top:6px;font-size:.73rem;color:var(--m)">${t('source')}: ${job.source}</div>`:''}
+  `
+  document.getElementById('mjob-apply').onclick = () => window.open(job.url, '_blank')
+  document.getElementById('mjob-save').onclick = () => toggleSaveJob(job.id)
+  document.getElementById('modal-job').classList.remove('hidden')
+}
+
+function closeModal(id) { document.getElementById(id).classList.add('hidden') }
+document.querySelectorAll('.modal-overlay').forEach(el => el.addEventListener('click', e => { if (e.target === el) el.classList.add('hidden') }))
+
+// ══════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════
+function daysAgo(dateStr) {
+  if (!dateStr) return ''
+  const d = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000)
+  if (d <= 0) return t('today')
+  if (d === 1) return t('yesterday')
+  if (d < 7) return `${d} ${t('days_ago')}`
+  if (d < 30) return `${Math.floor(d/7)} ${t('weeks_ago')}`
+  return `${Math.floor(d/30)} ${t('months_ago')}`
+}
+function fmtDate(iso) {
+  if (!iso) return ''
+  const locales = {en:'en-GB',es:'es-ES',fr:'fr-FR',de:'de-DE',pt:'pt-PT'}
+  return new Date(iso).toLocaleDateString(locales[S.lang]||'pt-PT', {day:'2-digit',month:'short',year:'numeric'})
+}
+
+// ══════════════════════════════════════════════════
+// SET NEW PASSWORD (after reset link)
+// ══════════════════════════════════════════════════
+function checkNewPwd() {
+  const v = document.getElementById('new-pwd').value
+  const bar = document.getElementById('pwd-strength-bar')
+  if (bar) checkPwdStrength(v)
+}
+async function doSetNewPassword() {
+  const pwd = document.getElementById('new-pwd').value
+  const conf = document.getElementById('new-pwd-confirm').value
+  const errEl = document.getElementById('new-pwd-error')
+  errEl.classList.remove('show')
+  if (pwd.length < 8) { errEl.textContent = t('pwd_min8'); errEl.classList.add('show'); return }
+  if (!/[A-Z]/.test(pwd)) { errEl.textContent = t('req_upper'); errEl.classList.add('show'); return }
+  if (!/[0-9]/.test(pwd)) { errEl.textContent = t('req_num'); errEl.classList.add('show'); return }
+  if (pwd !== conf) { errEl.textContent = t('pwd_no_match'); errEl.classList.add('show'); return }
+  const { error } = await db.auth.updateUser({ password: pwd })
+  if (error) { errEl.textContent = error.message; errEl.classList.add('show'); return }
+  toast('Password actualizada com sucesso! 🎉', 'ok')
+  await loadUserProfile()
+  showScreen('app')
+  nav('dashboard')
+}
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
+// ADMIN PANEL
+// ══════════════════════════════════════════════════
+async function renderAdmin() {
+  if (!S.profile?.is_admin) { nav('dashboard'); return }
+  adminTab('users')
+  await adminLoadStats()
+  await adminLoadUsers()
+}
+
+async function adminLoadStats() {
+  const { data: users } = await db.from('user_profiles').select('plan, is_blocked')
+  if (!users) return
+  document.getElementById('adm-total').textContent = users.length
+  document.getElementById('adm-free').textContent = users.filter(u => u.plan === 'free').length
+  document.getElementById('adm-pro').textContent = users.filter(u => ['pro','team'].includes(u.plan)).length
+  document.getElementById('adm-blocked').textContent = users.filter(u => u.is_blocked).length
+}
+
+async function adminLoadUsers() {
+  const tbody = document.getElementById('admin-users-body')
+  tbody.innerHTML = '<tr><td colspan="8" style="padding:20px;text-align:center;color:var(--m)">A carregar...</td></tr>'
+  const { data: users, error } = await db.from('user_profiles').select('id, full_name, plan, is_blocked, is_admin, cv_limit, created_at').order('created_at', { ascending: false })
+  if (error || !users) { tbody.innerHTML = '<tr><td colspan="8" style="padding:20px;text-align:center;color:var(--r)">Erro ao carregar utilizadores</td></tr>'; return }
+
+  // Get CV counts
+  const { data: cvRows } = await db.from('cvs').select('user_id')
+  const cvCounts = {}
+  if (cvRows) cvRows.forEach(r => { cvCounts[r.user_id] = (cvCounts[r.user_id] || 0) + 1 })
+
+  tbody.innerHTML = ''
+  users.forEach(u => {
+    const cvCount = cvCounts[u.id] || 0
+    const planBadge = u.plan === 'free' ? '<span class="badge badge-gray">🆓 Free</span>' : u.plan === 'pro' ? '<span class="badge badge-purple">💎 Pro</span>' : '<span class="badge badge-blue">👥 Team</span>'
+    const statusBadge = u.is_blocked ? '<span class="badge badge-red">🚫 Bloqueado</span>' : u.is_admin ? '<span class="badge badge-blue">🔐 Admin</span>' : '<span class="badge badge-green">✅ Activo</span>'
+    const limit = u.cv_limit ?? 2
+    const isMe = u.id === S.user.id
+    const tr = document.createElement('tr')
+    tr.style.cssText = 'border-bottom:1px solid var(--b);transition:background .15s'
+    tr.onmouseenter = () => tr.style.background = 'var(--b)'
+    tr.onmouseleave = () => tr.style.background = ''
+    tr.innerHTML = `
+      <td style="padding:9px 6px;font-weight:${isMe?700:400}">${u.full_name || '—'}${isMe?' 👑':''}</td>
+      <td style="padding:9px 6px;color:var(--m2);font-size:.72rem">${u.id.slice(0,8)}…</td>
+      <td style="padding:9px 6px">${planBadge}</td>
+      <td style="padding:9px 6px;text-align:center">
+        <span style="font-weight:700;color:${cvCount>=limit&&u.plan==='free'?'var(--r)':'inherit'}">${cvCount}</span>
+        <span style="color:var(--m2)">/${limit}</span>
+      </td>
+      <td style="padding:9px 6px;text-align:center">
+        <div style="display:flex;align-items:center;gap:4px;justify-content:center">
+          <input type="number" min="1" max="99" value="${limit}" style="width:44px;padding:2px 4px;background:var(--b);border:1px solid var(--b2,#333);border-radius:4px;color:inherit;font-size:.75rem;text-align:center" onchange="adminSetCVLimit('${u.id}',this.value)" ${isMe?'disabled':''}>
+          <span style="font-size:.68rem;color:var(--m2)">CVs</span>
+        </div>
+      </td>
+      <td style="padding:9px 6px;color:var(--m2);font-size:.72rem">${fmtDate(u.created_at)}</td>
+      <td style="padding:9px 6px">${statusBadge}</td>
+      <td style="padding:9px 6px">
+        ${isMe ? '<span style="font-size:.72rem;color:var(--m2)">—</span>' : `
+        <div style="display:flex;gap:4px;flex-wrap:wrap">
+          <select style="font-size:.7rem;padding:2px 4px;background:var(--b);border:1px solid var(--b2,#333);border-radius:4px;color:inherit;cursor:pointer" onchange="adminChangePlan('${u.id}',this.value)">
+            <option value="free" ${u.plan==='free'?'selected':''}>🆓 Free</option>
+            <option value="pro" ${u.plan==='pro'?'selected':''}>💎 Pro</option>
+            <option value="team" ${u.plan==='team'?'selected':''}>👥 Team</option>
+          </select>
+          <button class="btn btn-sm ${u.is_blocked?'btn-primary':'btn-ghost'}" style="font-size:.7rem;padding:3px 7px" onclick="adminToggleBlock('${u.id}',${u.is_blocked})">
+            ${u.is_blocked ? '✅ Desbloquear' : '🚫 Bloquear'}
+          </button>
+        </div>`}
+      </td>`
+    tbody.appendChild(tr)
+  })
+}
+
+function adminTab(tab) {
+  document.getElementById('adm-panel-users').style.display = tab === 'users' ? '' : 'none'
+  document.getElementById('adm-panel-growth').style.display = tab === 'growth' ? '' : 'none'
+  document.getElementById('adm-tab-btn-users').className = `btn btn-sm ${tab==='users'?'btn-primary':'btn-ghost'}`
+  document.getElementById('adm-tab-btn-growth').className = `btn btn-sm ${tab==='growth'?'btn-primary':'btn-ghost'}`
+  if (tab === 'growth') adminLoadGrowth()
+}
+
+async function adminLoadGrowth() {
+  const { data: users } = await db.from('user_profiles').select('created_at, plan').order('created_at')
+  if (!users?.length) return
+
+  // Weekly buckets
+  const weeks = {}
+  users.forEach(u => {
+    const d = new Date(u.created_at)
+    const monday = new Date(d - (d.getDay()||7 - 1) * 86400000)
+    const key = monday.toISOString().slice(0,10)
+    weeks[key] = (weeks[key] || 0) + 1
+  })
+  const weekEntries = Object.entries(weeks).sort((a,b) => a[0].localeCompare(b[0])).slice(-12)
+  const maxVal = Math.max(...weekEntries.map(e => e[1]), 1)
+  const chart = document.getElementById('adm-growth-chart')
+  chart.innerHTML = weekEntries.map(([week, cnt]) => {
+    const pct = Math.round((cnt/maxVal)*100)
+    const lbl = new Date(week).toLocaleDateString('pt-PT', {day:'2-digit',month:'short'})
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;min-width:0">
+      <span style="font-size:.6rem;font-weight:700;color:var(--a)">${cnt}</span>
+      <div style="width:100%;height:${pct}px;max-height:80px;background:var(--a);border-radius:3px 3px 0 0;min-height:3px;opacity:.85"></div>
+      <span style="font-size:.55rem;color:var(--m2);white-space:nowrap;overflow:hidden;max-width:100%;text-overflow:ellipsis">${lbl}</span>
+    </div>`
+  }).join('')
+
+  const totals = document.getElementById('adm-growth-totals')
+  const totalCVs = (await db.from('cvs').select('*', {count:'exact',head:true})).count || 0
+  const totalMatches = (await db.from('matches').select('*', {count:'exact',head:true})).count || 0
+  totals.innerHTML = [
+    {icon:'👥', label:'Utilizadores', val: users.length},
+    {icon:'📄', label:'CVs criados', val: totalCVs},
+    {icon:'⚡', label:'Matches gerados', val: totalMatches},
+    {icon:'💎', label:'Contas Pro', val: users.filter(u=>u.plan!=='free').length}
+  ].map(m => `<div class="stat-card" style="flex:1;min-width:140px;padding:12px 16px"><div class="stat-num" style="font-size:1.4rem">${m.val}</div><div class="stat-lbl">${m.icon} ${m.label}</div></div>`).join('')
+}
+
+async function adminToggleBlock(userId, isBlocked) {
+  const { error } = await db.from('user_profiles').update({ is_blocked: !isBlocked }).eq('id', userId)
+  if (error) { toast('Erro: ' + error.message, 'err'); return }
+  toast(isBlocked ? '✅ Utilizador desbloqueado' : '🚫 Utilizador bloqueado', 'ok')
+  await adminLoadUsers()
+  await adminLoadStats()
+}
+
+async function adminChangePlan(userId, plan) {
+  const { error } = await db.from('user_profiles').update({ plan }).eq('id', userId)
+  if (error) { toast('Erro: ' + error.message, 'err'); return }
+  toast(`Plano actualizado para ${plan}`, 'ok')
+  await adminLoadStats()
+}
+
+async function adminSetCVLimit(userId, limit) {
+  const val = parseInt(limit)
+  if (isNaN(val) || val < 1) return
+  const { error } = await db.from('user_profiles').update({ cv_limit: val }).eq('id', userId)
+  if (error) { toast('Erro: ' + error.message, 'err'); return }
+  toast(`Limite de CVs definido para ${val}`, 'ok')
+}
+
+window.onerror = (msg, src, line) => console.error(`[CVMatch Error] ${msg} (${src}:${line})`)
+window.onunhandledrejection = e => console.error('[CVMatch Unhandled]', e.reason)
+
+applyI18n()
+
+// Deep-link from landing page CTA (app.html#register)
+if (window.location.hash === '#register') {
+  authTab('register')
+  history.replaceState({}, document.title, window.location.pathname + window.location.search)
+}
+
+// Clean OAuth redirect params from URL so browser refresh works cleanly
+if (window.location.search.includes('error=') || window.location.search.includes('code=') || window.location.hash.includes('access_token')) {
+  window.history.replaceState({}, document.title, window.location.pathname)
+}
+
+let _appInitDone = false
+db.auth.onAuthStateChange(async (event, session) => {
+  console.log('[Auth]', event, session?.user?.email, session?.user?.app_metadata?.provider)
+  if (event === 'PASSWORD_RECOVERY') {
+    // User clicked reset link — show set-new-password form, don't log in
+    S.user = session.user
+    showScreen('auth')
+    authPanel('new-password')
+    return
+  }
+  if (session?.user) {
+    if (_appInitDone && event === 'INITIAL_SESSION') return
+    _appInitDone = true
+    S.user = session.user
+    showScreen('app')
+    await loadUserProfile()
+    const savedView = localStorage.getItem('cvmatch_view')
+    const validViews = ['dashboard','cvs','saved','settings','admin']
+    nav(validViews.includes(savedView) ? savedView : 'dashboard')
+  } else {
+    S.user = null; S.profile = null
+    _appInitDone = false
+    showScreen('auth')
+  }
+})
+db.auth.getSession().then(({ data: { session } }) => {
+  if (!session) showScreen('auth')
+})
+</script>
+
+</body>
+</html>
