@@ -534,7 +534,7 @@ h1,h2,h3{text-wrap:balance}
         <img src="logo.svg" width="110" height="110" alt="CVMatch Pro" style="display:block;border-radius:22px;box-shadow:0 0 40px rgba(99,102,241,.5)">
       </div>
       <h1>CV<span>Match</span> Pro</h1>
-      <p data-i="auth_tagline" style="font-size:1rem;max-width:360px;line-height:1.7;color:#8aafc5">Analisa o teu CV, encontra as vagas perfeitas nas 190+ fontes globais.</p>
+      <p data-i="auth_tagline" style="font-size:1rem;max-width:360px;line-height:1.7;color:#8aafc5">Analisa o teu CV, encontra as vagas perfeitas em 5 motores de vagas em tempo real.</p>
     </div>
     <!-- Tech network SVG illustration -->
     <div class="auth-svg-wrap">
@@ -584,13 +584,13 @@ h1,h2,h3{text-wrap:balance}
     </div>
     <!-- Stats pills -->
     <div class="auth-stat-pills">
-      <span class="auth-stat-pill green">✅ 190+ <span data-i="sources">fontes</span></span>
+      <span class="auth-stat-pill green">✅ 5 <span data-i="sources">motores de vagas</span></span>
       <span class="auth-stat-pill blue">⚡ 100% Grátis</span>
       <span class="auth-stat-pill purple">🌍 PT · EN · ES</span>
     </div>
     <div class="auth-features" style="margin-top:28px">
       <div class="auth-feat"><div class="auth-feat-icon">📄</div><span data-i="af1">Análise automática de CV</span></div>
-      <div class="auth-feat"><div class="auth-feat-icon">🌍</div><span data-i="af2">190+ fontes: EU, Brasil, USA, DACH</span></div>
+      <div class="auth-feat"><div class="auth-feat-icon">🌍</div><span data-i="af2">EU, Brasil, USA, DACH, Mundial</span></div>
       <div class="auth-feat"><div class="auth-feat-icon">📊</div><span data-i="af3">Match score em tempo real</span></div>
       <div class="auth-feat"><div class="auth-feat-icon">🔒</div><span data-i="af4">Dados protegidos e privados</span></div>
     </div>
@@ -876,7 +876,7 @@ h1,h2,h3{text-wrap:balance}
           </div>
           <div>
             <div class="section-title" data-i="search_jobs_btn">Buscar novas vagas</div>
-            <button class="btn btn-ghost w-full" id="btn-search-jobs" onclick="searchNewJobs()">🔍 <span data-i="search_190">Pesquisar 190+ fontes</span></button>
+            <button class="btn btn-ghost w-full" id="btn-search-jobs" onclick="searchNewJobs()">🔍 <span data-i="search_190">Pesquisar vagas agora</span></button>
             <div id="search-status" style="font-size:.7rem;color:var(--m);margin-top:6px;text-align:center;display:none"></div>
           </div>
           <button class="btn btn-ghost w-full" onclick="nav('cv-editor',{edit:true})">✏️ <span data-i="edit_cv">Editar CV</span></button>
@@ -1088,7 +1088,7 @@ const I18N = {
     save_analyse:'Guardar e Analisar',tips:'Dicas para melhor análise',
     skills:'Competências detectadas',languages:'Línguas',summary:'Resumo do Perfil',filter:'Filtrar vagas',
     all_jobs:'Todas as vagas',remote_only:'Só Remote',search_jobs_btn:'Pesquisar vagas',
-    search_190:'Pesquisar 190+ fontes',edit_cv:'Editar CV',total:'Total',
+    search_190:'Pesquisar vagas agora',edit_cv:'Editar CV',total:'Total',
     saved_sub:'Acompanha o estado das tuas candidaturas',job:'Vaga',company:'Empresa',
     match:'Match',status:'Estado',saved_at:'Guardada',no_saved:'Ainda não guardaste nenhuma vaga.',
     settings_sub:'Personaliza a tua experiência',profile:'Perfil',preferences:'Preferências',
@@ -1099,8 +1099,8 @@ const I18N = {
     days_ago:'dias atrás',today:'hoje',yesterday:'ontem',weeks_ago:'sem.',months_ago:'mês',
     status_saved:'Guardada',status_applied:'Candidatado',status_interview:'Entrevista',
     status_offer:'Oferta',status_rejected:'Rejeitado',
-    auth_tagline:'Analisa o teu CV, encontra as vagas perfeitas nas 190+ fontes globais. Para qualquer stack de TI.',
-    af1:'Análise automática de CV',af2:'190+ fontes: EU, Brasil, USA, DACH',
+    auth_tagline:'Analisa o teu CV, encontra as vagas perfeitas em 5 motores de vagas em tempo real. Para qualquer stack de TI.',
+    af1:'Análise automática de CV',af2:'EU, Brasil, USA, DACH, Mundial',
     af3:'Match score em tempo real',af4:'Dados protegidos e privados',sources:'fontes',
     hello:'Olá',welcome_back:'Bem-vindo ao CVMatch Pro',
     years_exp:'anos exp.',see_matches:'Ver matches',analyse:'Analisar',
@@ -1159,7 +1159,7 @@ const I18N = {
     save_analyse:'Save & Analyse',tips:'Tips for better analysis',
     skills:'Detected Skills',languages:'Languages',summary:'Profile Summary',filter:'Filter Jobs',
     all_jobs:'All Jobs',remote_only:'Remote Only',search_jobs_btn:'Search Jobs',
-    search_190:'Search 190+ sources',edit_cv:'Edit CV',total:'Total',
+    search_190:'Search jobs now',edit_cv:'Edit CV',total:'Total',
     saved_sub:'Track your job application status',job:'Job',company:'Company',
     match:'Match',status:'Status',saved_at:'Saved',no_saved:'No saved jobs yet.',
     settings_sub:'Personalise your experience',profile:'Profile',preferences:'Preferences',
@@ -1170,8 +1170,8 @@ const I18N = {
     days_ago:'days ago',today:'today',yesterday:'yesterday',weeks_ago:'wk',months_ago:'mo',
     status_saved:'Saved',status_applied:'Applied',status_interview:'Interview',
     status_offer:'Offer',status_rejected:'Rejected',
-    auth_tagline:'Analyse your CV, find the perfect jobs across 190+ global sources. For any IT stack.',
-    af1:'Automatic CV Analysis',af2:'190+ sources: EU, Brazil, USA, DACH',
+    auth_tagline:'Analyse your CV, find the perfect jobs across 5 real-time job engines. For any IT stack.',
+    af1:'Automatic CV Analysis',af2:'EU, Brazil, USA, DACH, Worldwide',
     af3:'Real-time match score',af4:'Protected and private data',sources:'sources',
     hello:'Hello',welcome_back:'Welcome to CVMatch Pro',
     years_exp:'yrs exp.',see_matches:'See matches',analyse:'Analyse',
@@ -1230,7 +1230,7 @@ const I18N = {
     save_analyse:'Guardar y Analizar',tips:'Consejos para mejor análisis',
     skills:'Habilidades detectadas',languages:'Idiomas',summary:'Resumen del Perfil',filter:'Filtrar empleos',
     all_jobs:'Todos los empleos',remote_only:'Solo Remoto',search_jobs_btn:'Buscar empleos',
-    search_190:'Buscar 190+ fuentes',edit_cv:'Editar CV',total:'Total',
+    search_190:'Buscar empleos ahora',edit_cv:'Editar CV',total:'Total',
     saved_sub:'Seguimiento de tus postulaciones',job:'Empleo',company:'Empresa',
     match:'Coincidencia',status:'Estado',saved_at:'Guardado',no_saved:'No hay empleos guardados.',
     settings_sub:'Personaliza tu experiencia',profile:'Perfil',preferences:'Preferencias',
@@ -1241,8 +1241,8 @@ const I18N = {
     days_ago:'días atrás',today:'hoy',yesterday:'ayer',weeks_ago:'sem.',months_ago:'mes',
     status_saved:'Guardado',status_applied:'Postulado',status_interview:'Entrevista',
     status_offer:'Oferta',status_rejected:'Rechazado',
-    auth_tagline:'Analiza tu CV, encuentra los empleos perfectos en 190+ fuentes globales. Para cualquier stack de TI.',
-    af1:'Análisis automático de CV',af2:'190+ fuentes: EU, Brasil, USA, DACH',
+    auth_tagline:'Analiza tu CV, encuentra los empleos perfectos en 5 motores de empleo en tiempo real. Para cualquier stack de TI.',
+    af1:'Análisis automático de CV',af2:'EU, Brasil, USA, DACH, Mundial',
     af3:'Puntuación en tiempo real',af4:'Datos protegidos y privados',sources:'fuentes',
     hello:'Hola',welcome_back:'Bienvenido a CVMatch Pro',
     years_exp:'años exp.',see_matches:'Ver coincidencias',analyse:'Analizar',
@@ -1301,7 +1301,7 @@ const I18N = {
     save_analyse:'Sauvegarder et Analyser',tips:'Conseils pour une meilleure analyse',
     skills:'Compétences détectées',languages:'Langues',summary:'Résumé du Profil',filter:'Filtrer les offres',
     all_jobs:'Toutes les offres',remote_only:'Télétravail uniquement',search_jobs_btn:'Rechercher des offres',
-    search_190:'Rechercher 190+ sources',edit_cv:'Modifier CV',total:'Total',
+    search_190:'Rechercher des offres',edit_cv:'Modifier CV',total:'Total',
     saved_sub:'Suivez vos candidatures',job:'Offre',company:'Entreprise',
     match:'Match',status:'Statut',saved_at:'Sauvegardée',no_saved:'Aucune offre sauvegardée.',
     settings_sub:'Personnalisez votre expérience',profile:'Profil',preferences:'Préférences',
@@ -1312,8 +1312,8 @@ const I18N = {
     days_ago:'jours',today:"aujourd'hui",yesterday:'hier',weeks_ago:'sem.',months_ago:'mois',
     status_saved:'Sauvegardée',status_applied:'Postulé',status_interview:'Entretien',
     status_offer:'Offre',status_rejected:'Refusé',
-    auth_tagline:'Analysez votre CV, trouvez les offres parfaites parmi 190+ sources mondiales. Pour tout stack IT.',
-    af1:'Analyse automatique de CV',af2:'190+ sources : EU, Brésil, USA, DACH',
+    auth_tagline:'Analysez votre CV, trouvez les offres parfaites parmi 5 moteurs de recherche en temps réel. Pour tout stack IT.',
+    af1:'Analyse automatique de CV',af2:'EU, Brésil, USA, DACH, Mondial',
     af3:'Score de correspondance en temps réel',af4:'Données protégées et privées',sources:'sources',
     hello:'Bonjour',welcome_back:'Bienvenue sur CVMatch Pro',
     years_exp:'ans exp.',see_matches:'Voir les correspondances',analyse:'Analyser',
@@ -1369,7 +1369,7 @@ const I18N = {
     save_analyse:'Speichern und Analysieren',tips:'Tipps für eine bessere Analyse',
     skills:'Erkannte Fähigkeiten',languages:'Sprachen',summary:'Profil-Zusammenfassung',filter:'Stellen filtern',
     all_jobs:'Alle Stellen',remote_only:'Nur Remote',search_jobs_btn:'Stellen suchen',
-    search_190:'190+ Quellen durchsuchen',edit_cv:'Lebenslauf bearbeiten',total:'Gesamt',
+    search_190:'Jetzt nach Jobs suchen',edit_cv:'Lebenslauf bearbeiten',total:'Gesamt',
     saved_sub:'Bewerbungsstatus verfolgen',job:'Stelle',company:'Unternehmen',
     match:'Match',status:'Status',saved_at:'Gespeichert',no_saved:'Keine gespeicherten Stellen.',
     settings_sub:'Erfahrung personalisieren',profile:'Profil',preferences:'Präferenzen',
@@ -1380,8 +1380,8 @@ const I18N = {
     days_ago:'Tage her',today:'heute',yesterday:'gestern',weeks_ago:'Wo.',months_ago:'Mo.',
     status_saved:'Gespeichert',status_applied:'Beworben',status_interview:'Vorstellungsgespräch',
     status_offer:'Angebot',status_rejected:'Abgelehnt',
-    auth_tagline:'Analysieren Sie Ihren Lebenslauf und finden Sie perfekte Jobs aus 190+ globalen Quellen. Für jeden IT-Stack.',
-    af1:'Automatische Lebenslauf-Analyse',af2:'190+ Quellen: EU, Brasilien, USA, DACH',
+    auth_tagline:'Analysieren Sie Ihren Lebenslauf und finden Sie perfekte Jobs über 5 Job-Engines in Echtzeit. Für jeden IT-Stack.',
+    af1:'Automatische Lebenslauf-Analyse',af2:'EU, Brasilien, USA, DACH, Weltweit',
     af3:'Echtzeit-Match-Score',af4:'Geschützte und private Daten',sources:'Quellen',
     hello:'Hallo',welcome_back:'Willkommen bei CVMatch Pro',
     years_exp:'J. Erfahrung',see_matches:'Übereinstimmungen ansehen',analyse:'Analysieren',
