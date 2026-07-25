@@ -1854,7 +1854,10 @@ async function renderDashboard() {
     return `<div class="card" style="cursor:pointer;padding:14px;display:flex;flex-direction:column;gap:8px;transition:transform .15s" onclick="openJobDetail('${m.job_id}')" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform=''">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px">
         <span style="font-size:1.2rem">${m.job?.flag||'🌐'}</span>
-        <span class="badge ${scCls}" style="font-size:.7rem;font-weight:700">⚡ ${sc}%</span>
+        <div class="flex gap-8" style="align-items:center">
+          <span class="badge ${scCls}" style="font-size:.7rem;font-weight:700">⚡ ${sc}%</span>
+          <button class="btn btn-ghost btn-sm" style="padding:2px 5px" title="Reportar vaga indisponível" onclick="event.stopPropagation();reportJobUnavailable('${m.job_id}',this)">🚫</button>
+        </div>
       </div>
       <div style="font-size:.78rem;font-weight:700;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${m.job?.title||'—'}</div>
       <div style="font-size:.68rem;color:var(--m2)">${m.job?.company||'—'}</div>
@@ -2244,8 +2247,11 @@ async function reportJobUnavailable(jobId, btn) {
     })
     const result = await res.json()
     if (!result.success) throw new Error(result.error)
-    S.allMatches = S.allMatches.filter(j => j.id !== jobId)
-    renderJobs()
+    S.allMatches = (S.allMatches || []).filter(j => j.id !== jobId)
+    // Remove the card/row wherever this was clicked from, regardless of which
+    // view is currently active (job list, dashboard grid, modal, saved table).
+    btn.closest('.job-card, .card, tr')?.remove()
+    if (document.getElementById('jobs-container')) renderJobs()
     toast('Obrigado — vaga removida para todos os utilizadores', 'ok')
   } catch (e) {
     toast('Erro ao reportar: ' + e.message, 'err')
