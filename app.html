@@ -1057,6 +1057,7 @@ h1,h2,h3{text-wrap:balance}
       <div class="flex gap-8">
         <button class="btn btn-primary" id="mjob-apply" data-i="apply_job">Ver vaga ↗</button>
         <button class="btn btn-ghost" id="mjob-save">🔖 <span data-i="save">Guardar</span></button>
+        <button class="btn btn-ghost" id="mjob-report" title="Reportar vaga indisponível">🚫</button>
       </div>
       <button class="btn btn-ghost" onclick="closeModal('modal-job')">✕ <span data-i="close">Fechar</span></button>
     </div>
@@ -2578,7 +2579,12 @@ async function renderSaved() {
         </select>
       </td>
       <td style="font-size:.73rem;color:var(--m)">${fmtDate(s.saved_at)}</td>
-      <td><a class="btn btn-ghost btn-sm" href="${s.job?.url||'#'}" target="_blank" rel="noopener">↗</a></td>`
+      <td>
+        <div class="flex gap-8">
+          <a class="btn btn-ghost btn-sm" href="${s.job?.url||'#'}" target="_blank" rel="noopener">↗</a>
+          <button class="btn btn-ghost btn-sm" title="Reportar vaga indisponível" onclick="reportJobUnavailable('${s.job_id}',this)">🚫</button>
+        </div>
+      </td>`
     tbody.appendChild(tr)
   })
 }
@@ -2657,6 +2663,10 @@ async function openJobDetail(jobId) {
   `
   document.getElementById('mjob-apply').onclick = () => window.open(job.url, '_blank')
   document.getElementById('mjob-save').onclick = () => toggleSaveJob(job.id)
+  document.getElementById('mjob-report').onclick = async (e) => {
+    await reportJobUnavailable(job.id, e.currentTarget)
+    closeModal('modal-job')
+  }
   document.getElementById('modal-job').classList.remove('hidden')
 }
 
