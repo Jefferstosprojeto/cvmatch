@@ -2224,11 +2224,32 @@ function renderJobs() {
         </div>
         <div class="flex gap-8">
           <button class="btn btn-ghost btn-sm" onclick="toggleSaveJob('${job.id}',this)">🔖</button>
+          <button class="btn btn-ghost btn-sm" title="Reportar vaga indisponível" onclick="reportJobUnavailable('${job.id}',this)">🚫</button>
           <a class="btn btn-primary btn-sm" href="${job.url}" target="_blank" rel="noopener">${t('apply_job')}</a>
         </div>
       </div>`
     container.appendChild(div)
   })
+}
+
+async function reportJobUnavailable(jobId, btn) {
+  btn.disabled = true
+  try {
+    const { data: { session } } = await db.auth.getSession()
+    const res = await fetch(`${CFG.edge}/report-job`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify({ job_id: jobId })
+    })
+    const result = await res.json()
+    if (!result.success) throw new Error(result.error)
+    S.allMatches = S.allMatches.filter(j => j.id !== jobId)
+    renderJobs()
+    toast('Obrigado — vaga removida para todos os utilizadores', 'ok')
+  } catch (e) {
+    toast('Erro ao reportar: ' + e.message, 'err')
+    btn.disabled = false
+  }
 }
 
 function filterJobs(jobs) {
