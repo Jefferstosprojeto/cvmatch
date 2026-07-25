@@ -96,7 +96,7 @@ input,textarea,select{font-family:inherit}
 @keyframes skel{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
 /* ── TOASTS ── */
-#toast-wrap{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+#toast-wrap{position:fixed;top:72px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
 .toast{background:var(--s);border:1px solid var(--b2);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:.82rem;min-width:260px;max-width:360px;box-shadow:var(--sh);pointer-events:auto;animation:slideIn .3s cubic-bezier(0.22,1,0.36,1)}
 .toast-ok{border-color:rgba(16,185,129,.4);background:rgba(16,185,129,.06)}
 .toast-err{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.06)}
@@ -2112,7 +2112,8 @@ async function loadAnalysis(cvId) {
   S.jobs = jobs || []
   S.allMatches = S.jobs.map(j => ({ ...j, match: calcMatch(cv.analysis, j) })).sort((a,b) => b.match.score - a.match.score)
 
-  // Save/refresh top matches to DB for this CV
+  // Save/refresh top matches to DB for this CV — clear old ones first so matches
+  // tied to jobs no longer active (or from a since-changed skill set) don't linger.
   const toInsert = S.allMatches.slice(0,20).map(m => ({
     user_id: S.user.id, cv_id: cv.id, job_id: m.id,
     match_score: m.match.score, lang_score: m.match.langScore,
@@ -2121,7 +2122,8 @@ async function loadAnalysis(cvId) {
     hit_skills: m.match.hitNames, miss_skills: m.match.missNames
   }))
   if (toInsert.length) {
-    await db.from('matches').upsert(toInsert, { onConflict: 'cv_id,job_id', ignoreDuplicates: false })
+    await db.from('matches').delete().eq('cv_id', cv.id)
+    await db.from('matches').insert(toInsert)
   }
 
   nav('analysis')
@@ -2492,14 +2494,17 @@ async function searchNewJobs() {
   if (jobs?.length && S.currentCV?.analysis) {
     S.jobs = jobs
     S.allMatches = jobs.map(j => ({ ...j, match: calcMatch(S.currentCV.analysis, j) })).sort((a,b) => b.match.score - a.match.score)
-    // Save updated matches to DB
+    // Clear this CV's old matches before saving fresh ones — otherwise stale matches from
+    // earlier searches (calculated with older skills or against jobs since deactivated)
+    // keep accumulating alongside the new results instead of being replaced by them.
+    await db.from('matches').delete().eq('cv_id', S.currentCV.id)
     const toInsert = S.allMatches.slice(0,20).map(m => ({
       user_id: S.user.id, cv_id: S.currentCV.id, job_id: m.id,
       match_score: m.match.score, lang_score: m.match.langScore,
       tech_score: m.match.techScore, exp_score: m.match.expScore,
       regime_score: m.match.regimeScore, hit_skills: m.match.hitNames, miss_skills: m.match.missNames
     }))
-    await db.from('matches').upsert(toInsert, { onConflict: 'cv_id,job_id', ignoreDuplicates: false })
+    await db.from('matches').insert(toInsert)
     renderJobs()
     if (!usedEdge) {
       status.textContent = `✅ ${S.allMatches.length} vagas calculadas localmente`
