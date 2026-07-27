@@ -25,15 +25,20 @@ async function fetchWithTimeout(url: string, opts: RequestInit = {}, ms = 6000):
   }
 }
 
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
 // Relevance gate: only title/tags count (high-precision fields). Full descriptions are
 // intentionally excluded — a long description almost always contains some skill by chance,
-// which let generic, unrelated roles slip in as "matches".
+// which let generic, unrelated roles slip in as "matches". Word-boundary matching (not
+// plain substring) avoids false hits like "Java" inside "JavaScript" or as a location tag
+// ("Java" the island) rather than the language.
 function matchesSkills(title: string, tags: string, skills: string[]): boolean {
   if (!skills.length) return true
-  const t = title.toLowerCase()
-  if (skills.some(s => t.includes(s.toLowerCase()))) return true
-  const tg = tags.toLowerCase()
-  return skills.some(s => tg.includes(s.toLowerCase()))
+  const test = (text: string, sk: string) => new RegExp(`\\b${escapeRegex(sk)}\\b`, 'i').test(text)
+  if (skills.some(s => test(title, s))) return true
+  return skills.some(s => test(tags, s))
 }
 
 function detectRegion(location: string): string {

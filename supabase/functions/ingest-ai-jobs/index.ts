@@ -36,6 +36,14 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     )
 
+    // Same staleness rule as search-jobs (21 days) — this endpoint bypassed it entirely
+    // before, so AI-found postings never got cleaned up automatically. Also reject
+    // incoming rows that are already stale by Claude's own reported posted_date, instead
+    // of storing dead-on-arrival listings.
+    const staleCutoff = new Date(Date.now() - 21 * 24 * 60 * 60 * 1000)
+    const staleCutoffStr = staleCutoff.toISOString().split('T')[0]
+    await supabase.from('jobs').update({ is_active: false }).lt('posted_at', staleCutoffStr).eq('is_active', true)
+
     const rows = jobs.map((j: any) => ({
       id: `aisearch-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       title: j.title, company: j.company,
@@ -44,7 +52,9 @@ serve(async (req) => {
       salary: j.salary || '—', skills_required: j.skills_mentioned || [], skills_nice: [], experience_min: 0,
       source: 'AI Search (local)', url: j.url,
       posted_at: j.posted_date || new Date().toISOString().split('T')[0], is_active: true
-    })).filter((r: any) => r.title && r.company && r.url)
+    }))
+      .filter((r: any) => r.title && r.company && r.url)
+      .filter((r: any) => r.posted_at >= staleCutoffStr)
 
     const { data, error } = await supabase.from('jobs').upsert(rows, { onConflict: 'id', ignoreDuplicates: true }).select('id')
     if (error) throw error
