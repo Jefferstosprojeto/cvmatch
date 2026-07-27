@@ -116,12 +116,17 @@ if ($jobs.Count -eq 0) {
 Write-Log "$($jobs.Count) vagas encontradas."
 
 # Claude nem sempre preenche "skills_mentioned" mesmo quando pedido — sem isso, o score
-# de competências fica a 0% no match, mesmo em vagas claramente relevantes (ex: título
-# "SAP BW/4HANA Consultant"). Preenche a partir do título quando vier vazio.
+# de competências fica a 0% no match, mesmo em vagas claramente relevantes. Primeiro tenta
+# extrair do título; se o título não repetir nenhum termo literalmente (comum — Claude já
+# validou a relevância pela pesquisa real, não por correspondência de texto), cai para a
+# lista completa de skills pesquisadas em vez de deixar vazio. Um array vazio aqui é
+# indistinguível de "vaga irrelevante" para qualquer limpeza futura — nunca deve acontecer
+# nas vagas de IA, ao contrário das outras fontes onde vazio == não confirmado.
 foreach ($job in $jobs) {
     if (-not $job.skills_mentioned -or $job.skills_mentioned.Count -eq 0) {
         $titleLower = $job.title.ToLower()
         $matched = @($skillsResp.skills | Where-Object { $titleLower.Contains($_.ToLower()) })
+        if ($matched.Count -eq 0) { $matched = @($skillsResp.skills) }
         $job | Add-Member -Force -NotePropertyName skills_mentioned -NotePropertyValue $matched
     }
 }
@@ -131,7 +136,8 @@ Write-Log "A enviar para a base de dados..."
 # ── PASSO 4 — Enviar para o Supabase via ingest-ai-jobs ──
 # @() força um array PowerShell "limpo" — sem isto, o array vindo de ConvertFrom-Json
 # serializa como {"value":[...],"Count":N} em vez de [...], e o servidor rejeita o pedido.
-$body = @{ jobs = @($jobs) } | ConvertTo-Json -Depth 10
+# searched_skills vai também como rede de segurança do lado do servidor (ver ingest-ai-jobs).
+$body = @{ jobs = @($jobs); searched_skills = @($skillsResp.skills) } | ConvertTo-Json -Depth 10
 
 try {
     $ingestResp = Invoke-RestMethod -Uri "$SupabaseUrl/functions/v1/ingest-ai-jobs" `

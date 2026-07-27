@@ -24,7 +24,7 @@ serve(async (req) => {
       })
     }
 
-    const { jobs } = await req.json()
+    const { jobs, searched_skills } = await req.json()
     if (!Array.isArray(jobs) || jobs.length === 0) {
       return new Response(JSON.stringify({ success: false, error: 'jobs array required' }), {
         status: 400, headers: { ...cors, 'Content-Type': 'application/json' }
@@ -44,12 +44,20 @@ serve(async (req) => {
     const staleCutoffStr = staleCutoff.toISOString().split('T')[0]
     await supabase.from('jobs').update({ is_active: false }).lt('posted_at', staleCutoffStr).eq('is_active', true)
 
+    // A job here already passed Claude's real web-search relevance check — that's a
+    // stronger signal than any of the other sources' title/tag keyword match. An empty
+    // skills_required would make it indistinguishable from actual junk to any future
+    // cleanup (this exact mistake already happened once), so fall back to the searched
+    // skills list rather than ever storing an AI Search row with skills_required = [].
+    const fallbackSkills = Array.isArray(searched_skills) ? searched_skills : []
     const rows = jobs.map((j: any) => ({
       id: `aisearch-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       title: j.title, company: j.company,
       region: j.region || 'worldwide', country: j.country || 'Remote', flag: regionFlag(j.region || 'worldwide'),
       regime: j.regime || 'remote', languages_accepted: j.languages_required || ['english'],
-      salary: j.salary || '—', skills_required: j.skills_mentioned || [], skills_nice: [], experience_min: 0,
+      salary: j.salary || '—',
+      skills_required: (j.skills_mentioned && j.skills_mentioned.length > 0) ? j.skills_mentioned : fallbackSkills,
+      skills_nice: [], experience_min: 0,
       source: 'AI Search (local)', url: j.url,
       posted_at: j.posted_date || new Date().toISOString().split('T')[0], is_active: true
     }))
