@@ -1,5 +1,14 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "npm:@supabase/supabase-js@2"
+import Anthropic from "npm:@anthropic-ai/sdk"
+
+// Named sources hinted to the AI web search — it isn't limited to these (web_search is a
+// general search, not a per-site API), but naming them steers it toward the boards and
+// agencies that actually carry niche/specialist roles the free APIs don't.
+const AI_SOURCES = {
+  agencies: ['Randstad', 'Adecco Group', 'ManpowerGroup', 'Kelly Services', 'Gi Group', 'Eurofirms Group', 'Synergie', 'Trenkwalder', 'Allegis Group', 'Insight Global', 'Innova Solutions', 'Kforce', 'Aerotek', 'TEKsystems', 'Aquent', 'Brunel International'],
+  sap_specialist: ['Nigel Frank International', 'Washington Frank', 'REVOLENT', 'FRG Technology Consulting', 'Frank Recruitment Group', 'Mason Frank International', 'Cognitive Group', 'Catch Resource Management', 'Whitehall Resources', 'Red Global']
+}
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -52,21 +61,28 @@ function extractSkills(text: string, cvSkills: string[]): string[] {
 // ── Source fetchers — each isolated, returns [] on any failure ──
 
 async function fromRemotive(skills: string[]): Promise<any[]> {
+  // Remotive's own `search` param currently ignores the query entirely — verified by
+  // comparing results for different queries and no query at all, all identical — so we
+  // fetch a larger recent batch and apply the same title/tags relevance gate as the
+  // other sources instead of trusting their search to have already filtered anything.
   const query = skills.slice(0, 3).join(' ')
-  const r = await fetchWithTimeout(`https://remotive.com/api/remote-jobs?search=${encodeURIComponent(query)}&limit=30`)
+  const r = await fetchWithTimeout(`https://remotive.com/api/remote-jobs?search=${encodeURIComponent(query)}&limit=100`)
   if (!r.ok) return []
   const { jobs } = await r.json()
-  return (jobs || []).map((j: any) => {
-    const region = detectRegion(j.candidate_required_location || '')
-    return {
-      id: `remotive-${j.id}`, title: j.title, company: j.company_name, region,
-      country: j.candidate_required_location || 'Worldwide', flag: regionFlag(region),
-      regime: 'remote', languages_accepted: ['english'], salary: j.salary || '—',
-      skills_required: extractSkills(j.description || '', skills), skills_nice: [], experience_min: 0,
-      source: 'Remotive', url: j.url,
-      posted_at: j.publication_date?.split('T')[0] || new Date().toISOString().split('T')[0], is_active: true
-    }
-  })
+  return (jobs || [])
+    .filter((j: any) => matchesSkills(j.title || '', (j.tags || []).join(' '), skills))
+    .slice(0, 15)
+    .map((j: any) => {
+      const region = detectRegion(j.candidate_required_location || '')
+      return {
+        id: `remotive-${j.id}`, title: j.title, company: j.company_name, region,
+        country: j.candidate_required_location || 'Worldwide', flag: regionFlag(region),
+        regime: 'remote', languages_accepted: ['english'], salary: j.salary || '—',
+        skills_required: extractSkills(`${j.title} ${(j.tags || []).join(' ')}`, skills), skills_nice: [], experience_min: 0,
+        source: 'Remotive', url: j.url,
+        posted_at: j.publication_date?.split('T')[0] || new Date().toISOString().split('T')[0], is_active: true
+      }
+    })
 }
 
 async function fromArbeitnow(skills: string[]): Promise<any[]> {
@@ -158,6 +174,61 @@ async function fromTheMuse(skills: string[]): Promise<any[]> {
     })
 }
 
+async function fromAIWebSearch(skills: string[], regions: string[]): Promise<any[]> {
+  const apiKey = Deno.env.get('ANTHROPIC_API_KEY')
+  if (!apiKey || skills.length === 0) return []
+
+  const client = new Anthropic({ apiKey })
+  const skillStr = skills.slice(0, 4).join(', ')
+  const regionStr = regions.join(', ')
+  const sourceList = [...AI_SOURCES.agencies, ...AI_SOURCES.sap_specialist].slice(0, 20).join(', ')
+
+  const response = await client.messages.create({
+    model: 'claude-sonnet-4-6',
+    max_tokens: 3000,
+    tools: [{ type: 'web_search_20250305' as const, name: 'web_search' }],
+    messages: [{
+      role: 'user',
+      content: `Search for current remote job openings for: ${skillStr}
+Target regions: ${regionStr}
+Check these specialized sources: ${sourceList}
+Also check: LinkedIn, RemoteRocketship, Jobgether, Himalayas, Glassdoor
+
+Find max 15 jobs posted in the last 30 days. Return ONLY a JSON array:
+[{
+  "title": "exact job title",
+  "company": "company name",
+  "url": "direct application URL",
+  "salary": "salary range or — if unknown",
+  "regime": "remote|hybrid|onsite",
+  "country": "country or region",
+  "region": "dach|eu|brazil|usa|worldwide",
+  "posted_date": "YYYY-MM-DD",
+  "languages_required": ["english"],
+  "skills_mentioned": ["skill1","skill2"]
+}]`
+    }]
+  })
+
+  const lastMsg = response.content[response.content.length - 1]
+  if (lastMsg.type !== 'text') return []
+  const text = lastMsg.text
+  const start = text.indexOf('[')
+  const end = text.lastIndexOf(']')
+  if (start === -1 || end === -1) return []
+
+  const found = JSON.parse(text.slice(start, end + 1))
+  return found.map((j: any) => ({
+    id: `aisearch-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    title: j.title, company: j.company,
+    region: j.region || 'worldwide', country: j.country || 'Remote', flag: regionFlag(j.region || 'worldwide'),
+    regime: j.regime || 'remote', languages_accepted: j.languages_required || ['english'],
+    salary: j.salary || '—', skills_required: j.skills_mentioned || [], skills_nice: [], experience_min: 0,
+    source: 'AI Search', url: j.url,
+    posted_at: j.posted_date || new Date().toISOString().split('T')[0], is_active: true
+  }))
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
@@ -198,6 +269,22 @@ serve(async (req) => {
       ['Jobicy', fromJobicy],
       ['The Muse', fromTheMuse],
     ]
+
+    // AI web search — costs money per call, so it's capped to once per user per UTC day,
+    // regardless of how many of the 5 free searches they use. Reuses the quota's own
+    // startOfDay window from above.
+    let usedAIToday = false
+    if (user_id) {
+      const startOfDay = new Date(); startOfDay.setUTCHours(0, 0, 0, 0)
+      const { count: aiCount } = await supabase
+        .from('search_history')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user_id)
+        .gte('searched_at', startOfDay.toISOString())
+        .contains('sources_searched', ['AI Search'])
+      usedAIToday = (aiCount || 0) > 0
+    }
+    if (!usedAIToday) sourceFns.push(['AI Search', (skills) => fromAIWebSearch(skills, regions)])
 
     const settled = await Promise.allSettled(sourceFns.map(([, fn]) => fn(skills)))
 
